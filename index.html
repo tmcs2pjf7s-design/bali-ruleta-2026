@@ -1415,9 +1415,9 @@ h1 em{
         <span class="pick-emoji">🧔</span>
         Ruslan
       </button>
-      <button class="btn-user-pick amor" data-user="Amor 🌺">
+      <button class="btn-user-pick amor" data-user="Anabel">
         <span class="pick-emoji">🌸</span>
-        Amor 🌺
+        Anabel
       </button>
     </div>
   </div>
@@ -2086,21 +2086,53 @@ $('btn-reset').addEventListener('click',()=>{
     msgsEl.appendChild(wrap);
   }
 
-  /* ── Load last 80 messages ── */
-  async function loadMessages(){
+  /* ── Load messages (from optional timestamp onwards) ── */
+  async function loadMessages(since = null){
     try{
-      const {data, error} = await sb.from('bali_chat')
-        .select('*')
-        .order('created_at', {ascending: true})
-        .limit(80);
+      let q = sb.from('bali_chat').select('*').order('created_at', {ascending: true});
+      if(since){
+        q = q.gt('created_at', since);
+      } else {
+        q = q.limit(80);
+      }
+      const {data, error} = await q;
       if(error) throw error;
       if(data && data.length){
-        lastDate = '';
+        lastDate = since ? lastDate : '';   // keep date header state on poll
         data.forEach(m => renderMsg(m));
-        scrollBottom(true);
+        if(!since) scrollBottom(true);
+        else scrollBottom();
       }
     } catch(e){ console.warn('Chat load error:', e); }
   }
+
+  /* ── Polling fallback (every 5 s) — funciona siempre ── */
+  let lastPollTs = new Date().toISOString();
+  async function poll(){
+    const ts = lastPollTs;
+    lastPollTs = new Date().toISOString();
+    try{
+      const {data, error} = await sb.from('bali_chat')
+        .select('*')
+        .gt('created_at', ts)
+        .order('created_at', {ascending: true});
+      if(error) throw error;
+      if(data && data.length){
+        data.forEach(m => {
+          if(!seenIds.has(m.id)){
+            renderMsg(m);
+            scrollBottom();
+            if(!chatOpen || m.author !== chatUser){
+              unread++;
+              badgeEl.textContent = unread > 9 ? '9+' : unread;
+              badgeEl.classList.add('show');
+            }
+          }
+        });
+      }
+    } catch(_){}
+  }
+  setInterval(poll, 5000);
 
   /* ── Send message ── */
   async function sendMessage(){
@@ -2109,7 +2141,6 @@ $('btn-reset').addEventListener('click',()=>{
     if(!chatUser){ picker.style.display = 'flex'; return; }
     const isSugg = isSuggCb.checked;
 
-    // Optimistic clear
     textarea.value = '';
     textarea.style.height = 'auto';
 
@@ -2120,18 +2151,21 @@ $('btn-reset').addEventListener('click',()=>{
         is_suggestion: isSugg
       });
       if(error) throw error;
+      // tras enviar, forzamos un poll inmediato para que aparezca al instante
+      await poll();
     } catch(e){
       toast('Error enviando mensaje 😕');
-      textarea.value = text;   // restore on failure
+      textarea.value = text;
       console.warn('Chat send error:', e);
     }
   }
 
-  /* ── Realtime subscription ── */
+  /* ── Realtime subscription (bonus si está activado en Supabase) ── */
   sb.channel('bali_chat_live')
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'bali_chat'},
       payload => {
         const msg = payload.new;
+        if(seenIds.has(msg.id)) return;   // ya lo trajo el polling
         renderMsg(msg);
         scrollBottom();
         if(!chatOpen || msg.author !== chatUser){
