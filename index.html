@@ -2124,6 +2124,7 @@ async function fetchGooglePhoto(query){
       body: JSON.stringify({ textQuery:query, languageCode:'es', maxResultCount:1 })
     });
     const sData = await sRes.json();
+    window._dbg = sData?.error ? '❌ '+sData.error.message : sData?.places?.length ? (sData.places[0].photos?.length ? '✅ foto ok' : '⚠️ sin fotos') : '⚠️ sin resultados';
     const photoName = sData?.places?.[0]?.photos?.[0]?.name;
     if(!photoName) return null;
 
@@ -2131,9 +2132,10 @@ async function fetchGooglePhoto(query){
       `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=700&skipHttpRedirect=true&key=${GMAPS_KEY}`
     );
     const pData = await pRes.json();
+    if(!pData?.photoUri) window._dbg += ' · media ❌ '+JSON.stringify(pData).slice(0,100);
     return pData?.photoUri || null;
   } catch(e){
-    console.warn('Places photo error:', e);
+    window._dbg = '❌ '+e.message;
     return null;
   }
 }
@@ -2177,7 +2179,14 @@ async function openSuggModal(sugg){
     if(wPhoto){ showPhoto(wPhoto); return; }
   }
 
-  // 3️⃣ Emoji placeholder
+  // 3️⃣ Emoji placeholder + debug
+  if(window._dbg){
+    const d=document.createElement('div');
+    d.style.cssText='position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:.58rem;color:rgba(255,200,100,.8);padding:0 6px;word-break:break-all';
+    d.textContent=window._dbg;
+    ph.style.position='relative';
+    ph.appendChild(d);
+  }
 }
 
 function closeSuggModal(){
