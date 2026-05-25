@@ -264,10 +264,29 @@ h1 em{
   background:rgba(0,0,0,.5);border:none;cursor:pointer;
   color:#fff;font-size:1rem;width:30px;height:30px;
   border-radius:50%;display:flex;align-items:center;justify-content:center;
-  transition:background .15s;
+  transition:background .15s;z-index:2;
 }
 .btn-sugg-close:hover{background:rgba(0,0,0,.75)}
 .sugg-card-wrap{position:relative}
+.btn-photo-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.45);border:none;cursor:pointer;
+  color:#fff;font-size:1.8rem;width:38px;height:38px;
+  border-radius:50%;display:none;align-items:center;justify-content:center;
+  transition:background .15s;z-index:2;line-height:1;
+}
+.btn-photo-nav.prev{left:10px}
+.btn-photo-nav.next{right:10px}
+.btn-photo-nav:hover{background:rgba(0,0,0,.7)}
+.btn-photo-nav.visible{display:flex}
+.photo-counter{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.5);color:#fff;
+  font-size:.68rem;font-weight:600;letter-spacing:.04em;
+  padding:3px 10px;border-radius:50px;
+  display:none;z-index:2;
+}
+.photo-counter.visible{display:block}
 
 .orn{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
 .orn-line{height:1px;width:70px;background:linear-gradient(to right,transparent,rgba(232,186,42,.35),transparent)}
@@ -1418,7 +1437,7 @@ h1 em{
 
     <!-- ══ COL 1: POOL ══ -->
     <div class="glass panel">
-      <p class="section-label">✦ Añadir ideas</p>
+      <p class="section-label">✦Ideas</p>
 
       <div class="add-row">
         <div class="input-wrap">
@@ -1427,7 +1446,7 @@ h1 em{
         <button class="btn-add" id="btn-add" title="Añadir">+</button>
       </div>
 
-      <p class="section-label">Bolsa de actividades (<span id="pool-count">0</span>)</p>
+      <p class="section-label">Actividad (<span id="pool-count">0</span>)</p>
       <ul id="pool-list"></ul>
       <p class="empty-pool" id="empty-pool" style="display:none">
         🌴 Las ideas....
@@ -1558,6 +1577,10 @@ h1 em{
       <img class="sugg-photo" id="sugg-photo" src="" alt="" style="display:none"/>
       <div class="sugg-photo-placeholder" id="sugg-placeholder"><span id="sugg-emoji">🌴</span></div>
       <button class="btn-sugg-close" id="btn-sugg-close">✕</button>
+      <!-- Navegación fotos -->
+      <button class="btn-photo-nav prev" id="btn-photo-prev">‹</button>
+      <button class="btn-photo-nav next" id="btn-photo-next">›</button>
+      <div class="photo-counter" id="photo-counter"></div>
     </div>
     <div class="sugg-body">
       <div class="sugg-cat" id="sugg-cat"></div>
@@ -2109,34 +2132,32 @@ function renderDayCards(){
   });
 }
 
-/* ── Google Places API (New) — REST directo desde navegador ── */
+/* ── Google Places API (New) — fotos con navegación ── */
 const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
 
-async function fetchGooglePhoto(query){
+// Devuelve array de nombres de foto del lugar
+async function fetchPhotoNames(query){
   try{
-    const sRes = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${GMAPS_KEY}`, {
+    const r = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${GMAPS_KEY}`, {
       method:'POST',
-      headers:{
-        'Content-Type':    'application/json',
-        'X-Goog-FieldMask':'places.photos'
-      },
-      body: JSON.stringify({ textQuery:query, languageCode:'es', maxResultCount:1 })
+      headers:{'Content-Type':'application/json','X-Goog-FieldMask':'places.photos'},
+      body: JSON.stringify({textQuery:query, languageCode:'es', maxResultCount:1})
     });
-    const sData = await sRes.json();
-    window._dbg = sData?.error ? '❌ '+sData.error.message : sData?.places?.length ? (sData.places[0].photos?.length ? '✅ foto ok' : '⚠️ sin fotos') : '⚠️ sin resultados';
-    const photoName = sData?.places?.[0]?.photos?.[0]?.name;
-    if(!photoName) return null;
+    const d = await r.json();
+    return (d?.places?.[0]?.photos || []).map(p => p.name);
+  } catch(e){ return []; }
+}
 
-    const pRes = await fetch(
-      `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=700&skipHttpRedirect=true&key=${GMAPS_KEY}`
-    );
-    const pData = await pRes.json();
-    if(!pData?.photoUri) window._dbg += ' · media ❌ '+JSON.stringify(pData).slice(0,100);
-    return pData?.photoUri || null;
-  } catch(e){
-    window._dbg = '❌ '+e.message;
-    return null;
-  }
+// Convierte nombre → URI de imagen (con caché)
+const _photoCache = {};
+async function getPhotoUri(name){
+  if(_photoCache[name]) return _photoCache[name];
+  try{
+    const r = await fetch(`https://places.googleapis.com/v1/${name}/media?maxWidthPx=800&skipHttpRedirect=true&key=${GMAPS_KEY}`);
+    const d = await r.json();
+    _photoCache[name] = d?.photoUri || null;
+    return _photoCache[name];
+  } catch(e){ return null; }
 }
 
 function fetchWikiPhoto(article){
@@ -2147,45 +2168,80 @@ function fetchWikiPhoto(article){
 }
 
 /* ── Suggestion preview modal ── */
-let activeSugg = null;
+let activeSugg  = null;
+let _photoNames = [];
+let _photoIdx   = 0;
+
+function updateNavUI(){
+  const total = _photoNames.length;
+  const hasPrev = _photoIdx > 0;
+  const hasNext = _photoIdx < total - 1;
+  $('btn-photo-prev').classList.toggle('visible', total > 1);
+  $('btn-photo-next').classList.toggle('visible', total > 1);
+  $('btn-photo-prev').style.opacity = hasPrev ? '1' : '0.3';
+  $('btn-photo-next').style.opacity = hasNext ? '1' : '0.3';
+  const ctr = $('photo-counter');
+  if(total > 1){ ctr.textContent = `${_photoIdx+1} / ${total}`; ctr.classList.add('visible'); }
+  else          { ctr.classList.remove('visible'); }
+}
+
+async function displayPhotoAt(idx){
+  const img = $('sugg-photo');
+  const ph  = $('sugg-placeholder');
+  const uri = await getPhotoUri(_photoNames[idx]);
+  if(uri){
+    img.onload  = () => { img.style.display='block'; ph.style.display='none'; };
+    img.onerror = () => {};
+    img.src = uri;
+  }
+  updateNavUI();
+}
+
+$('btn-photo-prev').addEventListener('click', ()=>{
+  if(_photoIdx > 0){ _photoIdx--; displayPhotoAt(_photoIdx); }
+});
+$('btn-photo-next').addEventListener('click', ()=>{
+  if(_photoIdx < _photoNames.length-1){ _photoIdx++; displayPhotoAt(_photoIdx); }
+});
 
 async function openSuggModal(sugg){
-  activeSugg = sugg;
+  activeSugg  = sugg;
+  _photoNames = [];
+  _photoIdx   = 0;
   $('sugg-emoji').textContent = sugg.e;
   $('sugg-cat').textContent   = sugg.c;
   $('sugg-name').textContent  = sugg.e + ' ' + sugg.l;
   $('btn-sugg-map').href      = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
 
-  const img  = $('sugg-photo');
-  const ph   = $('sugg-placeholder');
+  const img = $('sugg-photo');
+  const ph  = $('sugg-placeholder');
   img.style.display = 'none';
   ph.style.display  = 'flex';
+  $('btn-photo-prev').classList.remove('visible');
+  $('btn-photo-next').classList.remove('visible');
+  $('photo-counter').classList.remove('visible');
   $('sugg-overlay').classList.add('show');
 
-  function showPhoto(src){
-    img.onload  = () => { img.style.display='block'; ph.style.display='none'; };
-    img.onerror = () => {};
-    img.src = src;
+  // 1️⃣ Google Maps Places (con navegación entre fotos)
+  const names = await fetchPhotoNames(sugg.m);
+  if(names.length){
+    _photoNames = names;
+    _photoIdx   = 0;
+    displayPhotoAt(0);
+    return;
   }
 
-  // 1️⃣ Google Maps Places photo (real fotos del sitio)
-  const gPhoto = await fetchGooglePhoto(sugg.m);
-  if(gPhoto){ showPhoto(gPhoto); return; }
-
-  // 2️⃣ Wikipedia (fallback para lugares conocidos)
+  // 2️⃣ Wikipedia (fallback)
   if(sugg.w){
     const wPhoto = await fetchWikiPhoto(sugg.w);
-    if(wPhoto){ showPhoto(wPhoto); return; }
+    if(wPhoto){
+      img.onload = () => { img.style.display='block'; ph.style.display='none'; };
+      img.src = wPhoto;
+      return;
+    }
   }
 
-  // 3️⃣ Emoji placeholder + debug
-  if(window._dbg){
-    const d=document.createElement('div');
-    d.style.cssText='position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:.58rem;color:rgba(255,200,100,.8);padding:0 6px;word-break:break-all';
-    d.textContent=window._dbg;
-    ph.style.position='relative';
-    ph.appendChild(d);
-  }
+  // 3️⃣ Emoji placeholder (sin foto disponible)
 }
 
 function closeSuggModal(){
