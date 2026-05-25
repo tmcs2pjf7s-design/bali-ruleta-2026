@@ -1422,7 +1422,7 @@ h1 em{
 
       <div class="add-row">
         <div class="input-wrap">
-          <input id="option-input" type="text" placeholder="¿Qué haréis en Bali?" maxlength="55"/>
+          <input id="option-input" type="text" placeholder="Me muero de ganas!!" maxlength="55"/>
         </div>
         <button class="btn-add" id="btn-add" title="Añadir">+</button>
       </div>
@@ -2114,11 +2114,10 @@ const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
 
 async function fetchGooglePhoto(query){
   try{
-    const sRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    const sRes = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${GMAPS_KEY}`, {
       method:'POST',
       headers:{
         'Content-Type':    'application/json',
-        'X-Goog-Api-Key':  GMAPS_KEY,
         'X-Goog-FieldMask':'places.photos'
       },
       body: JSON.stringify({ textQuery:query, languageCode:'es', maxResultCount:1 })
