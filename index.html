@@ -2114,7 +2114,6 @@ const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
 
 async function fetchGooglePhoto(query){
   try{
-    // 1) Buscar el lugar → obtener nombre de foto
     const sRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method:'POST',
       headers:{
@@ -2125,17 +2124,25 @@ async function fetchGooglePhoto(query){
       body: JSON.stringify({ textQuery:query, languageCode:'es', maxResultCount:1 })
     });
     const sData = await sRes.json();
+
+    // Debug: guarda respuesta para mostrarla en el modal
+    window._lastPlacesDebug = sData?.error
+      ? '❌ ' + (sData.error.message || sData.error.status)
+      : sData?.places?.length
+        ? (sData.places[0].photos?.length ? '✅ foto encontrada' : '⚠️ lugar sin fotos')
+        : '⚠️ lugar no encontrado';
+
     const photoName = sData?.places?.[0]?.photos?.[0]?.name;
     if(!photoName) return null;
 
-    // 2) Obtener la URI real de la foto (skipHttpRedirect=true → devuelve JSON con photoUri)
     const pRes = await fetch(
       `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=700&skipHttpRedirect=true&key=${GMAPS_KEY}`
     );
     const pData = await pRes.json();
+    window._lastPlacesDebug += ' · media: ' + (pData?.photoUri ? '✅' : '❌ ' + JSON.stringify(pData).slice(0,80));
     return pData?.photoUri || null;
   } catch(e){
-    console.warn('Places photo error:', e);
+    window._lastPlacesDebug = '❌ fetch error: ' + e.message;
     return null;
   }
 }
@@ -2179,7 +2186,14 @@ async function openSuggModal(sugg){
     if(wPhoto){ showPhoto(wPhoto); return; }
   }
 
-  // 3️⃣ Emoji placeholder (sin foto disponible)
+  // 3️⃣ Emoji placeholder + mensaje de debug
+  if(window._lastPlacesDebug){
+    const dbg = document.createElement('div');
+    dbg.style.cssText='position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:.6rem;color:rgba(255,200,100,.7);padding:0 8px;word-break:break-all';
+    dbg.textContent = window._lastPlacesDebug;
+    ph.style.position='relative';
+    ph.appendChild(dbg);
+  }
 }
 
 function closeSuggModal(){
