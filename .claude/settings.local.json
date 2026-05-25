@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open \"/Users/ruslanurbano/Documents/Web ruleta/index.html\")",
+      "Bash(gh --version)",
+      "Bash(gh auth *)"
+    ]
+  }
+}
