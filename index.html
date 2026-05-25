@@ -210,23 +210,64 @@ h1 em{
 .countdown .cd-lbl{font-size:.78rem;color:var(--t3);font-weight:500}
 .countdown .cd-sep{color:var(--bd2);font-size:1.2rem}
 
-/* Bali clock */
-.bali-clock{
-  display:inline-flex;align-items:center;gap:8px;
-  margin-top:10px;
-  background:rgba(12,8,4,.5);
-  border:1px solid rgba(42,158,138,.25);
-  border-radius:50px;padding:6px 16px;
-  backdrop-filter:blur(12px);
-  font-size:.78rem;font-weight:600;color:rgba(42,200,170,.85);
-  letter-spacing:.02em;
+/* ── Suggestion preview modal ── */
+.sugg-overlay{
+  position:fixed;inset:0;z-index:1500;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;
 }
-.bali-clock-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:#2A9E8A;box-shadow:0 0 8px rgba(42,158,138,.8);
-  animation:syncPulse 2s ease-in-out infinite;
+.sugg-overlay.show{display:flex;animation:fadeIn .22s ease}
+.sugg-card{
+  background:rgba(10,6,2,.97);border:1px solid rgba(232,186,42,.35);
+  border-radius:24px;overflow:hidden;
+  width:100%;max-width:440px;
+  box-shadow:0 28px 90px rgba(0,0,0,.7);
+  animation:popIn .28s cubic-bezier(.17,.67,.3,1.3);
 }
-.bali-clock-time{font-family:'Playfair Display',serif;font-size:.95rem;color:#3AC8A8}
+.sugg-photo{
+  width:100%;height:220px;object-fit:cover;object-position:center;
+  display:block;background:#1a1612;
+}
+.sugg-photo-placeholder{
+  width:100%;height:220px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.03);font-size:4rem;
+}
+.sugg-body{padding:20px 20px 22px}
+.sugg-cat{
+  font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);opacity:.75;margin-bottom:5px;
+}
+.sugg-name{
+  font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;
+  color:var(--t1);line-height:1.15;margin-bottom:16px;
+}
+.sugg-actions{display:flex;gap:8px}
+.btn-sugg-add{
+  flex:1;background:linear-gradient(135deg,#b84010,#d87020);
+  color:#fff;border:none;border-radius:12px;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
+  padding:12px 16px;cursor:pointer;transition:transform .15s,box-shadow .2s;
+  box-shadow:0 4px 18px rgba(184,64,16,.4);
+}
+.btn-sugg-add:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(184,64,16,.55)}
+.btn-sugg-map{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(42,158,138,.12);border:1px solid rgba(42,158,138,.3);
+  border-radius:12px;color:#2A9E8A;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
+  padding:12px 14px;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-map:hover{background:rgba(42,158,138,.22)}
+.btn-sugg-close{
+  position:absolute;top:12px;right:12px;
+  background:rgba(0,0,0,.5);border:none;cursor:pointer;
+  color:#fff;font-size:1rem;width:30px;height:30px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.btn-sugg-close:hover{background:rgba(0,0,0,.75)}
+.sugg-card-wrap{position:relative}
 
 .orn{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
 .orn-line{height:1px;width:70px;background:linear-gradient(to right,transparent,rgba(232,186,42,.35),transparent)}
@@ -1363,11 +1404,6 @@ h1 em{
       <span class="cd-lbl">min</span>
     </div>
 
-    <div class="bali-clock">
-      <span class="bali-clock-dot"></span>
-      🌴 Bali ahora:&nbsp;<span class="bali-clock-time" id="bali-time">--:--</span>
-    </div>
-
     <div class="orn">
       <div class="orn-line"></div>
       <span class="orn-dot">✦</span>
@@ -1514,6 +1550,27 @@ h1 em{
 </div>
 
 <!-- ══════════════════════════════════════
+     SUGGESTION PREVIEW MODAL
+══════════════════════════════════════ -->
+<div class="sugg-overlay" id="sugg-overlay">
+  <div class="sugg-card">
+    <div class="sugg-card-wrap">
+      <img class="sugg-photo" id="sugg-photo" src="" alt="" style="display:none"/>
+      <div class="sugg-photo-placeholder" id="sugg-placeholder"><span id="sugg-emoji">🌴</span></div>
+      <button class="btn-sugg-close" id="btn-sugg-close">✕</button>
+    </div>
+    <div class="sugg-body">
+      <div class="sugg-cat" id="sugg-cat"></div>
+      <div class="sugg-name" id="sugg-name"></div>
+      <div class="sugg-actions">
+        <button class="btn-sugg-add" id="btn-sugg-add">+ Añadir al bombo</button>
+        <a class="btn-sugg-map" id="btn-sugg-map" href="#" target="_blank" rel="noopener">📍 Mapa</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
      MAPA MODAL
 ══════════════════════════════════════ -->
 <div class="map-overlay" id="map-overlay">
@@ -1638,17 +1695,6 @@ function updateCountdown(){
 updateCountdown();
 setInterval(updateCountdown,30000);
 
-/* ── Reloj Bali (WITA = UTC+8, zona fija sin DST) ── */
-function updateBaliClock(){
-  const t = new Date().toLocaleTimeString('es-ES',{
-    timeZone:'Asia/Makassar',  // WITA = UTC+8 (mismo huso que Bali)
-    hour:'2-digit', minute:'2-digit', second:'2-digit'
-  });
-  const el = document.getElementById('bali-time');
-  if(el) el.textContent = t;
-}
-updateBaliClock();
-setInterval(updateBaliClock, 1000);
 
 /* ═══════════════════════════════════════════
    STATE
@@ -1658,28 +1704,29 @@ const PALETTE=['#D4622A','#2A9E8A','#D4A220','#B83050',
                '#9A5A28','#A83060','#28926A','#7840B8',
                '#C88820','#C03848','#4A9A70'];
 
+/* Lugares de Ruslan & Anabel · Bali 2026 */
 const SUGGESTIONS=[
-  // ── Experiencias clásicas ──
-  '🌅 Amanecer en Ubud','🏄 Surf en Kuta','🕌 Tanah Lot al atardecer',
-  '🦧 Bosque de los Monos','🛵 Scooter por la isla','💆 Spa balinés',
-  '🌾 Terrazas de Tegalalang','🤿 Snorkel en Nusa Penida',
-  '🎨 Clase de pintura','🍜 Cooking class balinés',
-  '🌊 Cascada Gitgit','🌋 Monte Batur al amanecer',
-  '🛶 Rafting río Ayung','🐠 Buceo en Tulamben',
-  '🎭 Show de Kecak','🛍️ Mercado de Ubud',
-  '🏝️ Nusa Lembongan','🌸 Pura Lempuyang',
-  '🌿 Clase de yoga','🍹 Cena con vista al océano',
-  // ── Beach clubs ──
-  '🏖️ Sundays Beach Club','🎉 Savaya Bali','🍻 Single Fin',
-  '🌊 Palmilla Bali','🦞 El Kabron Bali','🏝️ Minoo Beach Club',
+  // ── Beach Clubs ──
+  {l:'Sundays Beach Club', e:'🏖️', c:'Beach Club',          m:'Sundays Beach Club Uluwatu Bali',    w:'Suluban_Beach'},
+  {l:'Savaya Bali',        e:'🎉', c:'Beach Club',          m:'Savaya Bali Uluwatu',                w:null},
+  {l:'Single Fin',         e:'🍻', c:'Beach Club · Bar',    m:'Single Fin Uluwatu Bali',            w:null},
+  {l:'Palmilla Bali',      e:'🌊', c:'Beach Club',          m:'Palmilla Bali Uluwatu',              w:null},
+  {l:'El Kabron Bali',     e:'🦞', c:'Beach Club · Rest.',  m:'El Kabron Bali Uluwatu',             w:null},
+  {l:'Minoo Beach Club',   e:'🏝️', c:'Beach Club',          m:'Minoo Beach Club Bali',              w:null},
   // ── Playas ──
-  '🌊 Padang Padang Beach','🏖️ Thomas Beach','🌅 Bingin Beach',
-  '🌊 Melasti Beach','🏝️ Nyang Nyang Beach',
+  {l:'Padang Padang Beach',e:'🌊', c:'Playa',               m:'Padang Padang Beach Bali',           w:'Padang_Padang_beach'},
+  {l:'Thomas Beach',       e:'🏖️', c:'Playa',               m:'Thomas Beach Uluwatu Bali',          w:null},
+  {l:'Bingin Beach',       e:'🌅', c:'Playa',               m:'Bingin Beach Uluwatu Bali',          w:'Bingin_Beach'},
+  {l:'Melasti Beach',      e:'🌊', c:'Playa',               m:'Melasti Beach Bali',                 w:null},
+  {l:'Nyang Nyang Beach',  e:'🏝️', c:'Playa',               m:'Nyang Nyang Beach Bali',             w:null},
   // ── Templo ──
-  '🕌 Uluwatu Temple',
-  // ── Restaurantes & cafés ──
-  '🍽️ The Cave Bali','🥗 Mana Uluwatu','🍸 Tabu',
-  '☕ Suka Espresso','🍴 Rolling Fork',
+  {l:'Uluwatu Temple',     e:'🕌', c:'Templo',              m:'Uluwatu Temple Bali',                w:'Pura_Luhur_Uluwatu'},
+  // ── Restaurantes & Cafés ──
+  {l:'The Cave Bali',      e:'🍽️', c:'Restaurante',         m:'The Cave Bali Uluwatu',              w:null},
+  {l:'Mana Uluwatu',       e:'🥗', c:'Restaurante',         m:'Mana Uluwatu Bali',                  w:null},
+  {l:'Tabu',               e:'🍸', c:'Bar · Restaurante',   m:'Tabu Uluwatu Bali',                  w:null},
+  {l:'Suka Espresso',      e:'☕', c:'Cafetería',           m:'Suka Espresso Bali',                 w:null},
+  {l:'Rolling Fork',       e:'🍴', c:'Restaurante',         m:'Rolling Fork Bali',                  w:null},
 ];
 
 const TRIP=[
@@ -2062,11 +2109,65 @@ function renderDayCards(){
   });
 }
 
+/* ── Suggestion preview modal ── */
+let activeSugg = null;
+
+function openSuggModal(sugg){
+  activeSugg = sugg;
+  $('sugg-emoji').textContent  = sugg.e;
+  $('sugg-cat').textContent    = sugg.c;
+  $('sugg-name').textContent   = sugg.e + ' ' + sugg.l;
+  $('btn-sugg-map').href       = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
+
+  // Reset photo
+  const img = $('sugg-photo');
+  img.style.display = 'none';
+  $('sugg-placeholder').style.display = 'flex';
+
+  // Fetch photo from Wikipedia if article known
+  if(sugg.w){
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${sugg.w}`)
+      .then(r => r.json())
+      .then(d => {
+        const src = d?.thumbnail?.source || d?.originalimage?.source;
+        if(src){
+          img.onload = () => {
+            img.style.display = 'block';
+            $('sugg-placeholder').style.display = 'none';
+          };
+          img.onerror = () => {};
+          img.src = src;
+        }
+      })
+      .catch(()=>{});
+  }
+
+  $('sugg-overlay').classList.add('show');
+}
+
+function closeSuggModal(){
+  $('sugg-overlay').classList.remove('show');
+  activeSugg = null;
+}
+
+$('btn-sugg-close').addEventListener('click', closeSuggModal);
+$('sugg-overlay').addEventListener('click', e=>{ if(e.target===$('sugg-overlay')) closeSuggModal(); });
+
+$('btn-sugg-add').addEventListener('click', ()=>{
+  if(!activeSugg) return;
+  const label = activeSugg.e + ' ' + activeSugg.l;
+  addActivity(label);
+  toast('¡Añadida al bombo! ✦');
+  closeSuggModal();
+});
+
 function renderSuggestions(){
   const c=$('chips');
   SUGGESTIONS.forEach(s=>{
-    const b=document.createElement('button');b.className='chip';b.textContent=s;
-    b.addEventListener('click',()=>{addActivity(s);toast('¡Añadida al bombo! ✦')});
+    const b=document.createElement('button');
+    b.className='chip';
+    b.textContent=s.e+' '+s.l;
+    b.addEventListener('click', ()=> openSuggModal(s));
     c.appendChild(b);
   });
 }
@@ -2193,16 +2294,11 @@ function getMapQuery(label){
   return label + ' Bali';
 }
 
-const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
-
 function showMapModal(label){
   const query  = getMapQuery(label);
   const enc    = encodeURIComponent(query);
   const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${enc}`;
-  // Maps Embed API v1 (requiere API key activa en Google Cloud Console)
-  const embedUrl = GMAPS_KEY
-    ? `https://www.google.com/maps/embed/v1/search?key=${GMAPS_KEY}&q=${enc}&language=es`
-    : `https://maps.google.com/maps?q=${enc}&output=embed&hl=es`;
+  const embedUrl = `https://maps.google.com/maps?q=${enc}&output=embed&hl=es`;
 
   $('map-card-title').textContent   = '📍 ' + label;
   $('btn-open-maps').href  = mapsUrl;
