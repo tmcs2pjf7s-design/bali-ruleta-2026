@@ -6,7 +6,6 @@
   <title>Bali 2026 · 18–23 Junio</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk&libraries=places&callback=initPlacesService"></script>
   <style>
 /* ══════════════════════════════════════════
    TOKENS  (palette extraída de la foto)
@@ -2110,32 +2109,35 @@ function renderDayCards(){
   });
 }
 
-/* ── Google Places Service (carga async con el SDK) ── */
-let _placesService = null;
+/* ── Google Places API (New) — REST directo desde navegador ── */
+const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
 
-window.initPlacesService = function(){
-  // PlacesService necesita un Map o un elemento HTML — usamos uno invisible
-  const anchor = document.createElement('div');
-  document.body.appendChild(anchor);
-  const map = new google.maps.Map(anchor, {center:{lat:-8.34,lng:115.09}, zoom:12});
-  anchor.style.display = 'none';
-  _placesService = new google.maps.places.PlacesService(map);
-};
+async function fetchGooglePhoto(query){
+  try{
+    // 1) Buscar el lugar → obtener nombre de foto
+    const sRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method:'POST',
+      headers:{
+        'Content-Type':    'application/json',
+        'X-Goog-Api-Key':  GMAPS_KEY,
+        'X-Goog-FieldMask':'places.photos'
+      },
+      body: JSON.stringify({ textQuery:query, languageCode:'es', maxResultCount:1 })
+    });
+    const sData = await sRes.json();
+    const photoName = sData?.places?.[0]?.photos?.[0]?.name;
+    if(!photoName) return null;
 
-function fetchGooglePhoto(query){
-  return new Promise(resolve => {
-    if(!_placesService){ resolve(null); return; }
-    _placesService.findPlaceFromQuery(
-      { query, fields:['photos','name'] },
-      (results, status) => {
-        if(status === google.maps.places.PlacesServiceStatus.OK && results?.[0]?.photos?.length){
-          resolve(results[0].photos[0].getUrl({ maxWidth:700, maxHeight:450 }));
-        } else {
-          resolve(null);
-        }
-      }
+    // 2) Obtener la URI real de la foto (skipHttpRedirect=true → devuelve JSON con photoUri)
+    const pRes = await fetch(
+      `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=700&skipHttpRedirect=true&key=${GMAPS_KEY}`
     );
-  });
+    const pData = await pRes.json();
+    return pData?.photoUri || null;
+  } catch(e){
+    console.warn('Places photo error:', e);
+    return null;
+  }
 }
 
 function fetchWikiPhoto(article){
