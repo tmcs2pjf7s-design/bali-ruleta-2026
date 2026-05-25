@@ -379,6 +379,157 @@ h1 em{
 @media(max-width:480px){.wheel-wrap{width:300px;height:300px}}
 #wheel-canvas{display:block}
 
+/* ══════════════════════════════════════════
+   CHAT
+══════════════════════════════════════════ */
+.chat-fab{
+  position:fixed;bottom:72px;right:20px;z-index:1100;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#2A9E8A,#1E7A5A);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.35rem;
+  box-shadow:0 4px 20px rgba(42,158,138,.45);
+  transition:transform .2s,box-shadow .2s;
+}
+.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(42,158,138,.6)}
+.chat-fab-badge{
+  position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:50%;
+  background:#f87171;border:2px solid #0c0804;font-size:.62rem;font-weight:700;color:#fff;
+  display:none;align-items:center;justify-content:center;padding:0 3px;
+}
+.chat-fab-badge.show{display:flex}
+.chat-panel{
+  position:fixed;top:0;right:-400px;bottom:0;width:360px;z-index:1200;
+  background:rgba(10,6,2,.97);border-left:1px solid rgba(232,186,42,.2);
+  backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  display:flex;flex-direction:column;
+  transition:right .35s cubic-bezier(.17,.67,.3,1.1);
+  box-shadow:-8px 0 48px rgba(0,0,0,.55);
+}
+.chat-panel.open{right:0}
+.chat-header{
+  display:flex;align-items:center;gap:10px;padding:16px 18px;
+  border-bottom:1px solid rgba(232,186,42,.14);flex-shrink:0;
+}
+.chat-header-info{flex:1}
+.chat-header-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--t1)}
+.chat-header-sub{font-size:.7rem;color:var(--t3);margin-top:1px}
+.chat-user-label{
+  font-size:.68rem;font-weight:600;color:var(--gold);
+  background:rgba(232,186,42,.1);border:1px solid rgba(232,186,42,.2);
+  border-radius:50px;padding:3px 10px;cursor:pointer;white-space:nowrap;transition:background .2s;
+}
+.chat-user-label:hover{background:rgba(232,186,42,.2)}
+.btn-chat-close{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  font-size:1.25rem;padding:4px 6px;border-radius:8px;transition:all .15s;
+}
+.btn-chat-close:hover{background:rgba(232,186,42,.1);color:var(--gold)}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:14px 14px 8px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(232,186,42,.15);border-radius:99px}
+.chat-bubble{display:flex;flex-direction:column;max-width:84%;animation:bubbleIn .2s ease}
+.chat-bubble.mine{align-self:flex-end;align-items:flex-end}
+.chat-bubble.theirs{align-self:flex-start;align-items:flex-start}
+@keyframes bubbleIn{
+  from{opacity:0;transform:translateY(6px) scale(.96)}
+  to{opacity:1;transform:none}
+}
+.bubble-author{font-size:.63rem;font-weight:700;color:var(--t3);margin-bottom:2px;letter-spacing:.04em}
+.bubble-body{padding:9px 13px;font-size:.85rem;line-height:1.4;color:var(--t1);word-break:break-word}
+.chat-bubble.mine .bubble-body{
+  background:linear-gradient(135deg,rgba(200,100,40,.72),rgba(180,80,24,.65));
+  border-radius:16px 16px 4px 16px;border:1px solid rgba(232,186,42,.2);
+}
+.chat-bubble.theirs .bubble-body{
+  background:rgba(42,158,138,.22);border-radius:16px 16px 16px 4px;
+  border:1px solid rgba(42,158,138,.28);
+}
+.bubble-time{font-size:.6rem;color:var(--t3);margin-top:3px;opacity:.6}
+.chat-bubble.suggestion .bubble-body{border-color:rgba(232,186,42,.4);background:rgba(232,186,42,.12)}
+.btn-add-suggestion{
+  margin-top:5px;background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.3);
+  border-radius:8px;color:var(--gold);font-family:'DM Sans',sans-serif;
+  font-size:.72rem;font-weight:600;padding:5px 12px;cursor:pointer;transition:all .2s;
+}
+.btn-add-suggestion:hover{background:rgba(232,186,42,.24)}
+.btn-add-suggestion:disabled{opacity:.45;cursor:default}
+.chat-date-sep{
+  text-align:center;font-size:.62rem;color:var(--t3);
+  margin:4px 0;letter-spacing:.06em;opacity:.55;
+}
+.chat-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--t3);font-size:.85rem;gap:8px;opacity:.55;text-align:center;
+}
+.chat-input-row{
+  padding:12px 14px 14px;border-top:1px solid rgba(232,186,42,.12);
+  display:flex;flex-direction:column;gap:8px;flex-shrink:0;
+}
+.chat-suggestion-toggle{
+  display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--t3);
+  cursor:pointer;user-select:none;
+}
+.chat-suggestion-toggle input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
+.chat-input-wrap{display:flex;gap:8px;align-items:flex-end}
+.chat-textarea{
+  flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,186,42,.2);
+  border-radius:12px;padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:.88rem;color:var(--t1);outline:none;resize:none;
+  min-height:42px;max-height:90px;line-height:1.4;transition:border-color .2s;
+}
+.chat-textarea:focus{border-color:rgba(232,186,42,.45);box-shadow:0 0 0 3px rgba(232,186,42,.07)}
+.chat-textarea::placeholder{color:var(--t3)}
+.btn-chat-send{
+  background:linear-gradient(135deg,#2A9E8A,#1E7A5A);
+  border:none;border-radius:12px;width:42px;height:42px;flex-shrink:0;
+  color:#fff;font-size:1.05rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 14px rgba(42,158,138,.4);transition:transform .15s,box-shadow .15s;
+}
+.btn-chat-send:hover{transform:scale(1.08);box-shadow:0 5px 20px rgba(42,158,138,.55)}
+.btn-chat-send:active{transform:scale(.96)}
+.user-picker-overlay{
+  position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);display:flex;align-items:center;
+  justify-content:center;padding:20px;animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.user-picker-card{
+  background:rgba(10,6,2,.95);border:1px solid rgba(232,186,42,.38);
+  border-radius:24px;padding:30px 24px;width:100%;max-width:320px;
+  text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.65);
+  animation:popIn .28s cubic-bezier(.17,.67,.3,1.3);
+}
+.user-picker-title{
+  font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;
+  color:var(--t1);margin-bottom:5px;
+}
+.user-picker-sub{font-size:.82rem;color:var(--t3);margin-bottom:22px}
+.user-picker-options{display:flex;gap:10px}
+.btn-user-pick{
+  flex:1;padding:16px 10px;border-radius:16px;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;
+  transition:transform .15s,box-shadow .2s;
+}
+.btn-user-pick.ruslan{
+  background:linear-gradient(135deg,rgba(210,100,40,.85),rgba(184,64,16,.75));
+  color:#fff;border:1px solid rgba(232,186,42,.25);
+  box-shadow:0 4px 18px rgba(200,72,24,.3);
+}
+.btn-user-pick.amor{
+  background:linear-gradient(135deg,rgba(42,158,138,.75),rgba(30,122,90,.7));
+  color:#fff;border:1px solid rgba(42,158,138,.3);
+  box-shadow:0 4px 18px rgba(42,158,138,.3);
+}
+.btn-user-pick:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.pick-emoji{font-size:2rem}
+@media(max-width:480px){.chat-panel{width:100%;right:-100%}}
+
 .wheel-pointer{
   position:absolute;top:-3px;left:50%;
   transform:translateX(-50%);z-index:20;pointer-events:none;
@@ -911,8 +1062,8 @@ h1 em{
     <!-- ── Formulario ── -->
     <div class="login-form">
       <span class="login-icon">🌺</span>
-      <div class="login-title">Nuestra <em>Ruleta</em></div>
-      <div class="login-sub">Solo para nosotros dos ✦</div>
+      <div class="login-title">Bali 2026 <em>Ruleta</em></div>
+      <div class="login-sub">Se me fue de las manos amor ✦</div>
 
       <div class="login-orn">
         <div class="login-orn-line"></div>
@@ -1216,6 +1367,61 @@ h1 em{
 
 <div id="toast"></div>
 <div id="sync-status"><div class="sync-dot"></div><span id="sync-txt">Sincronizando…</span></div>
+
+<!-- ══════════════════════════════════════
+     CHAT
+══════════════════════════════════════ -->
+<button class="chat-fab" id="chat-fab" aria-label="Abrir chat">
+  💬
+  <span class="chat-fab-badge" id="chat-badge"></span>
+</button>
+
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-header-title">💬 Chat Bali</div>
+      <div class="chat-header-sub">Mensajes en tiempo real 🌺</div>
+    </div>
+    <span class="chat-user-label" id="chat-user-label" title="Cambiar usuario"></span>
+    <button class="btn-chat-close" id="btn-chat-close">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-empty" id="chat-empty">
+      <span style="font-size:2rem">💌</span>
+      <span>Aquí aparecerán vuestros mensajes</span>
+    </div>
+  </div>
+
+  <div class="chat-input-row">
+    <label class="chat-suggestion-toggle">
+      <input type="checkbox" id="chat-is-suggestion"/>
+      💡 Enviar como sugerencia de actividad
+    </label>
+    <div class="chat-input-wrap">
+      <textarea class="chat-textarea" id="chat-textarea" placeholder="Escribe un mensaje… (Enter para enviar)" rows="1"></textarea>
+      <button class="btn-chat-send" id="btn-chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- User picker modal -->
+<div class="user-picker-overlay" id="user-picker" style="display:none">
+  <div class="user-picker-card">
+    <div class="user-picker-title">¿Quién eres? 🌺</div>
+    <div class="user-picker-sub">Elige tu nombre para el chat de Bali</div>
+    <div class="user-picker-options">
+      <button class="btn-user-pick ruslan" data-user="Ruslan">
+        <span class="pick-emoji">🧔</span>
+        Ruslan
+      </button>
+      <button class="btn-user-pick amor" data-user="Amor 🌺">
+        <span class="pick-emoji">🌸</span>
+        Amor 🌺
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════
@@ -1754,6 +1960,201 @@ $('btn-reset').addEventListener('click',()=>{
   await load();
   renderAll();
   renderSuggestions();
+})();
+
+/* ═══════════════════════════════════════════
+   CHAT
+═══════════════════════════════════════════ */
+(()=>{
+  /* ── State ── */
+  let chatOpen   = false;
+  let chatUser   = sessionStorage.getItem('chat-user') || null;
+  let unread     = 0;
+  const seenIds  = new Set();
+  let lastDate   = '';
+
+  /* ── Elements ── */
+  const fab        = $('chat-fab');
+  const panel      = $('chat-panel');
+  const badgeEl    = $('chat-badge');
+  const msgsEl     = $('chat-messages');
+  const emptyEl    = $('chat-empty');
+  const textarea   = $('chat-textarea');
+  const isSuggCb  = $('chat-is-suggestion');
+  const picker     = $('user-picker');
+  const userLabel  = $('chat-user-label');
+
+  /* ── User label ── */
+  function refreshUserLabel(){
+    userLabel.textContent = chatUser ? '👤 ' + chatUser : '';
+  }
+  refreshUserLabel();
+
+  /* ── Open / Close ── */
+  function openChat(){
+    chatOpen = true;
+    panel.classList.add('open');
+    unread = 0;
+    badgeEl.textContent = '';
+    badgeEl.classList.remove('show');
+    scrollBottom(true);
+    setTimeout(()=>textarea.focus(), 350);
+  }
+  function closeChat(){
+    chatOpen = false;
+    panel.classList.remove('open');
+  }
+
+  fab.addEventListener('click', ()=>{
+    if (!chatUser){ picker.style.display = 'flex'; return; }
+    chatOpen ? closeChat() : openChat();
+  });
+  $('btn-chat-close').addEventListener('click', closeChat);
+
+  // Click on user label → re-pick
+  userLabel.addEventListener('click', ()=>{ picker.style.display = 'flex'; });
+
+  /* ── User picker ── */
+  picker.querySelectorAll('.btn-user-pick').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      chatUser = btn.dataset.user;
+      sessionStorage.setItem('chat-user', chatUser);
+      picker.style.display = 'none';
+      refreshUserLabel();
+      openChat();
+    });
+  });
+  // Click outside card closes picker
+  picker.addEventListener('click', e=>{ if(e.target===picker) picker.style.display='none'; });
+
+  /* ── Helpers ── */
+  function fmtTime(ts){
+    return new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  }
+  function fmtDate(ts){
+    return new Date(ts).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  }
+  function scrollBottom(force=false){
+    const slack = msgsEl.scrollHeight - msgsEl.scrollTop - msgsEl.clientHeight;
+    if(force || slack < 140) msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  /* ── Render one message ── */
+  function renderMsg(msg){
+    if(seenIds.has(msg.id)) return;
+    seenIds.add(msg.id);
+
+    const mine = msg.author === chatUser;
+    const dateStr = fmtDate(msg.created_at);
+
+    // Date separator
+    if(dateStr !== lastDate){
+      const sep = document.createElement('div');
+      sep.className = 'chat-date-sep';
+      sep.textContent = dateStr;
+      msgsEl.appendChild(sep);
+      lastDate = dateStr;
+    }
+
+    // Hide empty state
+    emptyEl.style.display = 'none';
+
+    // Bubble
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-bubble ' + (mine ? 'mine' : 'theirs') +
+                     (msg.is_suggestion ? ' suggestion' : '');
+
+    const sugPrefix = msg.is_suggestion ? '💡 ' : '';
+
+    wrap.innerHTML = `
+      <div class="bubble-author">${esc(msg.author)}</div>
+      <div class="bubble-body">${sugPrefix}${esc(msg.message)}</div>
+      <div class="bubble-time">${fmtTime(msg.created_at)}</div>
+      ${msg.is_suggestion ? `<button class="btn-add-suggestion">➕ Añadir al bombo</button>` : ''}
+    `;
+
+    if(msg.is_suggestion){
+      const addBtn = wrap.querySelector('.btn-add-suggestion');
+      addBtn.addEventListener('click', ()=>{
+        addActivity(msg.message);
+        toast('¡Sugerencia añadida al bombo! 🎰');
+        addBtn.textContent = '✓ Añadida';
+        addBtn.disabled = true;
+      });
+    }
+
+    msgsEl.appendChild(wrap);
+  }
+
+  /* ── Load last 80 messages ── */
+  async function loadMessages(){
+    try{
+      const {data, error} = await sb.from('bali_chat')
+        .select('*')
+        .order('created_at', {ascending: true})
+        .limit(80);
+      if(error) throw error;
+      if(data && data.length){
+        lastDate = '';
+        data.forEach(m => renderMsg(m));
+        scrollBottom(true);
+      }
+    } catch(e){ console.warn('Chat load error:', e); }
+  }
+
+  /* ── Send message ── */
+  async function sendMessage(){
+    const text = textarea.value.trim();
+    if(!text) return;
+    if(!chatUser){ picker.style.display = 'flex'; return; }
+    const isSugg = isSuggCb.checked;
+
+    // Optimistic clear
+    textarea.value = '';
+    textarea.style.height = 'auto';
+
+    try{
+      const {error} = await sb.from('bali_chat').insert({
+        author: chatUser,
+        message: text,
+        is_suggestion: isSugg
+      });
+      if(error) throw error;
+    } catch(e){
+      toast('Error enviando mensaje 😕');
+      textarea.value = text;   // restore on failure
+      console.warn('Chat send error:', e);
+    }
+  }
+
+  /* ── Realtime subscription ── */
+  sb.channel('bali_chat_live')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'bali_chat'},
+      payload => {
+        const msg = payload.new;
+        renderMsg(msg);
+        scrollBottom();
+        if(!chatOpen || msg.author !== chatUser){
+          unread++;
+          badgeEl.textContent = unread > 9 ? '9+' : unread;
+          badgeEl.classList.add('show');
+        }
+      }
+    )
+    .subscribe();
+
+  /* ── Input events ── */
+  $('btn-chat-send').addEventListener('click', sendMessage);
+  textarea.addEventListener('keydown', e=>{
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  });
+  textarea.addEventListener('input', ()=>{
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 90) + 'px';
+  });
+
+  /* ── Init ── */
+  loadMessages();
 })();
 </script>
 </body>
