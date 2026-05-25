@@ -438,6 +438,11 @@ h1 em{
   border-radius:50px;padding:3px 10px;cursor:pointer;white-space:nowrap;transition:background .2s;
 }
 .chat-user-label:hover{background:rgba(232,186,42,.2)}
+.btn-chat-clear{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  font-size:1rem;padding:4px 6px;border-radius:8px;transition:all .15s;
+}
+.btn-chat-clear:hover{background:rgba(248,113,113,.12);color:#f87171}
 .btn-chat-close{
   background:none;border:none;cursor:pointer;color:var(--t3);
   font-size:1.25rem;padding:4px 6px;border-radius:8px;transition:all .15s;
@@ -1485,6 +1490,7 @@ h1 em{
       <div class="chat-header-sub">Mensajes en tiempo real 🌺</div>
     </div>
     <span class="chat-user-label" id="chat-user-label" title="Cambiar usuario"></span>
+    <button class="btn-chat-clear" id="btn-chat-clear" title="Borrar todos los mensajes">🗑️</button>
     <button class="btn-chat-close" id="btn-chat-close">✕</button>
   </div>
 
@@ -2249,6 +2255,28 @@ $('btn-map-result').addEventListener('click', ()=>{
     chatOpen ? closeChat() : openChat();
   });
   $('btn-chat-close').addEventListener('click', closeChat);
+
+  /* ── Borrar chat ── */
+  $('btn-chat-clear').addEventListener('click', async ()=>{
+    if(!confirm('¿Borrar todos los mensajes del chat? No se puede deshacer 🗑️')) return;
+    try{
+      const {error} = await sb.from('bali_chat').delete().neq('id','00000000-0000-0000-0000-000000000000');
+      if(error) throw error;
+      // limpiar UI
+      msgsEl.innerHTML = '';
+      msgsEl.appendChild(emptyEl);
+      emptyEl.style.display = 'flex';
+      seenIds.clear();
+      lastDate = '';
+      unread = 0;
+      badgeEl.textContent = '';
+      badgeEl.classList.remove('show');
+      toast('Chat borrado 🗑️');
+    } catch(e){
+      toast('Error al borrar 😕');
+      console.warn('Chat clear error:', e);
+    }
+  });
 
   // Click on user label → re-pick
   userLabel.addEventListener('click', ()=>{ picker.style.display = 'flex'; });
