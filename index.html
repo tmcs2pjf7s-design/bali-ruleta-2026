@@ -1430,7 +1430,7 @@ h1 em{
       <p class="section-label">Bolsa de actividades (<span id="pool-count">0</span>)</p>
       <ul id="pool-list"></ul>
       <p class="empty-pool" id="empty-pool" style="display:none">
-        🌴 Añadid vuestras ideas aquí
+        🌴 Las ideas....
       </p>
 
       <div class="divider"></div>
@@ -2124,14 +2124,6 @@ async function fetchGooglePhoto(query){
       body: JSON.stringify({ textQuery:query, languageCode:'es', maxResultCount:1 })
     });
     const sData = await sRes.json();
-
-    // Debug: guarda respuesta para mostrarla en el modal
-    window._lastPlacesDebug = sData?.error
-      ? '❌ ' + (sData.error.message || sData.error.status)
-      : sData?.places?.length
-        ? (sData.places[0].photos?.length ? '✅ foto encontrada' : '⚠️ lugar sin fotos')
-        : '⚠️ lugar no encontrado';
-
     const photoName = sData?.places?.[0]?.photos?.[0]?.name;
     if(!photoName) return null;
 
@@ -2139,10 +2131,9 @@ async function fetchGooglePhoto(query){
       `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=700&skipHttpRedirect=true&key=${GMAPS_KEY}`
     );
     const pData = await pRes.json();
-    window._lastPlacesDebug += ' · media: ' + (pData?.photoUri ? '✅' : '❌ ' + JSON.stringify(pData).slice(0,80));
     return pData?.photoUri || null;
   } catch(e){
-    window._lastPlacesDebug = '❌ fetch error: ' + e.message;
+    console.warn('Places photo error:', e);
     return null;
   }
 }
@@ -2186,14 +2177,7 @@ async function openSuggModal(sugg){
     if(wPhoto){ showPhoto(wPhoto); return; }
   }
 
-  // 3️⃣ Emoji placeholder + mensaje de debug
-  if(window._lastPlacesDebug){
-    const dbg = document.createElement('div');
-    dbg.style.cssText='position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:.6rem;color:rgba(255,200,100,.7);padding:0 8px;word-break:break-all';
-    dbg.textContent = window._lastPlacesDebug;
-    ph.style.position='relative';
-    ph.appendChild(dbg);
-  }
+  // 3️⃣ Emoji placeholder
 }
 
 function closeSuggModal(){
