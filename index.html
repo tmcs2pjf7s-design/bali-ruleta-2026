@@ -210,6 +210,24 @@ h1 em{
 .countdown .cd-lbl{font-size:.78rem;color:var(--t3);font-weight:500}
 .countdown .cd-sep{color:var(--bd2);font-size:1.2rem}
 
+/* Bali clock */
+.bali-clock{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:10px;
+  background:rgba(12,8,4,.5);
+  border:1px solid rgba(42,158,138,.25);
+  border-radius:50px;padding:6px 16px;
+  backdrop-filter:blur(12px);
+  font-size:.78rem;font-weight:600;color:rgba(42,200,170,.85);
+  letter-spacing:.02em;
+}
+.bali-clock-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#2A9E8A;box-shadow:0 0 8px rgba(42,158,138,.8);
+  animation:syncPulse 2s ease-in-out infinite;
+}
+.bali-clock-time{font-family:'Playfair Display',serif;font-size:.95rem;color:#3AC8A8}
+
 .orn{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
 .orn-line{height:1px;width:70px;background:linear-gradient(to right,transparent,rgba(232,186,42,.35),transparent)}
 .orn-dot{color:var(--gold);font-size:.65rem;opacity:.7}
@@ -1340,6 +1358,11 @@ h1 em{
       <span class="cd-lbl">min</span>
     </div>
 
+    <div class="bali-clock">
+      <span class="bali-clock-dot"></span>
+      🌴 Bali ahora:&nbsp;<span class="bali-clock-time" id="bali-time">--:--</span>
+    </div>
+
     <div class="orn">
       <div class="orn-line"></div>
       <span class="orn-dot">✦</span>
@@ -1608,6 +1631,18 @@ function updateCountdown(){
 }
 updateCountdown();
 setInterval(updateCountdown,30000);
+
+/* ── Reloj Bali (WITA = UTC+8, zona fija sin DST) ── */
+function updateBaliClock(){
+  const t = new Date().toLocaleTimeString('es-ES',{
+    timeZone:'Asia/Makassar',  // WITA = UTC+8 (mismo huso que Bali)
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  const el = document.getElementById('bali-time');
+  if(el) el.textContent = t;
+}
+updateBaliClock();
+setInterval(updateBaliClock, 1000);
 
 /* ═══════════════════════════════════════════
    STATE
@@ -2121,11 +2156,13 @@ function getMapQuery(label){
   return label + ' Bali';
 }
 
+const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
+
 function showMapModal(label){
   const query  = getMapQuery(label);
   const enc    = encodeURIComponent(query);
   const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${enc}`;
-  const embedUrl = `https://maps.google.com/maps?q=${enc}&output=embed&hl=es&z=14`;
+  const embedUrl = `https://www.google.com/maps/embed/v1/search?key=${GMAPS_KEY}&q=${enc}&language=es`;
 
   $('map-card-title').textContent   = '📍 ' + label;
   $('btn-open-maps').href  = mapsUrl;
