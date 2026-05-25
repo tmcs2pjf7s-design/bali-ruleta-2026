@@ -6,6 +6,7 @@
   <title>Bali 2026 · 18–23 Junio</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk&libraries=places&callback=initPlacesService"></script>
   <style>
 /* ══════════════════════════════════════════
    TOKENS  (palette extraída de la foto)
@@ -2109,40 +2110,74 @@ function renderDayCards(){
   });
 }
 
+/* ── Google Places Service (carga async con el SDK) ── */
+let _placesService = null;
+
+window.initPlacesService = function(){
+  // PlacesService necesita un Map o un elemento HTML — usamos uno invisible
+  const anchor = document.createElement('div');
+  document.body.appendChild(anchor);
+  const map = new google.maps.Map(anchor, {center:{lat:-8.34,lng:115.09}, zoom:12});
+  anchor.style.display = 'none';
+  _placesService = new google.maps.places.PlacesService(map);
+};
+
+function fetchGooglePhoto(query){
+  return new Promise(resolve => {
+    if(!_placesService){ resolve(null); return; }
+    _placesService.findPlaceFromQuery(
+      { query, fields:['photos','name'] },
+      (results, status) => {
+        if(status === google.maps.places.PlacesServiceStatus.OK && results?.[0]?.photos?.length){
+          resolve(results[0].photos[0].getUrl({ maxWidth:700, maxHeight:450 }));
+        } else {
+          resolve(null);
+        }
+      }
+    );
+  });
+}
+
+function fetchWikiPhoto(article){
+  return fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${article}`)
+    .then(r => r.json())
+    .then(d => d?.thumbnail?.source || d?.originalimage?.source || null)
+    .catch(() => null);
+}
+
 /* ── Suggestion preview modal ── */
 let activeSugg = null;
 
-function openSuggModal(sugg){
+async function openSuggModal(sugg){
   activeSugg = sugg;
-  $('sugg-emoji').textContent  = sugg.e;
-  $('sugg-cat').textContent    = sugg.c;
-  $('sugg-name').textContent   = sugg.e + ' ' + sugg.l;
-  $('btn-sugg-map').href       = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
+  $('sugg-emoji').textContent = sugg.e;
+  $('sugg-cat').textContent   = sugg.c;
+  $('sugg-name').textContent  = sugg.e + ' ' + sugg.l;
+  $('btn-sugg-map').href      = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
 
-  // Reset photo
-  const img = $('sugg-photo');
+  const img  = $('sugg-photo');
+  const ph   = $('sugg-placeholder');
   img.style.display = 'none';
-  $('sugg-placeholder').style.display = 'flex';
+  ph.style.display  = 'flex';
+  $('sugg-overlay').classList.add('show');
 
-  // Fetch photo from Wikipedia if article known
-  if(sugg.w){
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${sugg.w}`)
-      .then(r => r.json())
-      .then(d => {
-        const src = d?.thumbnail?.source || d?.originalimage?.source;
-        if(src){
-          img.onload = () => {
-            img.style.display = 'block';
-            $('sugg-placeholder').style.display = 'none';
-          };
-          img.onerror = () => {};
-          img.src = src;
-        }
-      })
-      .catch(()=>{});
+  function showPhoto(src){
+    img.onload  = () => { img.style.display='block'; ph.style.display='none'; };
+    img.onerror = () => {};
+    img.src = src;
   }
 
-  $('sugg-overlay').classList.add('show');
+  // 1️⃣ Google Maps Places photo (real fotos del sitio)
+  const gPhoto = await fetchGooglePhoto(sugg.m);
+  if(gPhoto){ showPhoto(gPhoto); return; }
+
+  // 2️⃣ Wikipedia (fallback para lugares conocidos)
+  if(sugg.w){
+    const wPhoto = await fetchWikiPhoto(sugg.w);
+    if(wPhoto){ showPhoto(wPhoto); return; }
+  }
+
+  // 3️⃣ Emoji placeholder (sin foto disponible)
 }
 
 function closeSuggModal(){
@@ -2155,8 +2190,7 @@ $('sugg-overlay').addEventListener('click', e=>{ if(e.target===$('sugg-overlay')
 
 $('btn-sugg-add').addEventListener('click', ()=>{
   if(!activeSugg) return;
-  const label = activeSugg.e + ' ' + activeSugg.l;
-  addActivity(label);
+  addActivity(activeSugg.e + ' ' + activeSugg.l);
   toast('¡Añadida al bombo! ✦');
   closeSuggModal();
 });
