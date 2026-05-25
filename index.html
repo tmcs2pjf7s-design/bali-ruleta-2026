@@ -530,6 +530,84 @@ h1 em{
 .pick-emoji{font-size:2rem}
 @media(max-width:480px){.chat-panel{width:100%;right:-100%}}
 
+/* ══════════════════════════════════════════
+   MAPA MODAL
+══════════════════════════════════════════ */
+.map-overlay{
+  position:fixed;inset:0;z-index:1500;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.map-overlay.show{display:flex;animation:fadeIn .22s ease}
+.map-card{
+  background:rgba(10,6,2,.97);border:1px solid rgba(232,186,42,.35);
+  border-radius:22px;overflow:hidden;
+  width:100%;max-width:580px;
+  box-shadow:0 28px 90px rgba(0,0,0,.7);
+  animation:popIn .28s cubic-bezier(.17,.67,.3,1.3);
+  display:flex;flex-direction:column;
+}
+.map-card-header{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px;border-bottom:1px solid rgba(232,186,42,.14);flex-shrink:0;
+}
+.map-card-title{
+  flex:1;font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;color:var(--t1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.btn-map-close{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  font-size:1.25rem;padding:4px 6px;border-radius:8px;transition:all .15s;flex-shrink:0;
+}
+.btn-map-close:hover{background:rgba(232,186,42,.1);color:var(--gold)}
+.map-iframe-wrap{width:100%;height:320px;position:relative;background:#1a1612}
+.map-iframe-wrap iframe{width:100%;height:100%;border:none;display:block}
+.map-iframe-wrap .map-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--t3);font-size:.85rem;gap:8px;flex-direction:column;
+}
+.map-card-footer{
+  padding:12px 18px;border-top:1px solid rgba(232,186,42,.1);
+  display:flex;gap:8px;align-items:center;flex-shrink:0;
+}
+.btn-open-maps{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.28);
+  border-radius:10px;color:var(--gold);
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;
+  padding:10px 16px;text-decoration:none;transition:all .2s;
+}
+.btn-open-maps:hover{background:rgba(232,186,42,.22)}
+.btn-open-gmaps{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(66,133,244,.15);border:1px solid rgba(66,133,244,.3);
+  border-radius:10px;color:#7aafff;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:10px 14px;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-open-gmaps:hover{background:rgba(66,133,244,.25)}
+
+/* Botón mapa en items */
+.btn-tiny-map{
+  background:none;border:none;cursor:pointer;
+  font-size:.8rem;padding:3px 5px;border-radius:6px;
+  transition:all .15s;line-height:1;color:var(--t3);
+}
+.btn-tiny-map:hover{background:rgba(42,158,138,.18);transform:scale(1.15)}
+
+/* Botón mapa en result box */
+.btn-map-result{
+  background:rgba(42,158,138,.1);border:1px solid rgba(42,158,138,.25);
+  border-radius:10px;color:#2A9E8A;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:8px 16px;cursor:pointer;transition:all .2s;width:100%;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-map-result:hover{background:rgba(42,158,138,.2)}
+
+@media(max-width:580px){.map-iframe-wrap{height:240px}}
+
 .wheel-pointer{
   position:absolute;top:-3px;left:50%;
   transform:translateX(-50%);z-index:20;pointer-events:none;
@@ -1343,6 +1421,7 @@ h1 em{
         <p class="res-text" id="res-text">–</p>
         <p class="res-day-label" id="res-day-label"></p>
         <div class="res-divider"></div>
+        <button class="btn-map-result" id="btn-map-result">📍 ¿Dónde está en Bali?</button>
         <button class="btn-confirm" id="btn-confirm">✓ Confirmar para este día</button>
       </div>
 
@@ -1401,6 +1480,30 @@ h1 em{
     <div class="chat-input-wrap">
       <textarea class="chat-textarea" id="chat-textarea" placeholder="Escribe un mensaje… (Enter para enviar)" rows="1"></textarea>
       <button class="btn-chat-send" id="btn-chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAPA MODAL
+══════════════════════════════════════ -->
+<div class="map-overlay" id="map-overlay">
+  <div class="map-card">
+    <div class="map-card-header">
+      <span class="map-card-title" id="map-card-title">📍 Ubicación</span>
+      <button class="btn-map-close" id="btn-map-close">✕</button>
+    </div>
+    <div class="map-iframe-wrap">
+      <div class="map-loading" id="map-loading">🗺️<span>Cargando mapa…</span></div>
+      <iframe id="map-iframe" frameborder="0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="opacity:0;transition:opacity .4s"></iframe>
+    </div>
+    <div class="map-card-footer">
+      <a class="btn-open-maps" id="btn-open-maps" href="#" target="_blank" rel="noopener">
+        🗺️ Ver en mapa completo
+      </a>
+      <a class="btn-open-gmaps" id="btn-open-gmaps" href="#" target="_blank" rel="noopener">
+        <img src="https://www.google.com/favicon.ico" width="14" height="14" style="border-radius:2px" onerror="this.style.display='none'"/> Google Maps
+      </a>
     </div>
   </div>
 </div>
@@ -1840,6 +1943,7 @@ function renderPool(){
     li.draggable=true;li.dataset.idx=idx;
     li.innerHTML=`<div class="pip" style="background:${opt.color}"></div>
       <span class="pool-label">${esc(opt.label)}</span>
+      <button class="btn-tiny-map" onclick="showMapModal(findActivityById(${opt.id})?.label||'')" title="Ver en mapa">📍</button>
       <button class="btn-tiny" onclick="removeFromPool(${opt.id})" title="Quitar">✕</button>`;
     li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',idx);setTimeout(()=>li.style.opacity='.3',0)});
     li.addEventListener('dragend',()=>li.style.opacity='');
@@ -1888,6 +1992,7 @@ function renderDayCards(){
       card.innerHTML=top+`<div class="day-assigned">
         <div class="day-activity-pip" style="background:${act.color}"></div>
         <span class="day-activity-text">${esc(act.label)}</span>
+        <button class="btn-tiny-map" onclick="showMapModal(findActivityById(${act.id})?.label||'${esc(act.label)}')" title="Ver en mapa">📍</button>
         <button class="btn-respin" title="Volver a girar para este día" onclick="returnToPool(${i})">↺</button>
       </div>`;
     } else {
@@ -1961,6 +2066,99 @@ $('btn-reset').addEventListener('click',()=>{
   renderAll();
   renderSuggestions();
 })();
+
+/* ═══════════════════════════════════════════
+   GOOGLE MAPS
+═══════════════════════════════════════════ */
+/* Lugares conocidos de Bali → query optimizada */
+const BALI_PLACES = [
+  ['tanah lot',         'Tanah Lot Temple Bali'],
+  ['ubud',              'Ubud Bali'],
+  ['kuta',              'Kuta Beach Bali'],
+  ['seminyak',          'Seminyak Beach Bali'],
+  ['nusa penida',       'Nusa Penida Island Bali'],
+  ['nusa lembongan',    'Nusa Lembongan Bali'],
+  ['tegalalang',        'Tegalalang Rice Terrace Ubud Bali'],
+  ['monte batur',       'Mount Batur Volcano Bali'],
+  ['mount batur',       'Mount Batur Volcano Bali'],
+  ['batur',             'Mount Batur Volcano Bali'],
+  ['gitgit',            'Gitgit Waterfall Bali'],
+  ['lempuyang',         'Pura Lempuyang Bali'],
+  ['monos',             'Sacred Monkey Forest Ubud Bali'],
+  ['monkey forest',     'Sacred Monkey Forest Ubud Bali'],
+  ['ayung',             'Ayung River Rafting Bali'],
+  ['tulamben',          'Tulamben USAT Liberty Shipwreck Bali'],
+  ['kecak',             'Uluwatu Temple Kecak Dance Bali'],
+  ['uluwatu',           'Uluwatu Temple Bali'],
+  ['surf',              'Kuta Surf Beach Bali'],
+  ['spa',               'Ubud Spa Bali'],
+  ['yoga',              'The Yoga Barn Ubud Bali'],
+  ['cooking',           'Ubud Cooking Class Bali'],
+  ['mercado',           'Ubud Market Bali'],
+  ['market',            'Ubud Market Bali'],
+  ['snorkel',           'Nusa Penida Snorkeling Bali'],
+  ['buceo',             'Tulamben Diving Bali'],
+  ['diving',            'Tulamben Diving Bali'],
+  ['rafting',           'Ayung River Rafting Bali'],
+  ['scooter',           'Ubud Bali'],
+  ['amanecer',          'Mount Batur Sunrise Bali'],
+  ['sunrise',           'Mount Batur Sunrise Bali'],
+  ['atardecer',         'Tanah Lot Sunset Bali'],
+  ['sunset',            'Tanah Lot Sunset Bali'],
+  ['cascada',           'Gitgit Waterfall Bali'],
+  ['waterfall',         'Nungnung Waterfall Bali'],
+  ['pintura',           'Ubud Art Village Bali'],
+  ['cena',              'Jimbaran Bay Seafood Bali'],
+  ['pura',              'Pura Besakih Temple Bali'],
+  ['templo',            'Pura Besakih Temple Bali'],
+];
+
+function getMapQuery(label){
+  const low = label.toLowerCase();
+  for(const [key, query] of BALI_PLACES){
+    if(low.includes(key)) return query;
+  }
+  return label + ' Bali';
+}
+
+function showMapModal(label){
+  const query  = getMapQuery(label);
+  const enc    = encodeURIComponent(query);
+  const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${enc}`;
+  const embedUrl = `https://maps.google.com/maps?q=${enc}&output=embed&hl=es&z=14`;
+
+  $('map-card-title').textContent   = '📍 ' + label;
+  $('btn-open-maps').href  = mapsUrl;
+  $('btn-open-gmaps').href = mapsUrl;
+
+  const iframe   = $('map-iframe');
+  const loading  = $('map-loading');
+  iframe.style.opacity = '0';
+  loading.style.display = 'flex';
+  iframe.onload = ()=>{ iframe.style.opacity='1'; loading.style.display='none'; };
+  iframe.src = embedUrl;
+
+  $('map-overlay').classList.add('show');
+}
+
+function closeMapModal(){
+  $('map-overlay').classList.remove('show');
+  // reset iframe to stop loading / avoid memory
+  setTimeout(()=>{ $('map-iframe').src=''; }, 400);
+}
+
+$('btn-map-close').addEventListener('click', closeMapModal);
+$('map-overlay').addEventListener('click', e=>{ if(e.target===$('map-overlay')) closeMapModal(); });
+
+/* Helper: busca actividad por id en pool + assignments */
+function findActivityById(id){
+  return pool.find(p=>p.id===id) || assignments.find(a=>a&&a.id===id);
+}
+
+/* Botón mapa en result box */
+$('btn-map-result').addEventListener('click', ()=>{
+  if(pendingResult) showMapModal(pendingResult.activity.label);
+});
 
 /* ═══════════════════════════════════════════
    CHAT
