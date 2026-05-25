@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Bali 2026 · 18–23 Junio</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
 /* ══════════════════════════════════════════
    TOKENS  (palette extraída de la foto)
@@ -583,6 +584,25 @@ h1 em{
   z-index:1000;white-space:nowrap;
 }
 #toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Sync status indicator */
+#sync-status{
+  position:fixed;bottom:26px;right:20px;z-index:1001;
+  display:flex;align-items:center;gap:7px;
+  background:rgba(10,6,2,.88);
+  border:1px solid rgba(232,186,42,.18);
+  border-radius:50px;padding:7px 14px;
+  font-size:.7rem;font-weight:600;color:var(--t3);
+  backdrop-filter:blur(12px);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s;
+}
+#sync-status.show{opacity:1}
+.sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:background .3s}
+#sync-status.syncing .sync-dot{background:var(--gold);animation:syncPulse 1s ease-in-out infinite}
+#sync-status.ok      .sync-dot{background:#4ade80}
+#sync-status.err     .sync-dot{background:#f87171}
+@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* ══════════════════════════════════════════
    LOGIN OVERLAY
@@ -1195,6 +1215,7 @@ h1 em{
 </div>
 
 <div id="toast"></div>
+<div id="sync-status"><div class="sync-dot"></div><span id="sync-txt">Sincronizando…</span></div>
 
 <script>
 /* ═══════════════════════════════════════════
@@ -1308,18 +1329,92 @@ const TRIP=[
   {label:'DÍA 6',date:'Lun 23 Jun',emoji:'🌸'},
 ];
 
+/* ═══════════════════════════════════════════
+   SUPABASE  (sincronización en la nube ☁️)
+═══════════════════════════════════════════ */
+const SB_URL  = 'https://hzebrblezimptcwnpijm.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6ZWJyYmxlemltcHRjd25waWptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTM1MzIsImV4cCI6MjA5NTI4OTUzMn0.wC8U7uGFrLkQBy4AcJnIqflMpDFmdu1Jubn9JZ6UeBs';
+const sb = supabase.createClient(SB_URL, SB_ANON);
+
 const KEY='bali-v5';
 let pool=[],assignments=new Array(6).fill(null);
 let spinning=false,spinTarget=-1,pendingResult=null;
 let nextId=1;
+let saveTimer=null;
 
-const save=()=>localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
-const load=()=>{
+/* ── Sync indicator ── */
+const syncEl   = document.getElementById('sync-status');
+const syncTxt  = document.getElementById('sync-txt');
+let syncHideT;
+function showSync(state, msg){
+  syncEl.className='show '+state;
+  syncTxt.textContent=msg;
+  clearTimeout(syncHideT);
+  if(state==='ok') syncHideT=setTimeout(()=>syncEl.classList.remove('show'),2500);
+}
+
+/* ── Save (Supabase + localStorage backup) ── */
+async function save(){
+  localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    showSync('syncing','Guardando…');
+    try{
+      const {error}=await sb.from('bali_ruleta').upsert({
+        id:'state', pool, assignments, next_id:nextId,
+        updated_at:new Date().toISOString()
+      });
+      if(error) throw error;
+      showSync('ok','Guardado ✓');
+    }catch(e){
+      showSync('err','Sin conexión — guardado local');
+      console.warn('Supabase save error:',e);
+    }
+  },600); // debounce 600ms
+}
+
+/* ── Load (Supabase → localStorage fallback) ── */
+async function load(){
   try{
-    const d=JSON.parse(localStorage.getItem(KEY)||'null');
-    if(d){pool=d.pool||[];assignments=d.assignments||new Array(6).fill(null);nextId=d.nextId||1;}
-  }catch(e){}
-};
+    showSync('syncing','Cargando datos…');
+    const {data,error}=await sb.from('bali_ruleta')
+      .select('pool,assignments,next_id')
+      .eq('id','state')
+      .single();
+    if(error) throw error;
+    if(data){
+      pool        = data.pool        || [];
+      assignments = data.assignments || new Array(6).fill(null);
+      nextId      = data.next_id     || 1;
+      localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
+      showSync('ok','Datos cargados ✓');
+    }
+  }catch(e){
+    console.warn('Supabase load failed, using localStorage:',e);
+    showSync('err','Sin conexión — datos locales');
+    try{
+      const d=JSON.parse(localStorage.getItem(KEY)||'null');
+      if(d){pool=d.pool||[];assignments=d.assignments||new Array(6).fill(null);nextId=d.nextId||1;}
+    }catch(_){}
+  }
+}
+
+/* ── Realtime: recarga si el otro dispositivo cambia algo ── */
+sb.channel('bali_ruleta_changes')
+  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'bali_ruleta'},
+    async (payload)=>{
+      // Solo recarga si la actualización NO la hicimos nosotros (debounce de 1s)
+      await new Promise(r=>setTimeout(r,1000));
+      const d=payload.new;
+      if(d){
+        pool=d.pool||[];assignments=d.assignments||new Array(6).fill(null);nextId=d.next_id||1;
+        localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
+        renderAll();
+        showSync('ok','Sincronizado con el otro dispositivo 🔄');
+      }
+    }
+  )
+  .subscribe();
 const $=id=>document.getElementById(id);
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -1653,11 +1748,13 @@ $('btn-reset').addEventListener('click',()=>{
 });
 
 /* ═══════════════════════════════════════════
-   INIT
+   INIT  (async por Supabase)
 ═══════════════════════════════════════════ */
-load();
-renderAll();
-renderSuggestions();
+(async()=>{
+  await load();
+  renderAll();
+  renderSuggestions();
+})();
 </script>
 </body>
 </html>
