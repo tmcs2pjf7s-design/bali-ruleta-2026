@@ -2162,7 +2162,10 @@ function showMapModal(label){
   const query  = getMapQuery(label);
   const enc    = encodeURIComponent(query);
   const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${enc}`;
-  const embedUrl = `https://www.google.com/maps/embed/v1/search?key=${GMAPS_KEY}&q=${enc}&language=es`;
+  // Maps Embed API v1 (requiere API key activa en Google Cloud Console)
+  const embedUrl = GMAPS_KEY
+    ? `https://www.google.com/maps/embed/v1/search?key=${GMAPS_KEY}&q=${enc}&language=es`
+    : `https://maps.google.com/maps?q=${enc}&output=embed&hl=es`;
 
   $('map-card-title').textContent   = '📍 ' + label;
   $('btn-open-maps').href  = mapsUrl;
@@ -2173,6 +2176,7 @@ function showMapModal(label){
   iframe.style.opacity = '0';
   loading.style.display = 'flex';
   iframe.onload = ()=>{ iframe.style.opacity='1'; loading.style.display='none'; };
+  iframe.onerror = ()=>{ loading.innerHTML='⚠️ <span>Activa "Maps Embed API" en Google Cloud Console</span>'; };
   iframe.src = embedUrl;
 
   $('map-overlay').classList.add('show');
