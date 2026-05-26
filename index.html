@@ -360,6 +360,58 @@ h1 em{
 .btn-random:hover{background:rgba(106,58,154,.32);border-color:rgba(106,58,154,.6);transform:translateY(-1px)}
 .btn-random:active{transform:scale(.98)}
 
+/* Modal plan sorpresa */
+.plan-overlay{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.plan-overlay.show{opacity:1;pointer-events:auto}
+.plan-card{
+  background:linear-gradient(145deg,rgba(20,12,4,.95),rgba(12,8,2,.98));
+  border:1px solid rgba(232,186,42,.35);border-radius:24px;
+  padding:32px 28px 28px;max-width:380px;width:90%;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px rgba(232,186,42,.1);
+  animation:popIn .35s cubic-bezier(.17,.67,.3,1.3);
+  text-align:center;
+}
+.plan-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;font-weight:900;color:var(--t1);
+  margin-bottom:4px;
+}
+.plan-sub{
+  font-family:'Dancing Script',cursive;
+  font-size:1rem;color:var(--gold);margin-bottom:20px;
+}
+.plan-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.plan-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(232,186,42,.1);
+  border-radius:12px;padding:10px 14px;text-align:left;
+}
+.plan-row-date{
+  font-size:.7rem;font-weight:700;color:var(--t3);
+  letter-spacing:.06em;text-transform:uppercase;min-width:72px;
+}
+.plan-row-name{font-size:.9rem;font-weight:600;color:var(--t1)}
+.plan-actions{display:flex;gap:10px}
+.btn-plan-ok{
+  flex:1;background:linear-gradient(135deg,#b84010,#e8a028);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
+  padding:13px;cursor:pointer;transition:all .2s;
+}
+.btn-plan-ok:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,64,16,.5)}
+.btn-plan-reroll{
+  background:rgba(106,58,154,.2);border:1px solid rgba(106,58,154,.35);
+  border-radius:12px;color:#c09de8;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
+  padding:13px 16px;cursor:pointer;transition:all .2s;
+}
+.btn-plan-reroll:hover{background:rgba(106,58,154,.38)}
+
 /* Botón cerrar sesión */
 .btn-logout{
   position:fixed;top:14px;right:16px;
@@ -1717,6 +1769,19 @@ h1 em{
   </div>
 </div>
 
+<!-- Modal plan sorpresa -->
+<div class="plan-overlay" id="plan-overlay">
+  <div class="plan-card">
+    <div class="plan-title">🎲 Plan Sorpresa</div>
+    <div class="plan-sub">Bali 2026 · Generado al azar ✦</div>
+    <div class="plan-rows" id="plan-rows"></div>
+    <div class="plan-actions">
+      <button class="btn-plan-ok" id="btn-plan-ok">¡Sí, este plan! 🌴</button>
+      <button class="btn-plan-reroll" id="btn-plan-reroll" title="Otro plan">🎲</button>
+    </div>
+  </div>
+</div>
+
 <!-- User picker modal -->
 <div class="user-picker-overlay" id="user-picker" style="display:none">
   <div class="user-picker-card">
@@ -2491,33 +2556,55 @@ $('sugg-search').addEventListener('keydown', e=>{
   if(e.key==='Enter') searchAndOpen($('sugg-search').value);
 });
 
-/* ── Selección al azar (sin animación) ── */
-function pickRandom(){
-  if(!pool.length){ toast('Añadid actividades al bombo primero 🌴'); return; }
-  // Busca días libres
-  const freeDays = assignments.map((a,i)=>a===null?i:-1).filter(i=>i!==-1);
-  if(!freeDays.length){ toast('¡Todos los días ya tienen actividad! ↺ para reiniciar 😊'); return; }
-  const dayIdx = spinTarget >= 0 && assignments[spinTarget]===null
-    ? spinTarget
-    : freeDays[Math.floor(Math.random()*freeDays.length)];
-  const winnerIdx = Math.floor(Math.random()*pool.length);
-  const activity  = pool[winnerIdx];
-  pool.splice(winnerIdx, 1);
-  assignments[dayIdx] = activity;
+/* ── Plan aleatorio completo desde SUGGESTIONS ── */
+let _pendingPicks = null; // guarda las picks antes de confirmar
+
+function generatePicks(){
+  const universe = [...SUGGESTIONS, ...savedSuggs.filter(s=>!SUGGESTIONS.find(x=>x.l===s.l))];
+  return [...universe].sort(()=>Math.random()-0.5).slice(0, 6);
+}
+
+function showPlanModal(picks){
+  _pendingPicks = picks;
+  const rows = $('plan-rows');
+  rows.innerHTML = '';
+  picks.forEach((s, i)=>{
+    const row = document.createElement('div');
+    row.className = 'plan-row';
+    row.innerHTML = `<span class="plan-row-date">${TRIP[i].date}</span>
+                     <span class="plan-row-name">${s.e} ${s.l}</span>`;
+    rows.appendChild(row);
+  });
+  $('plan-overlay').classList.add('show');
+}
+
+function applyPlan(picks){
+  assignments = new Array(6).fill(null);
+  pool        = [];
+  nextId      = 1;
+  picks.forEach((sugg, i)=>{
+    assignments[i] = {id:nextId++, label:sugg.e+' '+sugg.l, color:PALETTE[i%PALETTE.length]};
+  });
+  spinTarget = -1;
   save();
   renderAll();
-  const DAYS_ES=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const date = new Date(2026,5,18+dayIdx); // 18 Junio 2026
-  const label = `${DAYS_ES[date.getDay()]} ${18+dayIdx} Jun`;
-  toast(`🎲 ${activity.label} → ${label}!`);
-  spinTarget = -1;
-  // Actualizar badge de objetivo
-  const nextE = getNextEmptyDay();
-  const stb2  = $('stb-text');
-  if(nextE === -1) stb2.textContent = '¡Itinerario completo! 🌴🍷';
-  else stb2.textContent = `Girando para: ${TRIP[nextE].label} · ${TRIP[nextE].date}`;
+  launchConfetti();
+  $('plan-overlay').classList.remove('show');
+  _pendingPicks = null;
 }
+
+function pickRandom(){
+  const hasData = assignments.some(Boolean) || pool.length > 0;
+  if(hasData && !confirm('🎲 ¿Generar un plan sorpresa completo?\nSe reemplazará el itinerario actual.')) return;
+  showPlanModal(generatePicks());
+}
+
 $('btn-random').addEventListener('click', pickRandom);
+$('btn-plan-ok').addEventListener('click', ()=>{ if(_pendingPicks) applyPlan(_pendingPicks); });
+$('btn-plan-reroll').addEventListener('click', ()=> showPlanModal(generatePicks()));
+$('plan-overlay').addEventListener('click', e=>{
+  if(e.target===$('plan-overlay')) $('plan-overlay').classList.remove('show');
+});
 
 /* ── Cerrar sesión ── */
 $('btn-logout').addEventListener('click', ()=>{
