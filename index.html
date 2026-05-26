@@ -287,6 +287,88 @@ h1 em{
   display:none;z-index:2;
 }
 .photo-counter.visible{display:block}
+.photo-attribution{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:22px 10px 6px;
+  background:linear-gradient(to top,rgba(0,0,0,.55),transparent);
+  color:rgba(255,255,255,.6);font-size:.58rem;
+  text-align:right;letter-spacing:.02em;
+  display:none;pointer-events:none;
+}
+.photo-attribution.visible{display:block}
+.btn-sugg-reserve{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(52,168,83,.14);border:1px solid rgba(52,168,83,.35);
+  border-radius:12px;color:#5cb85c;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:12px 12px;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-reserve:hover{background:rgba(52,168,83,.26)}
+
+/* Guardar / saved */
+.btn-sugg-save{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(232,186,42,.10);border:1px solid rgba(232,186,42,.28);
+  border-radius:12px;color:var(--gold);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:10px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-save:hover{background:rgba(232,186,42,.22)}
+.btn-sugg-save.saved{
+  background:rgba(232,186,42,.22);border-color:rgba(232,186,42,.55);
+}
+
+/* Buscador sugerencias */
+.sugg-search-row{display:flex;gap:6px;margin-bottom:10px}
+.sugg-search-row input{
+  flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,186,42,.18);
+  border-radius:10px;padding:7px 12px;color:var(--t1);
+  font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;
+}
+.sugg-search-row input::placeholder{color:var(--t3)}
+.sugg-search-row input:focus{border-color:rgba(232,186,42,.45)}
+.btn-sugg-search{
+  background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.28);
+  border-radius:10px;color:var(--gold);font-size:.8rem;font-weight:600;
+  padding:7px 13px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-search:hover{background:rgba(232,186,42,.24)}
+
+/* Sección guardadas */
+.saved-chips-section{margin-top:4px}
+.saved-chips-section .chips{margin-top:6px}
+.chip.saved-chip{
+  background:rgba(232,186,42,.08);border-color:rgba(232,186,42,.3);color:var(--gold);
+  position:relative;padding-right:26px;
+}
+.chip-remove{
+  position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  font-size:.65rem;color:var(--t3);cursor:pointer;line-height:1;
+  padding:0 2px;transition:color .15s;
+}
+.chip-remove:hover{color:#ff6b6b}
+
+/* Botón random */
+.btn-random{
+  width:100%;max-width:380px;
+  background:rgba(106,58,154,.18);border:1px solid rgba(106,58,154,.35);
+  border-radius:14px;color:#c09de8;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;
+  padding:13px 24px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+}
+.btn-random:hover{background:rgba(106,58,154,.32);border-color:rgba(106,58,154,.6);transform:translateY(-1px)}
+.btn-random:active{transform:scale(.98)}
+
+/* Botón cerrar sesión */
+.btn-logout{
+  position:fixed;top:14px;right:16px;
+  background:rgba(0,0,0,.4);border:1px solid rgba(232,186,42,.18);
+  border-radius:50px;padding:6px 14px;
+  color:var(--t3);font-size:.7rem;font-weight:600;cursor:pointer;
+  backdrop-filter:blur(12px);z-index:999;transition:all .2s;
+}
+.btn-logout:hover{border-color:rgba(232,186,42,.45);color:var(--gold)}
 
 .orn{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
 .orn-line{height:1px;width:70px;background:linear-gradient(to right,transparent,rgba(232,186,42,.35),transparent)}
@@ -1217,13 +1299,13 @@ h1 em{
       </div><!-- /svg-wrap -->
 
       <div class="login-img-grad"></div>
-      <div class="login-img-label">Bali · Junio 2026 🍷</div>
+      <div class="login-img-label">2026 🍷</div>
     </div><!-- /login-img -->
 
     <!-- ── Formulario ── -->
     <div class="login-form">
-      <span class="login-icon">🌺</span>
-      <div class="login-title">Bali 2026 <em>Ruleta</em></div>
+      <span class="login-icon">🥥</span>
+      <div class="login-title"> Bali <em>Ruleta</em></div>
       <div class="login-sub">Se me fue de las manos amor ✦</div>
 
       <div class="login-orn">
@@ -1243,7 +1325,7 @@ h1 em{
 
       <button class="btn-login" id="btn-login">Entrar a Bali ✦</button>
 
-      <p class="login-hint">Acceso privado · Bali 2026</p>
+      <p class="login-hint">Acceso privado, no toques!</p>
     </div>
 
   </div><!-- /login-card -->
@@ -1405,16 +1487,16 @@ h1 em{
   <header>
     <div class="badge-dates">
       <span class="badge-dot"></span>
-      Bali · 18 – 23 Junio 2026
+       · 18 – 23 Junio 2026
       <span class="badge-dot"></span>
     </div>
 
     <h1>Aventura <em>Bali 2026</em></h1>
-    <p class="header-sub">Estasss bien amorrrrr ✦</p>
+    <p class="header-sub">Estasss bien amorrrrr ? ✦</p>
 
     <div class="countdown" id="countdown-wrap">
       <span class="cd-num" id="cd-days">–</span>
-      <span class="cd-lbl">días para</span>
+      <span class="cd-lbl">días</span>
       <span class="cd-sep">·</span>
       <span class="cd-num" id="cd-hours">–</span>
       <span class="cd-lbl">horas</span>
@@ -1431,6 +1513,8 @@ h1 em{
       <div class="orn-line"></div>
     </div>
   </header>
+
+  <button class="btn-logout" id="btn-logout" title="Cerrar sesión">🔒 Salir</button>
 
   <!-- MAIN GRID -->
   <div class="main-grid">
@@ -1455,7 +1539,17 @@ h1 em{
       <div class="divider"></div>
 
       <p class="section-label">💡 Sugerencias</p>
+      <div class="sugg-search-row">
+        <input id="sugg-search" type="text" placeholder="🔍 Buscar un sitio en Bali…" maxlength="80"/>
+        <button class="btn-sugg-search" id="btn-sugg-search">Buscar</button>
+      </div>
       <div class="chips" id="chips"></div>
+
+      <div class="saved-chips-section" id="saved-section" style="display:none">
+        <div class="divider"></div>
+        <p class="section-label">📌 Guardadas</p>
+        <div class="chips" id="saved-chips"></div>
+      </div>
     </div>
 
     <!-- ══ COL 2: RULETA ══ -->
@@ -1493,6 +1587,10 @@ h1 em{
       <button class="btn-spin" id="btn-spin">
         <span class="spin-ico">✦</span>
         ¡Girar la Ruleta!
+      </button>
+
+      <button class="btn-random" id="btn-random">
+        🎲 Selección al azar
       </button>
 
       <button class="btn-ghost" id="btn-reset" style="margin-top:-4px">↺ Reiniciar todo el itinerario</button>
@@ -1577,16 +1675,18 @@ h1 em{
       <img class="sugg-photo" id="sugg-photo" src="" alt="" style="display:none"/>
       <div class="sugg-photo-placeholder" id="sugg-placeholder"><span id="sugg-emoji">🌴</span></div>
       <button class="btn-sugg-close" id="btn-sugg-close">✕</button>
-      <!-- Navegación fotos -->
       <button class="btn-photo-nav prev" id="btn-photo-prev">‹</button>
       <button class="btn-photo-nav next" id="btn-photo-next">›</button>
       <div class="photo-counter" id="photo-counter"></div>
+      <div class="photo-attribution" id="photo-attribution"></div>
     </div>
     <div class="sugg-body">
       <div class="sugg-cat" id="sugg-cat"></div>
       <div class="sugg-name" id="sugg-name"></div>
       <div class="sugg-actions">
-        <button class="btn-sugg-add" id="btn-sugg-add">+ Añadir al bombo</button>
+        <button class="btn-sugg-add" id="btn-sugg-add">Añadir al bombo</button>
+        <button class="btn-sugg-save" id="btn-sugg-save">Guardar</button>
+        <a class="btn-sugg-reserve" id="btn-sugg-reserve" href="#" target="_blank" rel="noopener" style="display:none">🍽️ Reservar</a>
         <a class="btn-sugg-map" id="btn-sugg-map" href="#" target="_blank" rel="noopener">📍 Mapa</a>
       </div>
     </div>
@@ -1620,15 +1720,15 @@ h1 em{
 <!-- User picker modal -->
 <div class="user-picker-overlay" id="user-picker" style="display:none">
   <div class="user-picker-card">
-    <div class="user-picker-title">¿Quién eres? 🌺</div>
-    <div class="user-picker-sub">Elige tu nombre para el chat de Bali</div>
+    <div class="user-picker-title">¿Quién eres? </div>
+    <div class="user-picker-sub">Selecciona plis</div>
     <div class="user-picker-options">
       <button class="btn-user-pick ruslan" data-user="Ruslan">
-        <span class="pick-emoji">🧔</span>
+        <span class="pick-emoji"></span>
         Ruslan
       </button>
       <button class="btn-user-pick amor" data-user="Anabel">
-        <span class="pick-emoji">🌸</span>
+        <span class="pick-emoji"></span>
         Anabel
       </button>
     </div>
@@ -2047,8 +2147,8 @@ $('btn-confirm').addEventListener('click',()=>{
   $('result-box').classList.remove('show');
   renderAll();
   const done=assignments.filter(Boolean).length;
-  if(done===6) toast('¡Itinerario completo! Preparad las maletas 🧳✈️');
-  else         toast('¡Asignado! Girad para el siguiente día 🌴');
+  if(done===6) toast('¡Itinerario completo!');
+  else         toast('¡Asignado! Gira para el siguiente día 🌴');
 });
 
 /* ═══════════════════════════════════════════
@@ -2135,17 +2235,28 @@ function renderDayCards(){
 /* ── Google Places API (New) — fotos con navegación ── */
 const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
 
-// Devuelve array de nombres de foto del lugar
-async function fetchPhotoNames(query){
+// Devuelve datos del lugar: fotos, reservable, websiteUri, displayName, type
+async function fetchPlaceData(query){
   try{
     const r = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${GMAPS_KEY}`, {
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Goog-FieldMask':'places.photos'},
+      headers:{'Content-Type':'application/json',
+               'X-Goog-FieldMask':'places.photos,places.reservable,places.websiteUri,places.displayName,places.primaryTypeDisplayName'},
       body: JSON.stringify({textQuery:query, languageCode:'es', maxResultCount:1})
     });
     const d = await r.json();
-    return (d?.places?.[0]?.photos || []).map(p => p.name);
-  } catch(e){ return []; }
+    const place = d?.places?.[0] || {};
+    return {
+      photos:     (place.photos || []).map(p=>({
+                    name:   p.name,
+                    author: p.authorAttributions?.[0]?.displayName || null
+                  })),
+      reservable: place.reservable || false,
+      website:    place.websiteUri || null,
+      displayName: place.displayName?.text || null,
+      type:        place.primaryTypeDisplayName?.text || null
+    };
+  } catch(e){ return {photos:[], reservable:false, website:null, displayName:null, type:null}; }
 }
 
 // Convierte nombre → URI de imagen (con caché)
@@ -2169,11 +2280,11 @@ function fetchWikiPhoto(article){
 
 /* ── Suggestion preview modal ── */
 let activeSugg  = null;
-let _photoNames = [];
+let _photos     = [];   // [{name, author}, ...]
 let _photoIdx   = 0;
 
 function updateNavUI(){
-  const total = _photoNames.length;
+  const total   = _photos.length;
   const hasPrev = _photoIdx > 0;
   const hasNext = _photoIdx < total - 1;
   $('btn-photo-prev').classList.toggle('visible', total > 1);
@@ -2183,12 +2294,17 @@ function updateNavUI(){
   const ctr = $('photo-counter');
   if(total > 1){ ctr.textContent = `${_photoIdx+1} / ${total}`; ctr.classList.add('visible'); }
   else          { ctr.classList.remove('visible'); }
+  // Atribución
+  const attr = $('photo-attribution');
+  const author = _photos[_photoIdx]?.author;
+  if(author){ attr.textContent = `📷 ${author} · Google Maps`; attr.classList.add('visible'); }
+  else       { attr.textContent = 'Foto: Google Maps'; attr.classList.add('visible'); }
 }
 
 async function displayPhotoAt(idx){
   const img = $('sugg-photo');
   const ph  = $('sugg-placeholder');
-  const uri = await getPhotoUri(_photoNames[idx]);
+  const uri = await getPhotoUri(_photos[idx].name);
   if(uri){
     img.onload  = () => { img.style.display='block'; ph.style.display='none'; };
     img.onerror = () => {};
@@ -2201,12 +2317,12 @@ $('btn-photo-prev').addEventListener('click', ()=>{
   if(_photoIdx > 0){ _photoIdx--; displayPhotoAt(_photoIdx); }
 });
 $('btn-photo-next').addEventListener('click', ()=>{
-  if(_photoIdx < _photoNames.length-1){ _photoIdx++; displayPhotoAt(_photoIdx); }
+  if(_photoIdx < _photos.length-1){ _photoIdx++; displayPhotoAt(_photoIdx); }
 });
 
 async function openSuggModal(sugg){
   activeSugg  = sugg;
-  _photoNames = [];
+  _photos     = [];
   _photoIdx   = 0;
   $('sugg-emoji').textContent = sugg.e;
   $('sugg-cat').textContent   = sugg.c;
@@ -2220,13 +2336,24 @@ async function openSuggModal(sugg){
   $('btn-photo-prev').classList.remove('visible');
   $('btn-photo-next').classList.remove('visible');
   $('photo-counter').classList.remove('visible');
+  $('photo-attribution').classList.remove('visible');
+  $('btn-sugg-reserve').style.display = 'none';
   $('sugg-overlay').classList.add('show');
+  updateSaveBtn();
 
-  // 1️⃣ Google Maps Places (con navegación entre fotos)
-  const names = await fetchPhotoNames(sugg.m);
-  if(names.length){
-    _photoNames = names;
-    _photoIdx   = 0;
+  // 1️⃣ Google Maps Places (fotos + reservable + web)
+  const result = await fetchPlaceData(sugg.m);
+
+  // Botón de reserva
+  if(result.reservable && result.website){
+    const btnR = $('btn-sugg-reserve');
+    btnR.href         = result.website;
+    btnR.style.display = 'flex';
+  }
+
+  if(result.photos.length){
+    _photos   = result.photos;
+    _photoIdx = 0;
     displayPhotoAt(0);
     return;
   }
@@ -2259,6 +2386,147 @@ $('btn-sugg-add').addEventListener('click', ()=>{
   closeSuggModal();
 });
 
+/* ── Sugerencias guardadas ── */
+let savedSuggs = JSON.parse(localStorage.getItem('bali-saved') || '[]');
+
+function isSaved(sugg){ return savedSuggs.some(s=>s.l===sugg.l); }
+
+function toggleSave(sugg){
+  if(isSaved(sugg)){
+    savedSuggs = savedSuggs.filter(s=>s.l!==sugg.l);
+    toast('Eliminada de guardadas');
+  } else {
+    savedSuggs.push(sugg);
+    toast('💾 ¡Guardada!');
+  }
+  localStorage.setItem('bali-saved', JSON.stringify(savedSuggs));
+  renderSavedChips();
+  updateSaveBtn();
+}
+
+function updateSaveBtn(){
+  if(!activeSugg) return;
+  const btn = $('btn-sugg-save');
+  const saved = isSaved(activeSugg);
+  btn.textContent = saved ? '✓ Guardada' : '💾 Guardar';
+  btn.classList.toggle('saved', saved);
+}
+
+function renderSavedChips(){
+  const c   = $('saved-chips');
+  const sec = $('saved-section');
+  c.innerHTML = '';
+  if(!savedSuggs.length){ sec.style.display='none'; return; }
+  sec.style.display = '';
+  savedSuggs.forEach(s=>{
+    const b = document.createElement('button');
+    b.className = 'chip saved-chip';
+    b.innerHTML = `${s.e} ${s.l}<span class="chip-remove" title="Quitar">✕</span>`;
+    b.addEventListener('click', e=>{
+      if(e.target.classList.contains('chip-remove')){ toggleSave(s); return; }
+      openSuggModal(s);
+    });
+    c.appendChild(b);
+  });
+}
+
+$('btn-sugg-save').addEventListener('click', ()=>{
+  if(!activeSugg) return;
+  toggleSave(activeSugg);
+});
+
+/* ── Buscador Google Maps → modal ── */
+async function searchAndOpen(query){
+  query = query.trim();
+  if(!query) return;
+  const btn = $('btn-sugg-search');
+  btn.textContent = '…';
+  btn.disabled = true;
+  const result = await fetchPlaceData(query);
+  btn.textContent = 'Buscar';
+  btn.disabled = false;
+  const name = result.displayName || query;
+  const cat  = result.type || 'Lugar en Bali';
+  const sugg = {l: name, e: '📍', c: cat, m: query, w: null, _result: result};
+  openSuggModalWithData(sugg, result);
+}
+
+async function openSuggModalWithData(sugg, result){
+  activeSugg  = sugg;
+  _photos     = [];
+  _photoIdx   = 0;
+  $('sugg-emoji').textContent = sugg.e;
+  $('sugg-cat').textContent   = sugg.c;
+  $('sugg-name').textContent  = sugg.e + ' ' + sugg.l;
+  $('btn-sugg-map').href      = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
+
+  const img = $('sugg-photo');
+  const ph  = $('sugg-placeholder');
+  img.style.display = 'none';
+  ph.style.display  = 'flex';
+  $('btn-photo-prev').classList.remove('visible');
+  $('btn-photo-next').classList.remove('visible');
+  $('photo-counter').classList.remove('visible');
+  $('photo-attribution').classList.remove('visible');
+  $('btn-sugg-reserve').style.display = 'none';
+  $('sugg-overlay').classList.add('show');
+  updateSaveBtn();
+
+  if(result.reservable && result.website){
+    const btnR = $('btn-sugg-reserve');
+    btnR.href = result.website;
+    btnR.style.display = 'flex';
+  }
+  if(result.photos.length){
+    _photos   = result.photos;
+    _photoIdx = 0;
+    displayPhotoAt(0);
+  }
+}
+
+$('btn-sugg-search').addEventListener('click', ()=>{
+  searchAndOpen($('sugg-search').value);
+});
+$('sugg-search').addEventListener('keydown', e=>{
+  if(e.key==='Enter') searchAndOpen($('sugg-search').value);
+});
+
+/* ── Selección al azar (sin animación) ── */
+function pickRandom(){
+  if(!pool.length){ toast('Añadid actividades al bombo primero 🌴'); return; }
+  // Busca días libres
+  const freeDays = assignments.map((a,i)=>a===null?i:-1).filter(i=>i!==-1);
+  if(!freeDays.length){ toast('¡Todos los días ya tienen actividad! ↺ para reiniciar 😊'); return; }
+  const dayIdx = spinTarget >= 0 && assignments[spinTarget]===null
+    ? spinTarget
+    : freeDays[Math.floor(Math.random()*freeDays.length)];
+  const winnerIdx = Math.floor(Math.random()*pool.length);
+  const activity  = pool[winnerIdx];
+  pool.splice(winnerIdx, 1);
+  assignments[dayIdx] = activity;
+  save();
+  renderAll();
+  const DAYS_ES=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const date = new Date(2026,5,18+dayIdx); // 18 Junio 2026
+  const label = `${DAYS_ES[date.getDay()]} ${18+dayIdx} Jun`;
+  toast(`🎲 ${activity.label} → ${label}!`);
+  spinTarget = -1;
+  // Actualizar badge de objetivo
+  const nextE = getNextEmptyDay();
+  const stb2  = $('stb-text');
+  if(nextE === -1) stb2.textContent = '¡Itinerario completo! 🌴🍷';
+  else stb2.textContent = `Girando para: ${TRIP[nextE].label} · ${TRIP[nextE].date}`;
+}
+$('btn-random').addEventListener('click', pickRandom);
+
+/* ── Cerrar sesión ── */
+$('btn-logout').addEventListener('click', ()=>{
+  if(!confirm('¿Cerrar sesión?')) return;
+  sessionStorage.removeItem('bali-auth');
+  sessionStorage.removeItem('bali-user');
+  location.reload();
+});
+
 function renderSuggestions(){
   const c=$('chips');
   SUGGESTIONS.forEach(s=>{
@@ -2268,6 +2536,7 @@ function renderSuggestions(){
     b.addEventListener('click', ()=> openSuggModal(s));
     c.appendChild(b);
   });
+  renderSavedChips();
 }
 
 function renderAll(){
