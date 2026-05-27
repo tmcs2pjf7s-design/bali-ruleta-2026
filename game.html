@@ -548,7 +548,7 @@ function countRevealed(){
    NAVEGACIÓN
 ═══════════════════════════════════════════ */
 function goHome(){
-  document.getElementById('screen-home').style.display   = '';
+  document.getElementById('screen-home').style.display   = 'flex';
   document.getElementById('screen-game').style.display   = 'none';
   document.getElementById('screen-verdict').style.display= 'none';
   currentCase = null; selectedSusp = null;
@@ -565,7 +565,7 @@ function startCase(idx){
 
   document.getElementById('screen-home').style.display   = 'none';
   document.getElementById('screen-verdict').style.display= 'none';
-  document.getElementById('screen-game').style.display   = '';
+  document.getElementById('screen-game').style.display   = 'block';
   window.scrollTo(0,0);
 
   // Header
