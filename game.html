@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet"/>
 
   <!-- GSAP + ScrollTrigger (animaciones cinematográficas) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
@@ -1425,6 +1426,91 @@ body.loading{overflow:hidden}
 </div>
 
 <script>
+
+/* ════════════════════════════════════════════════
+   SUPABASE — cliente y capa de datos
+════════════════════════════════════════════════ */
+const SB_URL  = 'https://hzebrblezimptcwnpijm.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6ZWJyYmxlemltcHRjd25waWptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTM1MzIsImV4cCI6MjA5NTI4OTUzMn0.wC8U7uGFrLkQBy4AcJnIqflMpDFmdu1Jubn9JZ6UeBs';
+const sb = supabase.createClient(SB_URL, SB_ANON);
+
+const DB = {
+  /* ── cache local para operaciones síncronas ── */
+  _data: {
+    Ruslan: {total_pts:0, cases_solved:0, cases_attempted:0, rank_title:'Detective Novato'},
+    Anabel: {total_pts:0, cases_solved:0, cases_attempted:0, rank_title:'Detective Novata'},
+  },
+  _ready: false,
+
+  /* ── Carga los totales desde Supabase ── */
+  async load(){
+    try {
+      const {data, error} = await sb.from('crims_players').select('*');
+      if(error) throw error;
+      if(data && data.length){
+        data.forEach(row => {
+          this._data[row.player] = row;
+          // Sync localStorage
+          localStorage.setItem('crims_pts_'+row.player, String(row.total_pts));
+        });
+      }
+      this._ready = true;
+    } catch(e){
+      console.warn('[CRIMS] DB no disponible, usando localStorage:', e.message);
+      // Fallback: leer desde localStorage
+      ['Ruslan','Anabel'].forEach(p=>{
+        const pts = parseInt(localStorage.getItem('crims_pts_'+p)||'0');
+        this._data[p] = {...this._data[p], total_pts: pts};
+      });
+    }
+    return this._data;
+  },
+
+  /* ── Devuelve pts del cache (síncrono) ── */
+  pts(player){
+    return this._data[player]?.total_pts ?? parseInt(localStorage.getItem('crims_pts_'+player)||'0');
+  },
+
+  /* ── Guarda resultado de una partida ── */
+  async record({player, caseIdx, caseTitle, correct, cluesFound, ptsEarned, accused}){
+    const prev = this._data[player] || {total_pts:0, cases_solved:0, cases_attempted:0};
+    const updated = {
+      player,
+      total_pts:       prev.total_pts + ptsEarned,
+      cases_solved:    prev.cases_solved   + (correct ? 1 : 0),
+      cases_attempted: prev.cases_attempted + 1,
+      rank_title:      getPlayerRank(player).title,
+      updated_at:      new Date().toISOString(),
+    };
+
+    // Actualizar cache y localStorage inmediatamente
+    this._data[player] = updated;
+    localStorage.setItem('crims_pts_'+player, String(updated.total_pts));
+
+    // Escribir en BD de forma async (fire & forget con reintento)
+    try {
+      await sb.from('crims_scores').insert({
+        player, case_idx: caseIdx, case_title: caseTitle,
+        correct, clues_found: cluesFound, pts_earned: ptsEarned, accused,
+      });
+      await sb.from('crims_players').upsert(updated, {onConflict:'player'});
+    } catch(e){
+      console.warn('[CRIMS] Error al guardar en BD:', e.message);
+      // Reintento único en 5 segundos
+      setTimeout(async ()=>{
+        try {
+          await sb.from('crims_players').upsert(updated, {onConflict:'player'});
+        } catch(_){}
+      }, 5000);
+    }
+
+    return updated;
+  },
+};
+
+/* Arrancar carga de datos en background */
+DB.load().then(()=> updateScoreboard?.());
+
 /* ════════════════════════════════════════════════
    CURSOR PERSONALIZADO
 ════════════════════════════════════════════════ */
@@ -2107,10 +2193,31 @@ function makeAccusation(){
       AudioSystem.successChime();
       const _clues=revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length;
       const _pts=3+_clues;
-      if(currentPlayer) addPlayerPts(currentPlayer, _pts);
       DetectiveRank.addPoints(_pts);
+      if(currentPlayer){
+        DB.record({
+          player:      currentPlayer,
+          caseIdx:     currentCase,
+          caseTitle:   CASES[currentCase]?.title||'',
+          correct:     true,
+          cluesFound:  _clues,
+          ptsEarned:   _pts,
+          accused:     selectedSusp,
+        }).then(()=>updateScoreboard());
+      }
     } else {
       AudioSystem.heartbeat();
+      if(currentPlayer){
+        DB.record({
+          player:      currentPlayer,
+          caseIdx:     currentCase,
+          caseTitle:   CASES[currentCase]?.title||'',
+          correct:     false,
+          cluesFound:  revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length,
+          ptsEarned:   0,
+          accused:     selectedSusp,
+        }).then(()=>updateScoreboard());
+      }
     }
   });
 }
@@ -2659,11 +2766,13 @@ const RANKS_FEMALE = [
 ];
 
 function getPlayerPts(name){
-  return parseInt(localStorage.getItem('crims_pts_'+name)||'0');
+  return DB.pts(name);
 }
 function addPlayerPts(name, pts){
+  // Llamado desde makeAccusation — la escritura real ocurre en DB.record()
   const cur = getPlayerPts(name);
   localStorage.setItem('crims_pts_'+name, String(cur+pts));
+  if(DB._data[name]) DB._data[name].total_pts = cur+pts;
   return cur+pts;
 }
 function getPlayerRank(name){
