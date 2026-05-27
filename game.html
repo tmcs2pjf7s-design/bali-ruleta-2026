@@ -309,37 +309,53 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 <div id="screen-home">
   <div class="home-badge">🔍 Investigación Criminal</div>
   <h1 class="home-title">CRIMS<br><span>detective</span></h1>
-  <p class="home-sub">Tres casos. Un culpable. ¿Puedes resolverlos?</p>
+  <p class="home-sub">Cinco casos reales. Un culpable. ¿Puedes resolverlos?</p>
 
   <div class="case-grid">
 
     <div class="case-card" onclick="startCase(0)">
-      <div class="case-num">Caso 01</div>
-      <div class="case-title">El Vino de la Discordia</div>
-      <div class="case-location">🍷 Barcelona · Cena privada</div>
-      <div class="case-desc">Enric Puig, coleccionista de vinos, aparece muerto en su propia mesa durante una cena exclusiva con cinco invitados. La copa aún en la mano.</div>
+      <div class="case-num">Caso 01 · Real</div>
+      <div class="case-title">El Caso Asunta</div>
+      <div class="case-location">🏡 Santiago de Compostela · 2013</div>
+      <div class="case-desc">Asunta Basterra Porto, 12 años, aparece muerta en una carretera comarcal. Adoptada de China, hija de una familia de clase alta gallega. El crimen conmocionó España.</div>
       <div class="case-badge badge-open">● Abierto</div>
     </div>
 
     <div class="case-card" onclick="startCase(1)">
-      <div class="case-num">Caso 02</div>
-      <div class="case-title">El Senderista</div>
-      <div class="case-location">🏔️ Pirineos · Ruta de montaña</div>
-      <div class="case-desc">Ferran Esteve, fotógrafo de naturaleza, cae por un precipicio. Las autoridades lo cierran como accidente. Pero hay detalles que no cuadran.</div>
+      <div class="case-num">Caso 02 · Real</div>
+      <div class="case-title">Diana Quer</div>
+      <div class="case-location">🌊 A Pobra do Caramiñal · 2016</div>
+      <div class="case-desc">Diana Quer, 18 años, desaparece de madrugada en un pueblo gallego. Su cuerpo no aparecerá hasta 16 meses después. El caso paralizó al país.</div>
       <div class="case-badge badge-open">● Abierto</div>
     </div>
 
     <div class="case-card" onclick="startCase(2)">
-      <div class="case-num">Caso 03</div>
-      <div class="case-title">La Herencia de la Masía</div>
-      <div class="case-location">🏡 Girona · Masía familiar</div>
-      <div class="case-desc">Dolors Valls, 78 años, fallece en su habitación durante una reunión familiar. Certificado como muerte natural. Nadie preguntó demasiado.</div>
+      <div class="case-num">Caso 03 · Real</div>
+      <div class="case-title">Rocío Wanninkhof</div>
+      <div class="case-location">🌊 Mijas, Málaga · 1999</div>
+      <div class="case-desc">Rocío Wanninkhof, 19 años, desaparece una noche de octubre. Su cuerpo aparece días después. Una inocente pasa 17 meses en prisión antes de encontrarse al verdadero asesino.</div>
+      <div class="case-badge badge-open">● Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(3)">
+      <div class="case-num">Caso 04 · Real</div>
+      <div class="case-title">Marta del Castillo</div>
+      <div class="case-location">🌆 Sevilla · 2009</div>
+      <div class="case-desc">Marta del Castillo, 17 años, desaparece después de quedar con su exnovio. El confeso asesino nunca ha revelado dónde está el cuerpo. Sigue sin encontrarse.</div>
+      <div class="case-badge badge-open">● Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(4)">
+      <div class="case-num">Caso 05 · Real</div>
+      <div class="case-title">El Caso Bretón</div>
+      <div class="case-location">🌳 Córdoba · 2011</div>
+      <div class="case-desc">Ruth y José, de 2 y 6 años, desaparecen durante una visita con su padre en un parque de Córdoba. Su padre dice que se los llevó su madre. Nadie le creyó demasiado tarde.</div>
       <div class="case-badge badge-open">● Abierto</div>
     </div>
 
   </div>
 
-  <div class="home-footer">Un juego de investigación · Inspirado en Crims de Carles Porta</div>
+  <div class="home-footer">Casos reales de la historia criminal española · Basado en hechos judicialmente probados · Inspirado en Crims de Carles Porta</div>
 </div>
 
 <!-- ═══════════ PANTALLA JUEGO ═══════════ -->
@@ -425,116 +441,189 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 ═══════════════════════════════════════════ */
 const CASES = [
 
-/* ── CASO 0 ── El Vino de la Discordia */
+/* ══ CASO 0 ══ El Caso Asunta (REAL · España · 2013) */
 {
-  title:    'El Vino de la Discordia',
-  kicker:   'Caso 01 · Barcelona · 14 de marzo',
-  headline: 'Muerto en su propia mesa',
-  body:     'Enric Puig (62 años), reputado coleccionista de vinos y propietario de tres restaurantes en Barcelona, aparece muerto en la silla principal de su comedor privado. Son las 23:47. Cinco invitados comparten la velada. La copa de Rioja Gran Reserva todavía entre sus dedos, una sonrisa extraña en el rostro. El médico forense detecta cianuro en sangre. Alguien de esa mesa lo mató.',
+  title:    'El Caso Asunta',
+  kicker:   'Caso Real 01 · Santiago de Compostela · 21 septiembre 2013',
+  headline: 'La niña que no debía morir',
+  body:     'Asunta Basterra Porto, 12 años, de origen chino y adoptada por una familia de clase alta gallega, es encontrada muerta envuelta en una manta en una carretera comarcal de Teo, a las afueras de Santiago de Compostela. Sus padres —Alfonso Basterra, periodista, y Rosario Porto, abogada— dan la alarma por su desaparición horas antes. Desde el primer momento, las contradicciones en sus declaraciones y la frialdad con la que afrontan las cámaras llaman la atención de los investigadores. El caso conmocionó España entera.',
   meta:[
-    {label:'Víctima',   val:'Enric Puig, 62 años'},
-    {label:'Causa',     val:'Envenenamiento (cianuro)'},
-    {label:'Fecha',     val:'14 de marzo, 23:47'},
-    {label:'Lugar',     val:'Residencia privada, Sarrià (Barcelona)'},
+    {label:'Víctima',      val:'Asunta Basterra Porto, 12 años'},
+    {label:'Causa',        val:'Asfixia mecánica (somníferos + sofocación)'},
+    {label:'Hallazgo',     val:'21 septiembre 2013, carretera de Teo (Galicia)'},
+    {label:'Condena',      val:'18 años de prisión para cada progenitor (2015)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🍷', q:'La copa de la víctima', a:'La copa de Enric contiene un vino de 2015, pero la botella en la mesa es de 2018. <span class="clue-highlight">Alguien sirvió una copa diferente al resto.</span>'},
-    {icon:'🚪', q:'La bodega privada', a:'La bodega estaba cerrada con llave durante la cena, pero el pestillo muestra marcas de haber sido forzado. <span class="clue-highlight">El acceso fue anterior a la llegada de los invitados.</span>'},
-    {icon:'🧴', q:'El frasco en la basura', a:'En el cubo de la cocina se encuentra un pequeño frasco de vidrio marrón. Queda un residuo que huele a almendras amargas. <span class="clue-highlight">Cianuro potásico. Vacío.</span>'},
+    {icon:'🛣️', q:'El lugar del hallazgo', a:'El cuerpo de Asunta aparece en una carretera poco transitada, <span class="clue-highlight">a escasos kilómetros de la segunda residencia de la familia</span>. Envuelta en una manta con prendas de ropa propias del hogar familiar. No hay señales de agresión sexual ni de forcejeo externo.'},
+    {icon:'💊', q:'El Orfidal en sangre', a:'La autopsia revela <span class="clue-highlight">lorazepam (Orfidal) en sangre a dosis altas</span>. Lo sorprendente: análisis de muestras de pelo anteriores muestran que Asunta llevaba siendo sedada de forma intermitente <span class="clue-highlight">al menos dos meses antes de su muerte</span>.'},
+    {icon:'📦', q:'La manta y las sogas', a:'La manta que envuelve el cuerpo es identificada como <span class="clue-highlight">propiedad de la familia Porto-Basterra</span>. Las sogas usadas para atarla son del mismo tipo que las halladas en la casa de campo de los padres en Teo.'},
   ],
   testigos:[
-    {icon:'👁️', q:'La declaración de la asistenta', a:'Rosa, la asistenta, vio a <span class="clue-highlight">Núria Casas en la bodega sola</span>, casi una hora antes de que llegaran los invitados. Dijo que «buscaba la botella especial que había pedido Enric».'},
-    {icon:'🗣️', q:'Lo que contó Oriol Mas', a:'Oriol afirma que Enric le dijo esa semana que tenía previsto hacer <span class="clue-highlight">«un anuncio importante»</span> esa noche. Algo que «cambiaría algunas cosas de la empresa».'},
+    {icon:'👁️', q:'El vecino de la finca', a:'Un vecino declara haber visto el <span class="clue-highlight">coche de Rosario Porto</span> pasar por la carretera donde fue hallado el cuerpo la noche del 21 de septiembre, en un horario incompatible con la coartada facilitada por los padres.'},
+    {icon:'📱', q:'Las llamadas de esa noche', a:'El análisis de las torres de telefonía móvil ubica los teléfonos de <span class="clue-highlight">ambos padres en la zona de Teo</span> durante las horas en que afirman estar en casa. Realizaron 23 llamadas entre sí en menos de dos horas.'},
   ],
   sospechosos:[
-    {emoji:'👩‍🦱', name:'Núria Casas',       role:'Sumiller',          motive:'Fue despedida hace 3 semanas. Su cuenta bancaria muestra deudas graves. Conoce cada botella de la bodega.'},
-    {emoji:'👨‍💼', name:'Guillem Roca',       role:'Socio comercial',   motive:'Mantienen un litigio abierto por la gestión de uno de los restaurantes. Discutieron en público días antes.'},
-    {emoji:'👩‍🦳', name:'Montserrat Figueras',role:'Esposa',            motive:'Heredaría todos los bienes. Pero hay un testamento reciente que la excluye en beneficio de una fundación.'},
-    {emoji:'🧔',  name:'Oriol Mas',           role:'Coleccionista rival',motive:'Competencia histórica por una colección de vinos únicos. Perdió una subasta frente a Enric el mes anterior.'},
-    {emoji:'👩', name:'Laia Bosch',           role:'Asistenta del hogar',motive:'Lleva 12 años en la casa y conoce todos los secretos, pero también la más leal. Sin móvil aparente.'},
+    {emoji:'👩‍⚖️', name:'Rosario Porto',     role:'Madre adoptiva · Abogada',   motive:'Considerada instigadora por el tribunal. Relación deteriorada con Asunta. Había iniciado trámites de separación con Alfonso. Algunos testigos apuntan a que la niña era fuente de conflicto en la pareja.'},
+    {emoji:'📰',   name:'Alfonso Basterra',   role:'Padre adoptivo · Periodista', motive:'Condenado como coautor. Encontraron en su ordenador imágenes inapropiadas de Asunta. Su papel en el crimen fue determinado como activo aunque subordinado a Rosario.'},
+    {emoji:'👩‍🦳', name:'Carmen Porto',       role:'Abuela materna',             motive:'Figura controvertida durante el juicio. Alegaba conocer secretos de la familia. Sin evidencias directas de participación.'},
+    {emoji:'🧑',   name:'Compañero del colegio',role:'Entorno escolar de Asunta', motive:'Línea de investigación inicial descartada. Asunta no presentaba indicios de conflictos graves fuera del entorno familiar.'},
   ],
   pruebas:[
-    {icon:'🔬', q:'Análisis del frasco', a:'Las huellas del frasco corresponden a <span class="clue-highlight">un pulgar derecho</span>. El frasco fue comprado en una farmacia de Gracia hace 8 días.'},
-    {icon:'📹', q:'Cámara de seguridad del garaje', a:'Las imágenes muestran a Núria Casas llegando <span class="clue-highlight">78 minutos antes</span> de la hora acordada, con una bolsa pequeña que no tenía al salir.'},
-    {icon:'📱', q:'Mensajes del móvil de la víctima', a:'Enric envió un mensaje a su abogado esa mañana: <span class="clue-highlight">«Mañana comunicaré a Núria que no habrá indemnización»</span>. El anuncio de la noche era ese.'},
+    {icon:'🔬', q:'Análisis de cabello (historia de sedación)', a:'Los análisis forenses de distintos segmentos del cabello de Asunta permiten trazar una <span class="clue-highlight">cronología de administración de Orfidal</span> que comienza semanas antes del crimen, descartando una ingesta accidental o voluntaria.'},
+    {icon:'📱', q:'El rastro digital de los padres', a:'Las búsquedas realizadas desde dispositivos de la familia incluyen términos como <span class="clue-highlight">«dosis letales sedantes»</span> y consultas sobre efectos del lorazepam. Los metadatos sitúan las búsquedas semanas antes del crimen.'},
+    {icon:'🚗', q:'La cámara de tráfico', a:'Una cámara de la DGT registra el <span class="clue-highlight">vehículo de Rosario Porto</span> circulando por la zona de Teo en la franja horaria en que fue depositado el cuerpo, contradiciendo su declaración inicial ante la Guardia Civil.'},
   ],
-  killer:       'Núria Casas',
-  explanation:  'Núria Casas envenenó la copa de Enric con cianuro potásico que había introducido en la bodega antes de la cena. Había sido despedida sin indemnización y sabía que esa noche Enric lo haría público. Con acceso privilegiado a la bodega y conocimiento exacto de qué vino elegiría Enric, preparó una copa aparte del mismo año que él siempre pedía. El frasco con sus huellas y las cámaras del garaje confirmaron su presencia anticipada.',
+  killer:      'Rosario Porto',
+  explanation: 'Rosario Porto fue considerada la autora intelectual del crimen, con Alfonso Basterra como coautor. Ambos fueron condenados a 18 años de prisión en 2015. El tribunal concluyó que Asunta fue sedada con Orfidal de forma repetida durante meses y finalmente asfixiada. Los motivos exactos nunca quedaron del todo claros, aunque los peritos apuntaron a una relación materno-filial muy deteriorada. Rosario Porto se suicidó en prisión en 2020. El caso sigue siendo uno de los más estudiados de la criminología española reciente.',
 },
 
-/* ── CASO 1 ── El Senderista */
+/* ══ CASO 1 ══ Diana Quer (REAL · España · 2016) */
 {
-  title:    'El Senderista',
-  kicker:   'Caso 02 · Pirineos · 3 de octubre',
-  headline: 'Una caída que no fue accidente',
-  body:     'Ferran Esteve (44 años), fotógrafo de naturaleza premiado internacionalmente, aparece en el fondo de un barranco del Pirineo catalán. La ruta estaba marcada, el tiempo era bueno, Ferran conocía esa montaña desde niño. El rescate dictamina accidente. Pero su seguro de vida —dos millones de euros— está a nombre de un único beneficiario, y la última persona que lo vio con vida miente en su declaración.',
+  title:    'Diana Quer',
+  kicker:   'Caso Real 02 · A Pobra do Caramiñal, Galicia · Agosto 2016',
+  headline: 'La noche que no volvió a casa',
+  body:     'Diana Quer López-Pinel, 18 años, desaparece en la madrugada del 22 al 23 de agosto de 2016 en A Pobra do Caramiñal (A Coruña), donde veraneaba con su familia. Sale a una fiesta y no regresa. Su teléfono se apaga de golpe a las 4:06 de la madrugada. Las búsquedas se prolongan durante 16 meses sin resultado. Su cuerpo es hallado en diciembre de 2017 en el interior de un pozo en una nave abandonada. El caso pone de manifiesto las carencias del sistema de búsqueda de personas desaparecidas.',
   meta:[
-    {label:'Víctima',   val:'Ferran Esteve, 44 años'},
-    {label:'Causa',     val:'Traumatismo craneoencefálico (caída)'},
-    {label:'Fecha',     val:'3 de octubre, hacia las 11:00'},
-    {label:'Lugar',     val:'Barranco de la Canal Seca, Alt Urgell'},
+    {label:'Víctima',  val:'Diana Quer López-Pinel, 18 años'},
+    {label:'Causa',    val:'Asfixia mecánica (estrangulamiento con brida)'},
+    {label:'Desapareció', val:'23 agosto 2016, A Pobra do Caramiñal'},
+    {label:'Condena',  val:'Perpetua revisable para José E. Abuín (2019)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🪨', q:'El punto de caída', a:'La roca desde donde cayó tiene marcas de arañazos en dirección contraria al vacío. <span class="clue-highlight">Compatibles con intentar agarrarse tras ser empujado</span>, no con tropezar.'},
-    {icon:'🎒', q:'La mochila de Ferran', a:'Su mochila aparece a 40 metros del cuerpo. <span class="clue-highlight">Abierta y con el contenido revuelto</span>. Sus memorias de cámara no están, aunque sí la cámara.'},
-    {icon:'👣', q:'Las huellas en el barro', a:'Llueve esa mañana. En el barro junto al precipicio hay <span class="clue-highlight">dos pares de pisadas distintas</span>. Solo se esperaba un senderista.'},
+    {icon:'👟', q:'La sandalia en la carretera', a:'Pocas horas después de la desaparición, la Guardia Civil localiza <span class="clue-highlight">una sandalia de Diana en la calzada</span>, junto a una zona poco iluminada por la que habría pasado de regreso a casa. Indica que algo ocurrió en ese punto.'},
+    {icon:'📍', q:'El último ping del móvil', a:'El teléfono de Diana emite su última señal a las <span class="clue-highlight">04:06 horas desde una antena</span> próxima a la zona donde luego se encontraría la sandalia. A partir de ahí, silencio absoluto. La batería no estaba agotada.'},
+    {icon:'🏚️', q:'La nave de O Milladoiro', a:'El cuerpo de Diana es hallado 16 meses después en el <span class="clue-highlight">interior de una cisterna en una nave en ruinas</span> de O Milladoiro (Ames). La nave era conocida en el entorno de El Chicle. Sus restos presentan indicios de estrangulamiento con brida.'},
   ],
   testigos:[
-    {icon:'🧗', q:'El senderista del refugio', a:'Un hombre que estaba en el refugio la noche anterior recuerda haber visto a Ferran <span class="clue-highlight">discutir en voz baja por teléfono</span>. Oyó la palabra «contrato» y «no te lo voy a permitir».'},
-    {icon:'📞', q:'La llamada de Pilar Esteve', a:'La hermana de Ferran recibió un mensaje suyo a las 9:14: «Voy a contar todo lo que sé, hay cosas que no son limpias». <span class="clue-highlight">No llegó a explicarle a qué se refería.</span>'},
+    {icon:'🚗', q:'El testigo de la carretera', a:'Un conductor declara haber visto a Diana caminar sola por la carretera en la dirección de su domicilio. Poco después, en el mismo tramo, <span class="clue-highlight">vio un coche detenido con las luces apagadas</span>. No le dio importancia en el momento.'},
+    {icon:'📞', q:'El entorno de El Chicle', a:'Investigadores detectan que <span class="clue-highlight">José Enrique Abuín "El Chicle"</span> tenía antecedentes por un intento de agresión sexual en la misma zona en 2005. Vivía en un municipio próximo y conocía bien la nave de O Milladoiro.'},
   ],
   sospechosos:[
-    {emoji:'👨‍💻', name:'Biel Sanz',      role:'Socio y mánager',    motive:'Beneficiario del seguro de vida de dos millones. Llevaba meses desviando ingresos de la empresa. Ferran lo estaba descubriendo.'},
-    {emoji:'👩', name:'Pilar Esteve',    role:'Hermana',            motive:'Conflictos por la herencia familiar, pero claramente afectada. Sin coartada sólida, pero tampoco móvil económico real.'},
-    {emoji:'📸', name:'Jordi Mas',       role:'Fotógrafo rival',    motive:'Había perdido un encargo importante a manos de Ferran. Rencor documentado, pero sin presencia confirmada en la zona.'},
-    {emoji:'👩‍🦰', name:'Marta Vila',    role:'Expareja',           motive:'Separación conflictiva hace 2 años. Tiene una orden de alejamiento. Fue vista en el pueblo el día anterior.'},
+    {emoji:'🔪', name:'José E. Abuín "El Chicle"', role:'Vecino de la comarca',      motive:'Antecedentes por agresión sexual. Su ADN fue hallado en una brida junto al cuerpo. Conocía la nave donde fue ocultado el cadáver. Finalmente confesó el crimen en 2017.'},
+    {emoji:'👦', name:'Conocido de la fiesta',      role:'Joven del entorno social',  motive:'Línea investigada inicialmente. Sin relación probada con los hechos. Descartado por coartada verificada.'},
+    {emoji:'👨', name:'Exnovio de Diana',            role:'Ex pareja sentimental',    motive:'Relación reciente y conflictiva. Interrogado en las primeras semanas. Alibi verificado por cámaras de seguridad en otra localidad.'},
+    {emoji:'🚶', name:'Desconocido de la zona',      role:'Sin identificar inicialmente',motive:'Hipótesis manejada durante los primeros meses. Descartada al identificarse a El Chicle mediante ADN.'},
   ],
   pruebas:[
-    {icon:'💾', q:'Las memorias desaparecidas', a:'Las tarjetas de la cámara contenían fotografías de <span class="clue-highlight">documentos contables de la empresa</span> que Ferran había fotografiado. Biel era quien tenía acceso a esos archivos.'},
-    {icon:'📍', q:'Geolocalización del móvil de Biel', a:'El teléfono de Biel Sanz <span class="clue-highlight">aparece desactivado entre las 9:00 y las 13:30</span> de ese día. Dice que estaba en Barcelona. Las cámaras de la autopista no lo registran saliendo.'},
-    {icon:'🔬', q:'Análisis de la ropa de Ferran', a:'En la chaqueta de Ferran se encuentran <span class="clue-highlight">fibras de color azul marino</span> no pertenecientes a su ropa. Biel Sanz llevaba un anorak azul marino ese fin de semana.'},
+    {icon:'🧬', q:'El ADN en la brida', a:'Un análisis de ADN practicado sobre una <span class="clue-highlight">brida de plástico hallada junto al cuerpo</span> arroja coincidencia con José Enrique Abuín Gey. Es la prueba que cierra el caso y provoca su detención en diciembre de 2017.'},
+    {icon:'📱', q:'Geolocalización del vehículo', a:'Los datos del teléfono de El Chicle sitúan su vehículo <span class="clue-highlight">en las inmediaciones del lugar de desaparición</span> de Diana en la franja horaria crítica de la madrugada del 22 al 23 de agosto.'},
+    {icon:'🔗', q:'Confesión y reconstrucción', a:'Tras su detención, El Chicle conduce a la Guardia Civil hasta el pozo donde ocultó el cuerpo. Confiesa haberla abordado en la carretera, <span class="clue-highlight">atado con una brida y estrangulado</span> al resistirse. Es condenado a prisión permanente revisable en 2019.'},
   ],
-  killer:       'Biel Sanz',
-  explanation:  'Biel Sanz llevaba 14 meses desviando ingresos de la sociedad que compartía con Ferran. Cuando Ferran fotografió los documentos comprometedores, Biel supo que tenía que actuar. Quedó con él en la montaña con el pretexto de una conversación importante, y lo empujó al barranco. Se llevó las tarjetas de memoria. Su móvil desconectado, las fibras de su anorak y la geolocalización incompleta lo situaron allí. Era el único beneficiario de los dos millones del seguro.',
+  killer:      'José E. Abuín "El Chicle"',
+  explanation: 'José Enrique Abuín Gey, conocido como "El Chicle", abordó a Diana Quer mientras caminaba sola de madrugada. La inmovilizó con una brida de plástico y la estranguló. Escondió su cuerpo en una cisterna de una nave abandonada que conocía de antes. Fue detenido en diciembre de 2017 tras el hallazgo del cadáver y la coincidencia de su ADN. En 2019 fue condenado a prisión permanente revisable. Su caso impulsó la llamada "Ley Diana Quer" para endurecer las penas en crímenes sexuales con resultado de muerte.',
 },
 
-/* ── CASO 2 ── La Herencia de la Masía */
+/* ══ CASO 2 ══ Rocío Wanninkhof (REAL · España · 1999-2003) */
 {
-  title:    'La Herencia de la Masía',
-  kicker:   'Caso 03 · Girona · 22 de agosto',
-  headline: 'Muerte natural. O eso dijeron.',
-  body:     'Dolors Valls (78 años) fallece durante la noche en su habitación de la masía familiar en el Empordà. Toda la familia está reunida ese fin de semana: el hijo mayor Marc, la hija Elena, el marido de Elena y los nietos. El médico de cabecera firma el certificado sin autopsia. Dolors tenía el corazón delicado. Pero tres días antes había llamado a su notario para modificar el testamento. Una llamada que Marc desconoce, supuestamente.',
+  title:    'Rocío Wanninkhof',
+  kicker:   'Caso Real 03 · Mijas, Málaga · 9 octubre 1999',
+  headline: 'Una inocente en prisión. El asesino, libre.',
+  body:     'Rocío Wanninkhof, 19 años, desaparece la noche del 9 de octubre de 1999 tras salir a pasear cerca de su casa en Mijas Costa (Málaga). Su cuerpo aparece días después con señales de violencia. La investigación se centra desde el principio en Dolores Vázquez, expareja de la madre de Rocío, basándose en indicios y en una pericial caligráfica cuestionable. Dolores es condenada en 2001 y pasa 17 meses en prisión. En 2003, el mismo asesino ataca a otra joven (Sonia Carabantes) y su ADN lo vincula también a Rocío. La historia se convirtió en símbolo del error judicial.',
   meta:[
-    {label:'Víctima',   val:'Dolors Valls, 78 años'},
-    {label:'Causa oficial', val:'Insuficiencia cardíaca'},
-    {label:'Fecha',     val:'22 de agosto, durante la noche'},
-    {label:'Lugar',     val:'Masía Can Valls, Peralada (Girona)'},
+    {label:'Víctima',  val:'Rocío Wanninkhof Hornos, 19 años'},
+    {label:'Causa',    val:'Heridas por arma blanca'},
+    {label:'Fecha',    val:'9 octubre 1999, Mijas Costa (Málaga)'},
+    {label:'Condena',  val:'25 años para Tony Alexander King (2006)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🛏️', q:'La habitación de Dolors', a:'La almohada tiene pequeñas fibras en la cara interior, en una posición inusual. <span class="clue-highlight">Compatibles con haber sido presionada contra la cara de la víctima.</span>'},
-    {icon:'💊', q:'La medicación de la noche', a:'El pastillero de Dolors tiene una dosis de menos. Pero Elena afirma haberle dado la medicación ella misma a las 22:30. <span class="clue-highlight">La caja de somníferos está en el cajón de Marc.</span>'},
-    {icon:'🪟', q:'La ventana entreabierta', a:'La ventana de la habitación estaba entreabierta a pesar del frío de esa noche. <span class="clue-highlight">Dolors tenía fobia a las corrientes de aire</span> y jamás dormía con ventanas abiertas.'},
+    {icon:'🌿', q:'El lugar del hallazgo', a:'El cuerpo de Rocío es encontrado en un descampado a varios kilómetros de su casa, con <span class="clue-highlight">múltiples heridas de arma blanca</span>. El lugar es poco frecuentado. No hay testigos directos del crimen.'},
+    {icon:'🔍', q:'Ausencia de pruebas físicas concluyentes', a:'En el escenario no se recuperan huellas dactilares ni fibras que apunten a un sospechoso concreto. <span class="clue-highlight">El ADN no se procesa adecuadamente en ese momento</span>, lo que retrasará años la identificación del verdadero culpable.'},
+    {icon:'📝', q:'La nota anónima', a:'Durante la investigación aparece una nota anónima que los peritos atribuyen inicialmente a Dolores Vázquez. <span class="clue-highlight">La pericial caligráfica fue después muy cuestionada</span> y considerada un error fundamental del proceso.'},
   ],
   testigos:[
-    {icon:'👦', q:'El nieto mayor, Pau', a:'Pau (17 años) no dormía. Desde su habitación oyó pasos en el pasillo hacia las 2:00 de la madrugada. <span class="clue-highlight">Pasos pesados, de adulto.</span> Luego silencio. Pensó que era alguien yendo al baño.'},
-    {icon:'📞', q:'La llamada al notario', a:'El notario confirma que Dolors le llamó el miércoles anterior. Quería <span class="clue-highlight">excluir a Marc del testamento</span> y dejarlo todo a su hija Elena y a una fundación de Alzheimer. La cita era el lunes siguiente.'},
+    {icon:'👩', q:'La declaración de la madre de Rocío', a:'Alicia Hornos, madre de Rocío, señala directamente a Dolores Vázquez por la mala relación que mantenían desde la ruptura sentimental. <span class="clue-highlight">Su testimonio influye decisivamente</span> en la dirección inicial de la investigación.'},
+    {icon:'🏘️', q:'Testigos del barrio', a:'Varios vecinos declaran haber visto a Dolores en la zona la noche del crimen. Después del juicio y la condena de Tony King, <span class="clue-highlight">muchos de esos testimonios fueron reconsiderados</span> como confusos o influenciados por el clima mediático.'},
   ],
   sospechosos:[
-    {emoji:'🧔', name:'Marc Valls',    role:'Hijo mayor',         motive:'Sabía que perdería la herencia. Tiene deudas por valor de 340.000 euros. La masía y los ahorros de Dolors eran su única salida.'},
-    {emoji:'👩', name:'Elena Valls',   role:'Hija',               motive:'La única que se preocupaba realmente de Dolors. Beneficiaria del nuevo testamento. Pero estaba dormida según su marido.'},
-    {emoji:'👨', name:'Toni Ferrer',  role:'Empleado de la masía',motive:'Trabaja allí desde hace 20 años. Conoce cada rincón, tiene llave de todo. Dolors le prometió una parte en el testamento anterior.'},
-    {emoji:'👩‍🦳', name:'Rosa Pau',   role:'Amiga íntima',       motive:'No estaba en la masía esa noche. Pero sabía del testamento y tenía contacto frecuente con Marc.'},
+    {emoji:'🇬🇧', name:'Tony Alexander King',   role:'Ciudadano británico residente en la zona', motive:'Conocido depredador sexual con antecedentes en Reino Unido. Vivía en la misma comarca. En 2003 mata a Sonia Carabantes y su ADN lo conecta también al crimen de Rocío.'},
+    {emoji:'👩', name:'Dolores Vázquez',         role:'Expareja de la madre de Rocío',           motive:'Condenada erróneamente en 2001. La mala relación con la familia Wanninkhof y una pericial caligráfica errónea la convirtieron en sospechosa. Pasó 17 meses presa siendo inocente.'},
+    {emoji:'🧑', name:'Conocido de la discoteca', role:'Joven del entorno social de Rocío',      motive:'Hipótesis inicial sin sustento probatorio. Descartado en las primeras semanas de investigación.'},
+    {emoji:'🚗', name:'Conductor desconocido',    role:'Sin identificar',                        motive:'Hipótesis alternativa manejada por la defensa de Dolores Vázquez. Sin base probatoria sólida en el momento del juicio.'},
   ],
   pruebas:[
-    {icon:'🔬', q:'Segunda autopsia (exhumación)', a:'Solicitada por Elena. Encuentra <span class="clue-highlight">petequias en los ojos</span> de Dolors, compatibles con asfixia por sofocación, no con fallo cardíaco natural.'},
-    {icon:'📱', q:'El teléfono de Marc', a:'Tres días antes de la muerte, Marc buscó en Google: <span class="clue-highlight">«somníferos y fallo cardíaco»</span> y «dosis pastillas corazón efecto». El historial fue recuperado por la policía.'},
-    {icon:'🔑', q:'La caja del notario', a:'El sobre con el nuevo testamento borrador tenía las huellas de Marc. <span class="clue-highlight">Había accedido al despacho del notario</span> usando el nombre de su madre para solicitar una copia «de revisión».'},
+    {icon:'🧬', q:'El ADN que lo cambió todo', a:'En 2003, Tony Alexander King agrede y mata a Sonia Carabantes en Coín (Málaga). El análisis de ADN del nuevo crimen es <span class="clue-highlight">contrastado con muestras del caso Wanninkhof</span> y coincide. King es el asesino de Rocío.'},
+    {icon:'📋', q:'Los antecedentes de King en Reino Unido', a:'Investigaciones posteriores revelan que Tony Alexander King había sido <span class="clue-highlight">condenado en Gran Bretaña por agresiones sexuales</span> antes de instalarse en España bajo identidad falsa. La Interpol no lo había detectado.'},
+    {icon:'⚖️', q:'La revisión del juicio de Dolores Vázquez', a:'Tras la identificación de King, <span class="clue-highlight">Dolores Vázquez es absuelta y exonerada</span>. El Tribunal Supremo reconoció que la condena se basó en pruebas insuficientes y en una pericial caligráfica errónea. King fue condenado a 25 años en 2006.'},
   ],
-  killer:       'Marc Valls',
-  explanation:  'Marc Valls administró somníferos a su madre mezclados con su medicación habitual y la asfixió con la almohada mientras dormía. Sabía que el lunes siguiente el testamento lo excluiría definitivamente. Las petequias de la segunda autopsia, el historial de búsquedas de su teléfono y las huellas en los documentos del notario lo incriminaron. Los pasos que oyó su sobrino Pau a las 2:00 de la madrugada eran los suyos.',
+  killer:      'Tony Alexander King',
+  explanation: 'Tony Alexander King, ciudadano británico con antecedentes por agresiones sexuales en su país, asesinó a Rocío Wanninkhof en 1999. Vivía en la comarca bajo identidad falsa. Durante años, Dolores Vázquez cargó con una condena errónea basada en indicios débiles. Cuando King mató a Sonia Carabantes en 2003, el análisis de ADN lo conectó a ambos crímenes. Fue condenado a 25 años. El caso se estudia como ejemplo de error judicial grave y de los peligros de la presión mediática sobre los procesos penales.',
+},
+
+/* ══ CASO 3 ══ Marta del Castillo (REAL · España · 2009) */
+{
+  title:    'Marta del Castillo',
+  kicker:   'Caso Real 04 · Sevilla · 24 enero 2009',
+  headline: 'Confesó el crimen. Nunca dijo dónde está.',
+  body:     'Marta del Castillo Casilari, 17 años, desaparece en Sevilla el 24 de enero de 2009 tras quedar con su exnovio Miguel Carcaño. Días después, Carcaño confiesa haberla matado accidentalmente en su piso y haber arrojado el cuerpo al río Guadalquivir. A pesar de múltiples búsquedas y de que otros implicados han cambiado su versión varias veces, el cuerpo de Marta nunca ha sido encontrado. El caso sigue abierto en ese sentido. Sus padres llevan más de 15 años reclamando que alguien les diga la verdad.',
+  meta:[
+    {label:'Víctima',     val:'Marta del Castillo Casilari, 17 años'},
+    {label:'Causa',       val:'Homicidio (cuerpo no recuperado)'},
+    {label:'Desapareció', val:'24 enero 2009, Sevilla'},
+    {label:'Condena',     val:'12 años para Miguel Carcaño (luego ampliada)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🏠', q:'El piso de Carcaño', a:'La investigación detecta en el domicilio de Miguel Carcaño <span class="clue-highlight">restos de sangre de Marta del Castillo</span>, pese a que la vivienda había sido limpiada. Los análisis forenses confirman que Marta estuvo allí la noche de su desaparición.'},
+    {icon:'🌊', q:'El río Guadalquivir', a:'Carcaño confiesa haber arrojado el cuerpo al Guadalquivir. Se realizan <span class="clue-highlight">búsquedas exhaustivas durante semanas</span> con buzos y dragas. El cuerpo nunca es localizado. Años después cambia su versión en varias ocasiones.'},
+    {icon:'🚗', q:'El coche que transportó el cuerpo', a:'Testigos y análisis señalan que el cuerpo fue trasladado en un vehículo. Se identifican <span class="clue-highlight">manchas biológicas de Marta en un coche</span> usado esa noche por personas del entorno de Carcaño.'},
+  ],
+  testigos:[
+    {icon:'👥', q:'Los amigos de Carcaño', a:'Varios jóvenes del entorno de Carcaño han ofrecido versiones contradictorias a lo largo de los años. Algunos admitieron estar en el piso esa noche. <span class="clue-highlight">Francisco Javier García Martínez "El Cuco"</span> fue condenado como cómplice, aunque su condena fue revisada.'},
+    {icon:'👨‍👩‍👧', q:'La familia de Marta', a:'Los padres de Marta, Antonio del Castillo y Eva Casanueva, se han convertido en referentes del activismo por los derechos de las víctimas. Han denunciado que <span class="clue-highlight">los implicados saben dónde está el cuerpo</span> y no lo dicen para evitar agravar sus condenas.'},
+  ],
+  sospechosos:[
+    {emoji:'🧑', name:'Miguel Carcaño',              role:'Exnovio de Marta',          motive:'Confesó haberla matado accidentalmente durante una discusión en su piso. Cambió su versión múltiples veces sobre la localización del cuerpo. Condenado a 21 años (revisión de condena).'},
+    {emoji:'👦', name:'Francisco J. García "El Cuco"', role:'Amigo de Carcaño',        motive:'Condenado inicialmente como cómplice. Después absuelto en revisión. Se sospecha que conoce la ubicación real del cuerpo. Ha variado su testimonio en reiteradas ocasiones.'},
+    {emoji:'👨', name:'Hermano de Carcaño',           role:'Familiar implicado',        motive:'Investigado por posible participación en el traslado del cuerpo. Declaró en el juicio. Su grado de implicación real sigue siendo objeto de debate judicial.'},
+    {emoji:'👩', name:'Amiga del grupo',              role:'Testigo del entorno',       motive:'Conocía tanto a Marta como a Carcaño. Sus declaraciones contribuyeron a la reconstrucción de los hechos aunque su versión también fue considerada parcial.'},
+  ],
+  pruebas:[
+    {icon:'🧬', q:'ADN de Marta en el piso', a:'A pesar de la limpieza intensiva del piso de Carcaño, los forenses recuperan <span class="clue-highlight">muestras biológicas compatibles con el ADN de Marta</span> en grietas del suelo y la pared. Confirman que allí se produjo el crimen.'},
+    {icon:'📱', q:'Los mensajes de esa noche', a:'El análisis del móvil de Marta muestra que sus últimas comunicaciones son con Carcaño, quien la cita en su domicilio. <span class="clue-highlight">A las 23:52 deja de haber actividad</span> en su teléfono. Nunca volvió a encenderse.'},
+    {icon:'🔎', q:'Las versiones cambiantes sobre el cuerpo', a:'A lo largo de los años, Carcaño ha señalado hasta <span class="clue-highlight">cuatro localizaciones distintas</span> para el cuerpo: el Guadalquivir, un vertedero, una finca… Cada búsqueda ha resultado infructuosa. Muchos creen que el cuerpo nunca llegó al río.'},
+  ],
+  killer:      'Miguel Carcaño',
+  explanation: 'Miguel Carcaño confesó haber matado a Marta del Castillo en su piso de Sevilla el 24 de enero de 2009 y haber arrojado su cuerpo al río Guadalquivir. Las sucesivas búsquedas no encontraron los restos. Fue condenado a 21 años de prisión (tras varias revisiones). El caso se mantiene abierto en un sentido crucial: el cuerpo de Marta sigue sin aparecer. Sus padres, convertidos en referentes del activismo por las víctimas, continúan reclamando justicia y la localización de los restos de su hija.',
+},
+
+/* ══ CASO 4 ══ El Caso Bretón (REAL · España · 2011) */
+{
+  title:    'El Caso Bretón',
+  kicker:   'Caso Real 05 · Córdoba · 8 octubre 2011',
+  headline: 'Los niños que no volvieron del parque',
+  body:     'Ruth y José Bretón Ortiz, de 6 y 2 años respectivamente, desaparecen el 8 de octubre de 2011 durante una visita con su padre, José Bretón, en el Parque Cruz Conde de Córdoba. El padre denuncia que su ex-mujer, Ruth Ortiz, se los había llevado sin su permiso. Las cámaras del parque demuestran que eso es mentira: los niños nunca salieron. Los restos de Ruth y José son hallados meses después, calcinados, en la finca familiar de La Rinconada. El caso evidenció los fallos del sistema de protección a menores en procesos de separación conflictivos.',
+  meta:[
+    {label:'Víctimas',    val:'Ruth (6 años) y José (2 años) Bretón Ortiz'},
+    {label:'Causa',       val:'Homicidio. Cuerpos quemados (incendio provocado)'},
+    {label:'Desaparecieron', val:'8 octubre 2011, Parque Cruz Conde, Córdoba'},
+    {label:'Condena',     val:'40 años de prisión para José Bretón (2013)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🌳', q:'Las cámaras del parque', a:'Las grabaciones de las cámaras de seguridad del Parque Cruz Conde son determinantes: <span class="clue-highlight">los niños nunca salieron del parque con nadie</span>. La coartada del padre —que la madre se los llevó— queda destruida desde el primer día.'},
+    {icon:'🔥', q:'El incendio en La Rinconada', a:'Meses antes de la desaparición, José Bretón encendió una <span class="clue-highlight">gran hoguera en la finca familiar de La Rinconada</span> (Sevilla). Vecinos lo vieron. Los investigadores obtienen una orden para excavar el lugar.'},
+    {icon:'🦴', q:'Los restos hallados en la finca', a:'En la finca de La Rinconada aparecen <span class="clue-highlight">restos óseos calcinados</span>. El análisis forense y genético confirma que pertenecen a Ruth y José. Los niños fueron quemados en ese lugar.'},
+  ],
+  testigos:[
+    {icon:'👨‍🌾', q:'Los vecinos de La Rinconada', a:'Varios vecinos de la finca familiar declaran haber visto a <span class="clue-highlight">José Bretón encender una gran hoguera</span> varios días y recoger los restos. En el momento no relacionaron lo que veían con la desaparición de sus hijos.'},
+    {icon:'👩', q:'La madre, Ruth Ortiz', a:'Ruth Ortiz denuncia desde el primer momento que su ex-marido es el responsable de la desaparición. Señala la conflictividad del proceso de separación y <span class="clue-highlight">la incapacidad del sistema para proteger a sus hijos</span> a pesar de sus advertencias previas.'},
+  ],
+  sospechosos:[
+    {emoji:'👨', name:'José Bretón',     role:'Padre de los menores',        motive:'Inmerso en un proceso de separación muy conflictivo con Ruth Ortiz. Acusó a la madre como estrategia para desviar la investigación. Condenado a 40 años. Los niños eran vistos como un instrumento en su guerra con su ex-pareja.'},
+    {emoji:'👩', name:'Ruth Ortiz',      role:'Madre de los menores',        motive:'Acusada falsamente por el padre. Víctima de la estrategia de Bretón. Fue sospechosa en los primeros días hasta que las cámaras desmontaron la coartada de su ex-marido.'},
+    {emoji:'👴', name:'Familiar de Bretón', role:'Entorno familiar del padre', motive:'Investigado por posible conocimiento de los hechos. Sin cargos finales. La finca pertenecía a la familia.'},
+    {emoji:'🧑', name:'Conocido del parque', role:'Hipótesis inicial',        motive:'Línea investigada en los primeros días ante la ausencia del cuerpo. Descartada rápidamente con las grabaciones de las cámaras de seguridad.'},
+  ],
+  pruebas:[
+    {icon:'🧬', q:'Identificación genética de los restos', a:'Los fragmentos óseos hallados en La Rinconada son sometidos a análisis de ADN mitocondrial. <span class="clue-highlight">Los resultados confirman que pertenecen a Ruth y José Bretón Ortiz</span>, hijos del acusado. La prueba es definitiva.'},
+    {icon:'📹', q:'Las grabaciones del parque', a:'Las cámaras de seguridad del Parque Cruz Conde registran a José Bretón entrando con los niños pero <span class="clue-highlight">saliendo solo</span>. Ninguna imagen muestra a Ruth Ortiz en el parque ese día. La coartada del padre colapsa.'},
+    {icon:'🔦', q:'Análisis del lugar de cremación', a:'Los forenses determinan que el fuego fue de <span class="clue-highlight">alta temperatura y larga duración</span>, compatible con la intención de destruir los restos de forma completa. Se encuentran también objetos personales de los niños entre las cenizas.'},
+  ],
+  killer:      'José Bretón',
+  explanation: 'José Bretón mató a sus hijos Ruth (6 años) y José (2 años) y quemó sus cuerpos en la finca familiar de La Rinconada para culpar a su ex-mujer. Las cámaras del parque desmontaron su coartada desde el primer día. Fue condenado en 2013 a 40 años de prisión. El caso evidenció los fallos del sistema judicial y de protección a menores ante situaciones de violencia vicaria: Ruth Ortiz había alertado en múltiples ocasiones del comportamiento de su ex-marido sin ser escuchada. José Bretón continúa sin pedir perdón.',
 },
 
 ];
