@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>CRIMS · Investigación Criminal</title>
+  <title>Investigacion RSH</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet"/>
 
   <!-- GSAP + ScrollTrigger (animaciones cinematográficas) -->
@@ -683,6 +683,397 @@ h1,h2,h3{font-family:'Playfair Display',serif}
   .suspect-grid{grid-template-columns:repeat(2,1fr)}
   .verdict-card{padding:32px 20px}
 }
+
+/* ════════════════════════════════════════════════
+   TEMAS POR CASO — body[data-t="N"]
+════════════════════════════════════════════════ */
+:root{--ca:#c8a030}                      /* fallback gold */
+
+body[data-t="0"]{--ca:#d44020}          /* Doce Minutos – urban red-orange */
+body[data-t="1"]{--ca:#4a7ab5}          /* Asunta – cold institutional blue */
+body[data-t="2"]{--ca:#b8860b}          /* Balmaseda – aristocrat gold */
+body[data-t="3"]{--ca:#1a8a7a}          /* Diana Quer – coastal teal */
+body[data-t="4"]{--ca:#8b7014}          /* La Profesora – monastery ochre */
+body[data-t="5"]{--ca:#7a3aaa}          /* Marta – void purple */
+body[data-t="6"]{--ca:#d4820a}          /* Violinista – concert amber */
+body[data-t="7"]{--ca:#cc3010}          /* Bretón – fire crimson */
+body[data-t="8"]{--ca:#2a9a4a}          /* Wanninkhof – mediterranean green */
+body[data-t="9"]{--ca:#3a6aaa}          /* Fotógrafo – harbour blue */
+
+body[data-t]{--gold:var(--ca);--border:rgba(var(--ca-r,200,160,48),.15)}
+
+/* Smooth theme transition */
+body{transition:--ca .6s ease}
+
+/* ════════════════════════════════════════════════
+   LOADING SCREEN — EXPEDIENTE CLASIFICADO
+════════════════════════════════════════════════ */
+#screen-loading{
+  display:none;
+  position:fixed;inset:0;z-index:89000;
+  background:#060608;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:28px;
+}
+#screen-loading.active{display:flex}
+
+.load-stamp{
+  font-family:'Special Elite',serif;
+  font-size:clamp(1.8rem,5vw,3.2rem);
+  letter-spacing:.18em;
+  color:var(--red-l);
+  border:3px solid var(--red-l);
+  padding:12px 32px;
+  opacity:0;
+  transform:rotate(-4deg) scale(1.3);
+  text-shadow:0 0 24px rgba(192,48,48,.5);
+  box-shadow:0 0 0 0 rgba(192,48,48,0),inset 0 0 0 0 rgba(192,48,48,0);
+  animation:stampDrop .55s cubic-bezier(.2,1.5,.4,1) .2s forwards;
+}
+@keyframes stampDrop{
+  to{opacity:1;transform:rotate(-3deg) scale(1)}
+}
+
+.load-case-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1rem,3vw,1.6rem);
+  color:var(--cream);
+  letter-spacing:.06em;
+  opacity:0;
+  animation:fadeUp .5s ease .75s forwards;
+}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}from{transform:translateY(10px)}}
+
+.load-bar-wrap{
+  width:clamp(200px,40vw,400px);
+  height:2px;
+  background:rgba(200,160,48,.15);
+  position:relative;overflow:hidden;
+}
+.load-bar{
+  height:100%;background:var(--ca,var(--gold));
+  width:0%;transition:width .05s linear;
+  box-shadow:0 0 8px var(--ca,var(--gold));
+}
+
+.load-classif-sub{
+  font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--dim);opacity:0;
+  animation:fadeUp .4s ease 1s forwards;
+}
+
+/* ════════════════════════════════════════════════
+   AUDIO BUTTON (fixed bottom-left)
+════════════════════════════════════════════════ */
+#audio-btn{
+  position:fixed;bottom:24px;left:24px;z-index:9100;
+  background:rgba(6,6,8,.8);border:1px solid var(--border);
+  color:var(--dim);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;
+  padding:8px 14px;border-radius:3px;cursor:none;
+  transition:border-color .25s,color .25s,opacity .25s;
+  opacity:.6;
+  backdrop-filter:blur(8px);
+}
+#audio-btn:hover{border-color:var(--gold);color:var(--gold);opacity:1}
+#audio-btn.on{color:var(--gold);border-color:var(--gold);opacity:.85}
+
+/* ════════════════════════════════════════════════
+   DETECTIVE RANK BADGE (home)
+════════════════════════════════════════════════ */
+#rank-badge{
+  margin-top:12px;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:7px 18px;
+  border:1px solid rgba(200,160,48,.25);
+  font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dim);
+  opacity:0;
+  transition:opacity .5s ease 2.5s;
+}
+#rank-badge.visible{opacity:1}
+#rank-badge .rank-icon{font-size:1.1em}
+#rank-badge .rank-label{color:var(--gold)}
+
+/* ════════════════════════════════════════════════
+   EVIDENCE BOARD BUTTON (fixed bottom-right in game)
+════════════════════════════════════════════════ */
+#evidence-board-btn{
+  position:fixed;bottom:24px;right:24px;z-index:9100;
+  background:rgba(6,6,8,.85);border:1px solid var(--border);
+  color:var(--dim);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;
+  padding:8px 14px;border-radius:3px;cursor:none;
+  transition:border-color .25s,color .25s,opacity .3s;
+  opacity:0;pointer-events:none;
+  backdrop-filter:blur(8px);
+}
+#evidence-board-btn.active{opacity:.7;pointer-events:auto}
+#evidence-board-btn:hover{border-color:var(--gold);color:var(--gold);opacity:1}
+
+/* ════════════════════════════════════════════════
+   EVIDENCE PANEL (sliding side panel)
+════════════════════════════════════════════════ */
+#evidence-panel{
+  position:fixed;top:0;right:-420px;width:420px;height:100vh;z-index:9200;
+  background:rgba(8,8,10,.97);
+  border-left:1px solid var(--border);
+  transition:right .45s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;padding:32px 28px;
+  backdrop-filter:blur(20px);
+}
+#evidence-panel.open{right:0}
+
+.ep-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;
+}
+.ep-title{
+  font-family:'Playfair Display',serif;font-size:1.1rem;
+  color:var(--cream);letter-spacing:.06em;
+}
+.ep-close{
+  background:none;border:none;color:var(--dim);
+  font-size:1.4rem;cursor:none;line-height:1;
+  transition:color .2s;
+}
+.ep-close:hover{color:var(--red-l)}
+
+.ep-section{margin-bottom:20px}
+.ep-section-label{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;opacity:.8;
+}
+.ep-item{
+  padding:10px 14px;margin-bottom:8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:2px;
+  font-size:.82rem;line-height:1.55;color:var(--dim);
+  position:relative;overflow:hidden;
+}
+.ep-item.locked{
+  filter:blur(4px);pointer-events:none;
+  user-select:none;
+}
+.ep-item.locked::after{
+  content:'CLASIFICADO';
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Special Elite',serif;font-size:.7rem;letter-spacing:.3em;
+  color:var(--red-l);background:rgba(6,6,8,.6);filter:none;
+}
+.ep-item.unlocked{
+  border-color:rgba(200,160,48,.3);
+}
+
+/* ════════════════════════════════════════════════
+   INTERROGATION MODAL
+════════════════════════════════════════════════ */
+#interrogation-modal{
+  display:none;position:fixed;inset:0;z-index:9500;
+  background:rgba(4,4,6,.95);
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(12px);
+}
+#interrogation-modal.active{display:flex}
+
+.intg-room{
+  width:100%;max-width:680px;
+  border:1px solid var(--border);
+  background:rgba(10,10,14,.9);
+  position:relative;overflow:hidden;
+}
+.intg-room::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--ca,var(--gold)),transparent);
+}
+
+.intg-header{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+.intg-emoji{font-size:2rem;line-height:1}
+.intg-name-wrap{}
+.intg-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.25rem;color:var(--cream);line-height:1.1;
+}
+.intg-role{font-size:.72rem;color:var(--dim);letter-spacing:.1em;margin-top:4px}
+
+.intg-body{padding:24px;min-height:180px}
+.intg-label{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;opacity:.8;
+}
+.intg-motive-text{
+  font-size:.9rem;line-height:1.7;color:var(--dim);
+  font-style:italic;
+}
+
+.intg-lamp{
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:2px;height:80px;background:rgba(200,160,48,.4);
+  box-shadow:0 0 20px rgba(200,160,48,.3);
+}
+.intg-lamp::after{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-top:20px solid rgba(200,160,48,.15);
+  filter:drop-shadow(0 0 8px rgba(200,160,48,.3));
+}
+
+.intg-actions{
+  padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;gap:10px;flex-wrap:wrap;
+}
+.intg-btn{
+  padding:9px 18px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--border);background:none;color:var(--dim);
+  cursor:none;transition:all .2s;border-radius:2px;
+}
+.intg-btn:hover{border-color:var(--gold);color:var(--gold)}
+.intg-btn.danger{border-color:rgba(192,48,48,.4);color:var(--red-l)}
+.intg-btn.danger:hover{border-color:var(--red-l);background:rgba(139,26,26,.15)}
+.intg-btn.close-btn{margin-left:auto}
+
+/* ════════════════════════════════════════════════
+   TIMELINE STRIP
+════════════════════════════════════════════════ */
+#timeline-strip{
+  position:fixed;bottom:0;left:0;right:0;z-index:400;
+  height:0;overflow:hidden;
+  transition:height .4s cubic-bezier(.4,0,.2,1);
+  background:rgba(6,6,8,.95);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(16px);
+  display:none;
+}
+#timeline-strip.open{height:80px;display:block}
+
+.timeline-inner{
+  display:flex;align-items:center;gap:0;
+  height:100%;padding:0 24px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.timeline-inner::-webkit-scrollbar{display:none}
+
+.tl-node{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:100px;cursor:none;
+  position:relative;
+}
+.tl-node::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:100%;height:1px;background:rgba(200,160,48,.2);
+  transform:translateY(-12px) translateX(0);
+  z-index:-1;
+}
+.tl-node:last-child::after{display:none}
+.tl-dot{
+  width:10px;height:10px;border-radius:50%;
+  border:2px solid var(--gold);background:#060608;
+  margin-bottom:6px;
+  transition:transform .2s,background .2s;
+}
+.tl-node:hover .tl-dot{background:var(--gold);transform:scale(1.4)}
+.tl-date{font-size:.55rem;color:var(--dim);letter-spacing:.1em}
+.tl-ev{font-size:.6rem;color:var(--cream);text-align:center;max-width:90px;line-height:1.3}
+
+/* ════════════════════════════════════════════════
+   CLASSIFIED STAMP on locked clues
+════════════════════════════════════════════════ */
+.clue-item .clue-stamp{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:2;opacity:.55;
+  font-family:'Special Elite',serif;
+  font-size:.7rem;letter-spacing:.35em;
+  color:var(--red-l);
+  border:2px solid var(--red-l);
+  padding:4px 10px;
+  transform:rotate(-8deg) scale(.9);
+  width:fit-content;height:fit-content;
+  margin:auto;
+  transition:opacity .2s;
+}
+.clue-item:not(.unlocked) .clue-stamp{opacity:.55}
+.clue-item.unlocked .clue-stamp{display:none}
+.clue-item{position:relative;overflow:hidden}
+
+/* ════════════════════════════════════════════════
+   PARANOIA OVERLAY (idle mode)
+════════════════════════════════════════════════ */
+#paranoia-overlay{
+  display:none;position:fixed;inset:0;z-index:8500;
+  pointer-events:none;
+}
+#paranoia-overlay.active{display:block}
+
+.para-vline{
+  position:absolute;top:0;bottom:0;width:1px;
+  background:rgba(192,48,48,.12);
+  animation:paraFlicker 3s infinite linear;
+}
+@keyframes paraFlicker{
+  0%,100%{opacity:0}
+  48%{opacity:0}
+  50%{opacity:1}
+  52%{opacity:0}
+  80%{opacity:0}
+  82%{opacity:.7}
+  84%{opacity:0}
+}
+.para-text{
+  position:absolute;font-family:'Special Elite',serif;
+  font-size:.6rem;letter-spacing:.2em;color:rgba(192,48,48,.3);
+  animation:paraTextFlicker 8s infinite;
+  user-select:none;
+}
+@keyframes paraTextFlicker{
+  0%,100%{opacity:0}
+  50%{opacity:1}
+  51%{opacity:0}
+  52%{opacity:.8}
+  70%{opacity:.5}
+  95%{opacity:0}
+}
+
+/* ════════════════════════════════════════════════
+   CASE ACCENT OVERRIDES — use --ca everywhere
+════════════════════════════════════════════════ */
+body[data-t] .home-redline,
+body[data-t] .briefing-bg-num{color:var(--ca)}
+body[data-t] .btn-back{border-color:rgba(var(--ca),0.3)}
+body[data-t] .clue-progress-fill{background:var(--ca)}
+body[data-t] .badge-open .badge-dot{background:var(--ca)}
+body[data-t] .verdict-score .score-num{color:var(--ca)}
+body[data-t] #cursor{border-color:var(--ca)}
+body[data-t] .home-redline{background:var(--ca);box-shadow:0 0 12px var(--ca)}
+body[data-t] .clue-highlight{color:var(--ca)}
+body[data-t] .inv-tab.active{color:var(--ca);border-bottom-color:var(--ca)}
+body[data-t] .clue-item:hover{border-color:var(--ca)}
+body[data-t] .btn-accuse:not(:disabled){
+  background:var(--ca);
+  box-shadow:0 0 24px rgba(var(--ca),0.4);
+}
+
+/* ════════════════════════════════════════════════
+   SUSPECT CARD HOVER ENHANCEMENT
+════════════════════════════════════════════════ */
+.suspect-card{
+  transition:border-color .25s,transform .2s,box-shadow .25s;
+}
+.suspect-card:hover{
+  border-color:var(--ca,var(--gold));
+  transform:translateY(-3px);
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+
+/* ════════════════════════════════════════════════
+   LOADING – prevent scroll during load
+════════════════════════════════════════════════ */
+body.loading{overflow:hidden}
+
 </style>
 </head>
 <body>
@@ -707,6 +1098,11 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 
   <h1 class="home-title glitch" data-text="CRIMS" id="home-title">CRIMS</h1>
   <p class="home-title-sub" id="home-title-sub">detective</p>
+  <div id="rank-badge">
+    <span class="rank-icon" id="rank-icon">🔍</span>
+    <span class="rank-label" id="rank-label">Detective Novato</span>
+    <span class="rank-pts" id="rank-pts">· 0 pts</span>
+  </div>
 
   <div class="home-divider" id="home-divider">
     <div class="home-divider-line"></div>
@@ -1648,6 +2044,659 @@ function spawnParticle(){
     onComplete:()=>p.remove()
   });
 }
+
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE TEMAS POR CASO
+════════════════════════════════════════════════ */
+const CASE_THEMES = [
+  {accent:'#d44020'},  // 0 Doce Minutos
+  {accent:'#4a7ab5'},  // 1 Asunta
+  {accent:'#b8860b'},  // 2 Balmaseda
+  {accent:'#1a8a7a'},  // 3 Diana Quer
+  {accent:'#8b7014'},  // 4 La Profesora
+  {accent:'#7a3aaa'},  // 5 Marta
+  {accent:'#d4820a'},  // 6 Violinista
+  {accent:'#cc3010'},  // 7 Bretón
+  {accent:'#2a9a4a'},  // 8 Wanninkhof
+  {accent:'#3a6aaa'},  // 9 Fotógrafo
+];
+
+function applyTheme(idx){
+  document.body.setAttribute('data-t', String(idx));
+}
+function clearTheme(){
+  document.body.removeAttribute('data-t');
+}
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE AUDIO — Web Audio API procedural
+════════════════════════════════════════════════ */
+const AudioSystem = (()=>{
+  let ctx = null, masterGain = null, noiseNode = null, droneNode = null;
+  let lfoNode = null, lfoGain = null;
+  let running = false;
+  let btnEl = null;
+
+  // Frequency profiles per case (Hz for drone, filter settings)
+  const profiles = [
+    {f:55,  f2:110, nf:400, ng:.4},   // 0 Doce Minutos – low urban
+    {f:40,  f2:80,  nf:300, ng:.35},  // 1 Asunta – cold dark
+    {f:65,  f2:130, nf:600, ng:.3},   // 2 Balmaseda – noble tension
+    {f:50,  f2:100, nf:350, ng:.38},  // 3 Diana – coastal dread
+    {f:45,  f2:90,  nf:500, ng:.32},  // 4 Profesora – monastery echo
+    {f:35,  f2:70,  nf:250, ng:.5},   // 5 Marta – void deep
+    {f:70,  f2:140, nf:700, ng:.28},  // 6 Violinista – warm dark
+    {f:42,  f2:84,  nf:320, ng:.45},  // 7 Bretón – fire low
+    {f:58,  f2:116, nf:450, ng:.3},   // 8 Wanninkhof – mediterranean
+    {f:48,  f2:96,  nf:380, ng:.35},  // 9 Fotógrafo – harbour
+  ];
+
+  function makePinkNoise(ctx){
+    const bufSize = 2 * ctx.sampleRate;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(let i=0;i<bufSize;i++){
+      const w = (Math.random()*2-1);
+      b0=.99886*b0+w*.0555179;
+      b1=.99332*b1+w*.0750759;
+      b2=.96900*b2+w*.1538520;
+      b3=.86650*b3+w*.3104856;
+      b4=.55000*b4+w*.5329522;
+      b5=-.7616*b5-w*.0168980;
+      data[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*0.07;
+      b6=w*.115926;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    return src;
+  }
+
+  function startAmbient(caseIdx){
+    if(!ctx) return;
+    stopAmbient();
+    const p = profiles[caseIdx] || profiles[0];
+
+    // Pink noise
+    noiseNode = makePinkNoise(ctx);
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.value = p.nf;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = p.ng * 0.18;
+    noiseNode.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+    noiseNode.start(0);
+
+    // Drone
+    droneNode = ctx.createOscillator();
+    droneNode.type = 'sawtooth';
+    droneNode.frequency.value = p.f;
+    const droneFilter = ctx.createBiquadFilter();
+    droneFilter.type = 'lowpass';
+    droneFilter.frequency.value = p.f * 4;
+    droneFilter.Q.value = 1.5;
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0.06;
+
+    // LFO subtle tremolo
+    lfoNode = ctx.createOscillator();
+    lfoNode.frequency.value = 0.07 + Math.random()*0.04;
+    lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.015;
+    lfoNode.connect(lfoGain);
+    lfoGain.connect(droneGain.gain);
+
+    droneNode.connect(droneFilter);
+    droneFilter.connect(droneGain);
+    droneGain.connect(masterGain);
+    droneNode.start(0);
+    lfoNode.start(0);
+
+    // Second harmonic drone at lower gain
+    const drone2 = ctx.createOscillator();
+    drone2.type = 'sine';
+    drone2.frequency.value = p.f2;
+    const d2g = ctx.createGain();
+    d2g.gain.value = 0.025;
+    drone2.connect(d2g);
+    d2g.connect(masterGain);
+    drone2.start(0);
+    // keep reference to stop later
+    droneNode._drone2 = drone2;
+    droneNode._d2g = d2g;
+  }
+
+  function stopAmbient(){
+    [noiseNode, droneNode, lfoNode].forEach(n=>{
+      if(n){ try{n.stop()}catch(e){} }
+    });
+    if(droneNode?._drone2){ try{droneNode._drone2.stop()}catch(e){} }
+    noiseNode = droneNode = lfoNode = lfoGain = null;
+  }
+
+  function init(){
+    btnEl = document.getElementById('audio-btn');
+    if(!ctx){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0;
+      masterGain.connect(ctx.destination);
+    }
+    if(ctx.state==='suspended') ctx.resume();
+    gsap.to(masterGain.gain,{value:1,duration:2.5});
+    running = true;
+    if(btnEl){ btnEl.textContent='🔊 Ambiente'; btnEl.classList.add('on'); }
+  }
+
+  return {
+    toggle(){
+      if(!ctx || !running){
+        init();
+        if(typeof currentCase !== 'undefined') startAmbient(currentCase);
+      } else {
+        running = false;
+        if(masterGain) gsap.to(masterGain.gain,{value:0,duration:1.5,onComplete:stopAmbient});
+        if(btnEl){ btnEl.textContent='🔇 Silencio'; btnEl.classList.remove('on'); }
+      }
+    },
+    playForCase(idx){
+      if(!running) return;
+      if(!ctx) return;
+      startAmbient(idx);
+    },
+    heartbeat(){
+      if(!ctx||!running) return;
+      // Short percussive hit
+      const osc = ctx.createOscillator();
+      const env = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 60;
+      env.gain.setValueAtTime(0.4, ctx.currentTime);
+      env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.25);
+      osc.connect(env); env.connect(masterGain);
+      osc.start(); osc.stop(ctx.currentTime+0.3);
+      setTimeout(()=>{
+        const o2 = ctx.createOscillator();
+        const e2 = ctx.createGain();
+        o2.type = 'sine'; o2.frequency.value = 55;
+        e2.gain.setValueAtTime(0.3,ctx.currentTime);
+        e2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.2);
+        o2.connect(e2); e2.connect(masterGain);
+        o2.start(); o2.stop(ctx.currentTime+0.25);
+      }, 400);
+    },
+    successChime(){
+      if(!ctx||!running) return;
+      [523,659,784,1047].forEach((f,i)=>{
+        setTimeout(()=>{
+          const osc=ctx.createOscillator();
+          const env=ctx.createGain();
+          osc.type='sine'; osc.frequency.value=f;
+          env.gain.setValueAtTime(0.15,ctx.currentTime);
+          env.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.6);
+          osc.connect(env); env.connect(masterGain);
+          osc.start(); osc.stop(ctx.currentTime+0.65);
+        },i*120);
+      });
+    }
+  };
+})();
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE RANGO DETECTIVE
+════════════════════════════════════════════════ */
+const DetectiveRank = (()=>{
+  const RANKS = [
+    {min:0,    icon:'🔍', title:'Detective Novato'},
+    {min:5,    icon:'📋', title:'Inspector'},
+    {min:15,   icon:'🗂️', title:'Investigador Senior'},
+    {min:30,   icon:'⚖️', title:'Fiscal Especial'},
+    {min:50,   icon:'🏛️', title:'Juez de Instrucción'},
+    {min:80,   icon:'🎖️', title:'Maestro Detective'},
+  ];
+
+  function load(){ return parseInt(localStorage.getItem('crims_pts')||'0'); }
+  function save(pts){ localStorage.setItem('crims_pts', String(pts)); }
+
+  function getRank(pts){
+    let r = RANKS[0];
+    for(const rank of RANKS){ if(pts>=rank.min) r=rank; }
+    return r;
+  }
+
+  function addPoints(pts){
+    const current = load();
+    const next = current + pts;
+    save(next);
+    updateBadge();
+    return next;
+  }
+
+  function updateBadge(){
+    const pts = load();
+    const rank = getRank(pts);
+    const iconEl = document.getElementById('rank-icon');
+    const labelEl = document.getElementById('rank-label');
+    const ptsEl = document.getElementById('rank-pts');
+    const badge = document.getElementById('rank-badge');
+    if(iconEl) iconEl.textContent = rank.icon;
+    if(labelEl) labelEl.textContent = rank.title;
+    if(ptsEl) ptsEl.textContent = `· ${pts} pts`;
+    if(badge){
+      badge.classList.add('visible');
+    }
+  }
+
+  return { load, addPoints, updateBadge, getRank };
+})();
+
+/* ════════════════════════════════════════════════
+   PANTALLA DE CARGA — EXPEDIENTE CLASIFICADO
+════════════════════════════════════════════════ */
+function showLoadingScreen(caseIdx, title, callback){
+  const screen = document.getElementById('screen-loading');
+  const titleEl = document.getElementById('load-case-title');
+  const bar     = document.getElementById('load-bar');
+
+  screen.classList.add('active');
+  document.body.classList.add('loading');
+  if(titleEl) titleEl.textContent = title;
+
+  // Apply theme immediately
+  applyTheme(caseIdx);
+
+  // Animate loading bar
+  let pct = 0;
+  bar.style.width = '0%';
+  const iv = setInterval(()=>{
+    pct += (Math.random()*12 + 4);
+    if(pct >= 96){ pct = 96; clearInterval(iv); }
+    bar.style.width = pct + '%';
+  }, 80);
+
+  setTimeout(()=>{
+    clearInterval(iv);
+    bar.style.width = '100%';
+    setTimeout(()=>{
+      screen.classList.remove('active');
+      document.body.classList.remove('loading');
+      callback();
+    }, 350);
+  }, 1400);
+}
+
+/* ════════════════════════════════════════════════
+   TABLÓN DE EVIDENCIAS
+════════════════════════════════════════════════ */
+function toggleEvidenceBoard(){
+  const panel = document.getElementById('evidence-panel');
+  if(!panel) return;
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open') && typeof currentCase !== 'undefined'){
+    renderEvidenceBoard(currentCase);
+  }
+}
+
+function renderEvidenceBoard(caseIdx){
+  const c = CASES[caseIdx];
+  if(!c) return;
+  const content = document.getElementById('ep-content');
+  if(!content) return;
+
+  const sections = [
+    {label:'Escena del crimen', items:c.escena, key:'escena'},
+    {label:'Testigos',          items:c.testigos, key:'testigos'},
+    {label:'Pruebas materiales',items:c.pruebas,  key:'pruebas'},
+  ];
+
+  let html = '';
+  sections.forEach(sec=>{
+    if(!sec.items?.length) return;
+    html += `<div class="ep-section">`;
+    html += `<div class="ep-section-label">${sec.label}</div>`;
+    sec.items.forEach((item, i)=>{
+      const revealed = revealedClues[sec.key] && revealedClues[sec.key][i];
+      html += `<div class="ep-item ${revealed ? 'unlocked' : 'locked'}">`;
+      if(revealed){
+        html += `<strong>${item.q}</strong><br>${item.a}`;
+      } else {
+        html += `[CLASIFICADO]`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+
+  content.innerHTML = html || '<div class="ep-section-label">Sin evidencias registradas.</div>';
+}
+
+/* ════════════════════════════════════════════════
+   SALA DE INTERROGACIÓN
+════════════════════════════════════════════════ */
+let interrogationTarget = null;
+
+function openInterrogation(suspectIdx, name, emoji, role, motive){
+  interrogationTarget = suspectIdx;
+  document.getElementById('intg-emoji').textContent  = emoji  || '🕵️';
+  document.getElementById('intg-name').textContent   = name   || 'Sospechoso';
+  document.getElementById('intg-role').textContent   = role   || '';
+  document.getElementById('intg-motive').textContent = motive || '';
+
+  const modal = document.getElementById('interrogation-modal');
+  modal.classList.add('active');
+  AudioSystem.heartbeat();
+
+  // GSAP entrance
+  gsap.fromTo('.intg-room',
+    {opacity:0,y:30,scale:.97},
+    {opacity:1,y:0,scale:1,duration:.5,ease:'power3.out'}
+  );
+}
+
+function closeInterrogation(){
+  const modal = document.getElementById('interrogation-modal');
+  gsap.to('.intg-room',{opacity:0,y:20,scale:.97,duration:.3,ease:'power2.in',
+    onComplete:()=>modal.classList.remove('active')
+  });
+  interrogationTarget = null;
+}
+
+function accuseFromInterrogation(){
+  if(interrogationTarget === null) return;
+  const c = CASES[currentCase];
+  // Select the suspect first
+  const suspCards = document.querySelectorAll('.suspect-card');
+  if(suspCards[interrogationTarget]){
+    suspCards[interrogationTarget].click();
+  }
+  closeInterrogation();
+  setTimeout(()=>makeAccusation(), 400);
+}
+
+/* ════════════════════════════════════════════════
+   TYPEWRITER HELPER
+════════════════════════════════════════════════ */
+function typewriterEl(el, text, speed=28){
+  return new Promise(resolve=>{
+    el.textContent='';
+    el.classList.add('typewriter');
+    let i=0;
+    const iv=setInterval(()=>{
+      el.textContent += text[i++];
+      if(i>=text.length){
+        clearInterval(iv);
+        el.classList.remove('typewriter');
+        el.classList.add('done');
+        resolve();
+      }
+    },speed);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   TIMELINE STRIP
+════════════════════════════════════════════════ */
+function renderTimeline(c){
+  const strip = document.getElementById('timeline-strip');
+  const inner = document.getElementById('timeline-inner');
+  if(!strip || !inner || !c.meta) return;
+
+  // Build timeline from meta + escena items
+  const events = [];
+  c.meta.forEach(m=>{
+    if(m.label==='Hallazgo') events.push({date:m.val, ev:'Hallazgo del cuerpo'});
+    if(m.label==='Condena')  events.push({date:m.val, ev:'Condena dictada'});
+    if(m.label==='Investigación') events.push({date:'Hoy', ev:'Investigación abierta'});
+  });
+  if(!events.length) return;
+
+  inner.innerHTML = events.map(e=>`
+    <div class="tl-node">
+      <div class="tl-dot"></div>
+      <div class="tl-date">${e.date||''}</div>
+      <div class="tl-ev">${e.ev||''}</div>
+    </div>
+  `).join('');
+
+  strip.style.display='block';
+  setTimeout(()=>strip.classList.add('open'),100);
+}
+
+function hideTimeline(){
+  const strip = document.getElementById('timeline-strip');
+  if(!strip) return;
+  strip.classList.remove('open');
+  setTimeout(()=>{strip.style.display='none'},450);
+}
+
+/* ════════════════════════════════════════════════
+   MODO PARANOIA (idle > 45s en pantalla de juego)
+════════════════════════════════════════════════ */
+let paranoiaTimer = null;
+const PARA_TEXTS = [
+  '¿QUIÉN MIENTE?','OBSERVA LOS DETALLES','EL CULPABLE LO SABE',
+  'CONFÍA EN LAS PRUEBAS','NADIE HABLA POR CASUALIDAD','¿ESTÁS SEGURO?',
+  'REVISA CADA PISTA','LA VERDAD ESTÁ AHÍ'
+];
+
+function enableParanoia(){
+  const overlay = document.getElementById('paranoia-overlay');
+  if(!overlay) return;
+  overlay.innerHTML='';
+  // Vertical lines
+  [15,38,62,85].forEach(pct=>{
+    const ln=document.createElement('div');
+    ln.className='para-vline';
+    ln.style.left=pct+'%';
+    ln.style.animationDelay=(Math.random()*3)+'s';
+    overlay.appendChild(ln);
+  });
+  // Random texts
+  for(let i=0;i<3;i++){
+    const tx=document.createElement('div');
+    tx.className='para-text';
+    tx.textContent=PARA_TEXTS[Math.floor(Math.random()*PARA_TEXTS.length)];
+    tx.style.left=(10+Math.random()*75)+'%';
+    tx.style.top=(15+Math.random()*70)+'%';
+    tx.style.animationDelay=(Math.random()*6)+'s';
+    overlay.appendChild(tx);
+  }
+  overlay.classList.add('active');
+}
+
+function disableParanoia(){
+  const overlay=document.getElementById('paranoia-overlay');
+  if(overlay) overlay.classList.remove('active');
+}
+
+function resetParanoia(){
+  disableParanoia();
+  clearTimeout(paranoiaTimer);
+  paranoiaTimer=setTimeout(enableParanoia, 45000);
+}
+
+/* ════════════════════════════════════════════════
+   CLASSIFIED STAMP on unrevealed clues
+════════════════════════════════════════════════ */
+function addStampsToClues(){
+  document.querySelectorAll('.clue-item').forEach(cl=>{
+    if(!cl.querySelector('.clue-stamp')){
+      const stamp = document.createElement('div');
+      stamp.className = 'clue-stamp';
+      stamp.textContent = 'CLASIFICADO';
+      cl.appendChild(stamp);
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════
+   REVEALED CLUES TRACKER (for evidence board)
+════════════════════════════════════════════════ */
+let revealedClues = {escena:{}, testigos:{}, pruebas:{}};
+
+/* ════════════════════════════════════════════════
+   OVERRIDE: startCase — adds loading + theme + audio
+════════════════════════════════════════════════ */
+const _origStartCase = startCase;
+function startCase(idx){
+  const c = CASES[idx];
+  if(!c) return;
+  revealedClues = {escena:{}, testigos:{}, pruebas:{}};
+
+  showLoadingScreen(idx, c.title, ()=>{
+    _origStartCase(idx);
+    AudioSystem.playForCase(idx);
+    setTimeout(()=>{
+      addStampsToClues();
+      renderTimeline(c);
+      resetParanoia();
+      // Show evidence board button
+      const btn = document.getElementById('evidence-board-btn');
+      if(btn) btn.classList.add('active');
+    }, 600);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   OVERRIDE: revealClue — track revealed for board
+════════════════════════════════════════════════ */
+const _origRevealClue = revealClue;
+function revealClue(type, i, div, cl){
+  _origRevealClue(type, i, div, cl);
+  // Track which clues are revealed
+  if(type==='escena')   revealedClues.escena[i]=true;
+  if(type==='testigos') revealedClues.testigos[i]=true;
+  if(type==='pruebas')  revealedClues.pruebas[i]=true;
+  resetParanoia();
+  // Remove stamp from revealed clue
+  if(div){
+    const stamp = div.querySelector('.clue-stamp');
+    if(stamp){ gsap.to(stamp,{opacity:0,duration:.3,onComplete:()=>stamp.remove()}); }
+  }
+}
+
+/* ════════════════════════════════════════════════
+   OVERRIDE: selectSuspect — opens interrogation
+════════════════════════════════════════════════ */
+const _origSelectSuspect = selectSuspect;
+function selectSuspect(i, name, card){
+  _origSelectSuspect(i, name, card);
+  const c = CASES[currentCase];
+  if(!c || !c.sospechosos) return;
+  const s = c.sospechosos[i];
+  if(!s) return;
+  // Open interrogation after a brief beat
+  setTimeout(()=>{
+    openInterrogation(i, s.name, s.emoji||'🕵️', s.role||'', s.motive||'');
+  }, 220);
+}
+
+/* ════════════════════════════════════════════════
+   OVERRIDE: makeAccusation — adds rank pts + sound
+════════════════════════════════════════════════ */
+const _origMakeAccusation = makeAccusation;
+function makeAccusation(){
+  _origMakeAccusation();
+  disableParanoia();
+  // Determine if correct (check after short delay so verdict is shown)
+  setTimeout(()=>{
+    const c = CASES[currentCase];
+    const correct = (selectedSusp === c?.killer);
+    if(correct){
+      AudioSystem.successChime();
+      const clueCount = Object.values(revealedClues).reduce((s,o)=>s+Object.keys(o).length, 0);
+      const pts = 3 + clueCount; // base pts + bonus for clues found
+      DetectiveRank.addPoints(pts);
+    } else {
+      AudioSystem.heartbeat();
+    }
+  }, 350);
+}
+
+/* ════════════════════════════════════════════════
+   OVERRIDE: goHome — cleanup
+════════════════════════════════════════════════ */
+const _origGoHome = goHome;
+function goHome(){
+  clearTheme();
+  hideTimeline();
+  disableParanoia();
+  clearTimeout(paranoiaTimer);
+  revealedClues = {escena:{}, testigos:{}, pruebas:{}};
+  const btn = document.getElementById('evidence-board-btn');
+  if(btn) btn.classList.remove('active');
+  const panel = document.getElementById('evidence-panel');
+  if(panel) panel.classList.remove('open');
+  _origGoHome();
+  // Update rank badge each visit home
+  setTimeout(()=>DetectiveRank.updateBadge(), 800);
+}
+
+/* ════════════════════════════════════════════════
+   INIT: rank badge + interaction reset paranoia
+════════════════════════════════════════════════ */
+DetectiveRank.updateBadge();
+
+document.addEventListener('keydown', ()=>{ if(paranoiaTimer) resetParanoia(); });
+document.addEventListener('click', ()=>{  if(paranoiaTimer) resetParanoia(); });
+
 </script>
+
+<!-- ════ LOADING SCREEN ════ -->
+<div id="screen-loading">
+  <div class="load-stamp">EXPEDIENTE CLASIFICADO</div>
+  <div class="load-case-title" id="load-case-title">Cargando caso…</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
+  <div class="load-classif-sub">Acceso restringido · Solo detectives autorizados</div>
+</div>
+
+<!-- ════ AUDIO BUTTON ════ -->
+<button id="audio-btn" onclick="AudioSystem.toggle()" title="Sonido ambiental">🔇 Silencio</button>
+
+<!-- ════ EVIDENCE BOARD BUTTON ════ -->
+<button id="evidence-board-btn" onclick="toggleEvidenceBoard()">📋 Tablón</button>
+
+<!-- ════ EVIDENCE PANEL ════ -->
+<div id="evidence-panel">
+  <div class="ep-header">
+    <div class="ep-title">📋 Tablón de evidencias</div>
+    <button class="ep-close" onclick="toggleEvidenceBoard()">✕</button>
+  </div>
+  <div id="ep-content"></div>
+</div>
+
+<!-- ════ INTERROGATION MODAL ════ -->
+<div id="interrogation-modal">
+  <div class="intg-room">
+    <div class="intg-lamp"></div>
+    <div class="intg-header">
+      <div class="intg-emoji" id="intg-emoji">🕵️</div>
+      <div class="intg-name-wrap">
+        <div class="intg-name" id="intg-name">Sospechoso</div>
+        <div class="intg-role" id="intg-role">Rol desconocido</div>
+      </div>
+    </div>
+    <div class="intg-body">
+      <div class="intg-label">Declaración · Sala de interrogación</div>
+      <div class="intg-motive-text" id="intg-motive"></div>
+    </div>
+    <div class="intg-actions">
+      <button class="intg-btn danger" id="intg-accuse-btn" onclick="accuseFromInterrogation()">
+        ⚖️ Acusar formalmente
+      </button>
+      <button class="intg-btn close-btn" onclick="closeInterrogation()">Cerrar sala</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PARANOIA OVERLAY ════ -->
+<div id="paranoia-overlay"></div>
+
+<!-- ════ TIMELINE STRIP ════ -->
+<div id="timeline-strip"><div class="timeline-inner" id="timeline-inner"></div></div>
+
 </body>
 </html>
