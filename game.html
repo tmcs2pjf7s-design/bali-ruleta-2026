@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>CRIMS · Investigación Criminal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet"/>
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#0a0a0a;
+  color:#d4c9a8;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── Fondo ── */
+.bg-noise{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(180,120,20,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(20,60,20,.08) 0%, transparent 55%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+}
+
+/* ── Tipografía ── */
+h1,h2,h3{font-family:'Playfair Display',serif}
+.mono{font-family:'Special Elite',serif}
+
+/* ── PANTALLA: INICIO ── */
+#screen-home{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px;
+  text-align:center;
+}
+.home-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(180,120,20,.4);border-radius:50px;
+  padding:6px 18px;font-size:.7rem;font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;color:#c8a030;
+  margin-bottom:24px;background:rgba(180,120,20,.06);
+}
+.home-title{
+  font-size:clamp(3rem,8vw,6rem);font-weight:900;
+  letter-spacing:-.03em;line-height:.95;
+  color:#e8dcc0;text-shadow:0 0 60px rgba(200,160,48,.15);
+  margin-bottom:8px;
+}
+.home-title span{
+  color:#c8a030;font-style:italic;
+  text-shadow:0 0 40px rgba(200,160,48,.35);
+}
+.home-sub{
+  font-size:1rem;color:rgba(212,201,168,.5);
+  letter-spacing:.06em;margin-bottom:48px;
+  font-style:italic;
+}
+.case-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:16px;max-width:960px;width:100%;
+}
+.case-card{
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(200,160,48,.15);
+  border-radius:16px;padding:26px 22px;
+  cursor:pointer;text-align:left;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.case-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(200,160,48,.05),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.case-card:hover{border-color:rgba(200,160,48,.45);transform:translateY(-3px);
+  box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(200,160,48,.1);}
+.case-card:hover::before{opacity:1}
+.case-num{font-size:.65rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:#c8a030;opacity:.7;margin-bottom:10px;}
+.case-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;
+  color:#e8dcc0;margin-bottom:8px;line-height:1.2;}
+.case-location{font-size:.75rem;color:rgba(212,201,168,.45);margin-bottom:14px;
+  display:flex;align-items:center;gap:5px;}
+.case-desc{font-size:.82rem;color:rgba(212,201,168,.6);line-height:1.65;}
+.case-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:16px;padding:4px 12px;border-radius:50px;
+  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+}
+.badge-open{background:rgba(42,158,80,.12);border:1px solid rgba(42,158,80,.3);color:#5cb85c;}
+.badge-locked{background:rgba(200,100,40,.08);border:1px solid rgba(200,100,40,.25);color:#c08040;}
+
+.home-footer{margin-top:48px;font-size:.65rem;color:rgba(212,201,168,.2);letter-spacing:.06em}
+
+/* ── PANTALLA: JUEGO ── */
+#screen-game{display:none;position:relative;z-index:1;min-height:100vh}
+
+.game-header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,10,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(200,160,48,.12);
+  padding:14px 24px;
+  display:flex;align-items:center;gap:16px;
+}
+.btn-back{
+  background:none;border:1px solid rgba(200,160,48,.2);border-radius:8px;
+  color:rgba(212,201,168,.5);font-family:'DM Sans',sans-serif;
+  font-size:.78rem;font-weight:600;padding:6px 12px;cursor:pointer;
+  transition:all .2s;
+}
+.btn-back:hover{border-color:rgba(200,160,48,.5);color:#c8a030;}
+.game-case-title{font-family:'Playfair Display',serif;font-size:1rem;
+  font-weight:700;color:#e8dcc0;flex:1;}
+.game-clues-badge{
+  background:rgba(200,160,48,.1);border:1px solid rgba(200,160,48,.25);
+  border-radius:50px;padding:4px 14px;font-size:.72rem;font-weight:700;
+  color:#c8a030;
+}
+
+.game-body{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+
+/* Briefing */
+.briefing-card{
+  background:rgba(255,255,255,.02);border:1px solid rgba(200,160,48,.18);
+  border-radius:16px;padding:28px;margin-bottom:32px;
+  position:relative;overflow:hidden;
+}
+.briefing-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,rgba(200,160,48,.4),transparent);
+}
+.briefing-kicker{font-size:.65rem;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;color:#c8a030;margin-bottom:12px;}
+.briefing-headline{font-family:'Playfair Display',serif;font-size:1.7rem;
+  font-weight:900;color:#e8dcc0;line-height:1.2;margin-bottom:16px;}
+.briefing-body{font-size:.9rem;line-height:1.8;color:rgba(212,201,168,.75);}
+.briefing-meta{
+  display:flex;flex-wrap:wrap;gap:16px;margin-top:20px;padding-top:20px;
+  border-top:1px solid rgba(200,160,48,.1);
+}
+.meta-item{display:flex;flex-direction:column;gap:3px;}
+.meta-label{font-size:.6rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(200,160,48,.5);}
+.meta-val{font-size:.85rem;font-weight:600;color:#e8dcc0;}
+
+/* Pestañas investigación */
+.inv-tabs{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;}
+.inv-tab{
+  padding:9px 18px;border-radius:10px;border:1px solid rgba(200,160,48,.15);
+  background:none;color:rgba(212,201,168,.45);font-family:'DM Sans',sans-serif;
+  font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.inv-tab.active{
+  background:rgba(200,160,48,.12);border-color:rgba(200,160,48,.45);color:#c8a030;
+}
+.inv-tab:hover:not(.active){border-color:rgba(200,160,48,.3);color:rgba(212,201,168,.75);}
+
+.inv-panel{display:none;}
+.inv-panel.active{display:block;}
+
+/* Clues */
+.clue-grid{display:flex;flex-direction:column;gap:10px;}
+.clue-item{
+  background:rgba(255,255,255,.02);border:1px solid rgba(200,160,48,.1);
+  border-radius:12px;padding:16px 18px;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.clue-item:hover:not(.revealed){
+  border-color:rgba(200,160,48,.35);background:rgba(200,160,48,.04);
+}
+.clue-item.revealed{cursor:default;border-color:rgba(200,160,48,.25);}
+.clue-item.revealed::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(to bottom,#c8a030,rgba(200,160,48,.3));
+}
+.clue-header{display:flex;align-items:center;gap:10px;}
+.clue-icon{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0;}
+.clue-q{font-size:.85rem;font-weight:600;color:#e8dcc0;flex:1;}
+.clue-status{font-size:.65rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;white-space:nowrap;}
+.clue-status.pending{color:rgba(200,160,48,.4);}
+.clue-status.done{color:#c8a030;}
+.clue-answer{
+  margin-top:12px;padding-top:12px;border-top:1px solid rgba(200,160,48,.1);
+  font-size:.84rem;line-height:1.7;color:rgba(212,201,168,.75);
+  display:none;
+}
+.clue-item.revealed .clue-answer{display:block;}
+.clue-highlight{color:#c8a030;font-weight:700;}
+
+/* Sospechosos */
+.suspect-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.suspect-card{
+  background:rgba(255,255,255,.025);border:1px solid rgba(200,160,48,.1);
+  border-radius:12px;padding:18px;text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.suspect-card:hover{border-color:rgba(200,160,48,.35);transform:translateY(-2px);}
+.suspect-card.selected{border-color:#c8a030;background:rgba(200,160,48,.08);}
+.suspect-card.selected::after{
+  content:'✓';position:absolute;top:10px;right:12px;
+  color:#c8a030;font-weight:700;font-size:.8rem;
+}
+.suspect-emoji{font-size:2rem;margin-bottom:8px;}
+.suspect-name{font-family:'Playfair Display',serif;font-size:.95rem;
+  font-weight:700;color:#e8dcc0;margin-bottom:4px;}
+.suspect-role{font-size:.72rem;color:rgba(212,201,168,.45);}
+.suspect-motive{font-size:.75rem;color:rgba(200,160,48,.6);margin-top:8px;
+  padding-top:8px;border-top:1px solid rgba(200,160,48,.1);display:none;}
+.suspect-card.revealed .suspect-motive{display:block;}
+
+/* Panel acusación */
+.accuse-section{margin-top:32px;}
+.accuse-title{font-family:'Playfair Display',serif;font-size:1.1rem;
+  font-weight:700;color:#e8dcc0;margin-bottom:6px;}
+.accuse-sub{font-size:.8rem;color:rgba(212,201,168,.45);margin-bottom:20px;}
+.btn-accuse{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,#8b2020,#c03030);
+  border:none;border-radius:14px;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:all .2s;letter-spacing:.02em;
+  box-shadow:0 6px 24px rgba(140,32,32,.4);
+}
+.btn-accuse:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(140,32,32,.55);}
+.btn-accuse:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+
+/* Veredicto */
+#screen-verdict{display:none;position:relative;z-index:1;
+  min-height:100vh;display:none;align-items:center;justify-content:center;
+  padding:40px 20px;}
+.verdict-card{
+  max-width:560px;width:100%;
+  background:rgba(10,10,10,.97);border-radius:24px;padding:40px 32px;
+  text-align:center;border:1px solid rgba(200,160,48,.2);
+  box-shadow:0 40px 100px rgba(0,0,0,.8);
+  animation:popIn .4s cubic-bezier(.17,.67,.3,1.3);
+}
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+.verdict-icon{font-size:4rem;margin-bottom:16px;display:block;}
+.verdict-result{font-family:'Playfair Display',serif;font-size:2rem;
+  font-weight:900;margin-bottom:10px;}
+.verdict-result.correct{color:#5cb85c;text-shadow:0 0 30px rgba(92,184,92,.3);}
+.verdict-result.wrong{color:#c05040;text-shadow:0 0 30px rgba(192,80,64,.3);}
+.verdict-accused{font-size:.9rem;color:rgba(212,201,168,.65);margin-bottom:20px;}
+.verdict-explanation{
+  font-size:.88rem;line-height:1.8;color:rgba(212,201,168,.75);
+  background:rgba(255,255,255,.02);border:1px solid rgba(200,160,48,.1);
+  border-radius:12px;padding:18px;margin-bottom:24px;text-align:left;
+}
+.verdict-score{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:.85rem;color:rgba(212,201,168,.55);margin-bottom:28px;
+}
+.score-num{font-family:'Playfair Display',serif;font-size:1.5rem;
+  font-weight:900;color:#c8a030;}
+.btn-verdict-home{
+  background:rgba(200,160,48,.12);border:1px solid rgba(200,160,48,.35);
+  border-radius:12px;color:#c8a030;font-family:'DM Sans',sans-serif;
+  font-size:.9rem;font-weight:700;padding:13px 28px;cursor:pointer;
+  transition:all .2s;margin-right:10px;
+}
+.btn-verdict-home:hover{background:rgba(200,160,48,.22);}
+.btn-verdict-next{
+  background:linear-gradient(135deg,#8b2020,#c03030);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
+  padding:13px 28px;cursor:pointer;transition:all .2s;
+}
+.btn-verdict-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(140,32,32,.45);}
+.btn-verdict-next:disabled{opacity:.35;cursor:not-allowed;}
+
+/* Progreso clues */
+.clue-progress{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:16px;font-size:.75rem;color:rgba(212,201,168,.4);
+}
+.clue-progress-bar{
+  flex:1;height:3px;background:rgba(200,160,48,.12);border-radius:99px;overflow:hidden;
+}
+.clue-progress-fill{
+  height:100%;background:linear-gradient(to right,#8b6020,#c8a030);
+  border-radius:99px;transition:width .4s ease;
+}
+
+/* Notita clue */
+.clue-note{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:8px;font-size:.65rem;color:rgba(200,160,48,.5);
+  font-style:italic;
+}
+</style>
+</head>
+<body>
+<div class="bg-noise"></div>
+
+<!-- ═══════════ PANTALLA INICIO ═══════════ -->
+<div id="screen-home">
+  <div class="home-badge">🔍 Investigación Criminal</div>
+  <h1 class="home-title">CRIMS<br><span>detective</span></h1>
+  <p class="home-sub">Tres casos. Un culpable. ¿Puedes resolverlos?</p>
+
+  <div class="case-grid">
+
+    <div class="case-card" onclick="startCase(0)">
+      <div class="case-num">Caso 01</div>
+      <div class="case-title">El Vino de la Discordia</div>
+      <div class="case-location">🍷 Barcelona · Cena privada</div>
+      <div class="case-desc">Enric Puig, coleccionista de vinos, aparece muerto en su propia mesa durante una cena exclusiva con cinco invitados. La copa aún en la mano.</div>
+      <div class="case-badge badge-open">● Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(1)">
+      <div class="case-num">Caso 02</div>
+      <div class="case-title">El Senderista</div>
+      <div class="case-location">🏔️ Pirineos · Ruta de montaña</div>
+      <div class="case-desc">Ferran Esteve, fotógrafo de naturaleza, cae por un precipicio. Las autoridades lo cierran como accidente. Pero hay detalles que no cuadran.</div>
+      <div class="case-badge badge-open">● Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(2)">
+      <div class="case-num">Caso 03</div>
+      <div class="case-title">La Herencia de la Masía</div>
+      <div class="case-location">🏡 Girona · Masía familiar</div>
+      <div class="case-desc">Dolors Valls, 78 años, fallece en su habitación durante una reunión familiar. Certificado como muerte natural. Nadie preguntó demasiado.</div>
+      <div class="case-badge badge-open">● Abierto</div>
+    </div>
+
+  </div>
+
+  <div class="home-footer">Un juego de investigación · Inspirado en Crims de Carles Porta</div>
+</div>
+
+<!-- ═══════════ PANTALLA JUEGO ═══════════ -->
+<div id="screen-game">
+  <div class="game-header">
+    <button class="btn-back" onclick="goHome()">← Casos</button>
+    <div class="game-case-title" id="gh-title"></div>
+    <div class="game-clues-badge" id="gh-clues">0 / 0 pistas</div>
+  </div>
+
+  <div class="game-body">
+    <!-- Briefing -->
+    <div class="briefing-card">
+      <div class="briefing-kicker" id="br-kicker"></div>
+      <div class="briefing-headline" id="br-headline"></div>
+      <div class="briefing-body" id="br-body"></div>
+      <div class="briefing-meta" id="br-meta"></div>
+    </div>
+
+    <!-- Tabs investigación -->
+    <div class="inv-tabs" id="inv-tabs"></div>
+
+    <div id="inv-escena" class="inv-panel active">
+      <div class="clue-progress">
+        <span id="prog-escena-txt">0/0 pistas</span>
+        <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-escena-fill" style="width:0%"></div></div>
+      </div>
+      <div class="clue-grid" id="clues-escena"></div>
+    </div>
+    <div id="inv-testigos" class="inv-panel">
+      <div class="clue-progress">
+        <span id="prog-testigos-txt">0/0 pistas</span>
+        <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-testigos-fill" style="width:0%"></div></div>
+      </div>
+      <div class="clue-grid" id="clues-testigos"></div>
+    </div>
+    <div id="inv-sospechosos" class="inv-panel">
+      <p style="font-size:.82rem;color:rgba(212,201,168,.45);margin-bottom:16px;">Haz clic en un sospechoso para revelar su móvil conocido. Selecciona al culpable cuando estés seguro/a.</p>
+      <div class="suspect-grid" id="suspect-grid"></div>
+    </div>
+    <div id="inv-pruebas" class="inv-panel">
+      <div class="clue-progress">
+        <span id="prog-pruebas-txt">0/0 pistas</span>
+        <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-pruebas-fill" style="width:0%"></div></div>
+      </div>
+      <div class="clue-grid" id="clues-pruebas"></div>
+    </div>
+
+    <!-- Acusación -->
+    <div class="accuse-section">
+      <div class="accuse-title">⚖️ Acusación formal</div>
+      <div class="accuse-sub" id="accuse-sub">Selecciona al sospechoso que crees culpable antes de acusar.</div>
+      <button class="btn-accuse" id="btn-accuse" disabled onclick="makeAccusation()">
+        🔒 Acusar formalmente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PANTALLA VEREDICTO ═══════════ -->
+<div id="screen-verdict" style="display:none">
+  <div class="verdict-card">
+    <span class="verdict-icon" id="vd-icon"></span>
+    <div class="verdict-result" id="vd-result"></div>
+    <div class="verdict-accused" id="vd-accused"></div>
+    <div class="verdict-explanation" id="vd-explanation"></div>
+    <div class="verdict-score">
+      Pistas descubiertas: <span class="score-num" id="vd-score"></span>
+    </div>
+    <div>
+      <button class="btn-verdict-home" onclick="goHome()">← Casos</button>
+      <button class="btn-verdict-next" id="btn-next-case" onclick="nextCase()">Siguiente caso →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATOS DE CASOS
+═══════════════════════════════════════════ */
+const CASES = [
+
+/* ── CASO 0 ── El Vino de la Discordia */
+{
+  title:    'El Vino de la Discordia',
+  kicker:   'Caso 01 · Barcelona · 14 de marzo',
+  headline: 'Muerto en su propia mesa',
+  body:     'Enric Puig (62 años), reputado coleccionista de vinos y propietario de tres restaurantes en Barcelona, aparece muerto en la silla principal de su comedor privado. Son las 23:47. Cinco invitados comparten la velada. La copa de Rioja Gran Reserva todavía entre sus dedos, una sonrisa extraña en el rostro. El médico forense detecta cianuro en sangre. Alguien de esa mesa lo mató.',
+  meta:[
+    {label:'Víctima',   val:'Enric Puig, 62 años'},
+    {label:'Causa',     val:'Envenenamiento (cianuro)'},
+    {label:'Fecha',     val:'14 de marzo, 23:47'},
+    {label:'Lugar',     val:'Residencia privada, Sarrià (Barcelona)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🍷', q:'La copa de la víctima', a:'La copa de Enric contiene un vino de 2015, pero la botella en la mesa es de 2018. <span class="clue-highlight">Alguien sirvió una copa diferente al resto.</span>'},
+    {icon:'🚪', q:'La bodega privada', a:'La bodega estaba cerrada con llave durante la cena, pero el pestillo muestra marcas de haber sido forzado. <span class="clue-highlight">El acceso fue anterior a la llegada de los invitados.</span>'},
+    {icon:'🧴', q:'El frasco en la basura', a:'En el cubo de la cocina se encuentra un pequeño frasco de vidrio marrón. Queda un residuo que huele a almendras amargas. <span class="clue-highlight">Cianuro potásico. Vacío.</span>'},
+  ],
+  testigos:[
+    {icon:'👁️', q:'La declaración de la asistenta', a:'Rosa, la asistenta, vio a <span class="clue-highlight">Núria Casas en la bodega sola</span>, casi una hora antes de que llegaran los invitados. Dijo que «buscaba la botella especial que había pedido Enric».'},
+    {icon:'🗣️', q:'Lo que contó Oriol Mas', a:'Oriol afirma que Enric le dijo esa semana que tenía previsto hacer <span class="clue-highlight">«un anuncio importante»</span> esa noche. Algo que «cambiaría algunas cosas de la empresa».'},
+  ],
+  sospechosos:[
+    {emoji:'👩‍🦱', name:'Núria Casas',       role:'Sumiller',          motive:'Fue despedida hace 3 semanas. Su cuenta bancaria muestra deudas graves. Conoce cada botella de la bodega.'},
+    {emoji:'👨‍💼', name:'Guillem Roca',       role:'Socio comercial',   motive:'Mantienen un litigio abierto por la gestión de uno de los restaurantes. Discutieron en público días antes.'},
+    {emoji:'👩‍🦳', name:'Montserrat Figueras',role:'Esposa',            motive:'Heredaría todos los bienes. Pero hay un testamento reciente que la excluye en beneficio de una fundación.'},
+    {emoji:'🧔',  name:'Oriol Mas',           role:'Coleccionista rival',motive:'Competencia histórica por una colección de vinos únicos. Perdió una subasta frente a Enric el mes anterior.'},
+    {emoji:'👩', name:'Laia Bosch',           role:'Asistenta del hogar',motive:'Lleva 12 años en la casa y conoce todos los secretos, pero también la más leal. Sin móvil aparente.'},
+  ],
+  pruebas:[
+    {icon:'🔬', q:'Análisis del frasco', a:'Las huellas del frasco corresponden a <span class="clue-highlight">un pulgar derecho</span>. El frasco fue comprado en una farmacia de Gracia hace 8 días.'},
+    {icon:'📹', q:'Cámara de seguridad del garaje', a:'Las imágenes muestran a Núria Casas llegando <span class="clue-highlight">78 minutos antes</span> de la hora acordada, con una bolsa pequeña que no tenía al salir.'},
+    {icon:'📱', q:'Mensajes del móvil de la víctima', a:'Enric envió un mensaje a su abogado esa mañana: <span class="clue-highlight">«Mañana comunicaré a Núria que no habrá indemnización»</span>. El anuncio de la noche era ese.'},
+  ],
+  killer:       'Núria Casas',
+  explanation:  'Núria Casas envenenó la copa de Enric con cianuro potásico que había introducido en la bodega antes de la cena. Había sido despedida sin indemnización y sabía que esa noche Enric lo haría público. Con acceso privilegiado a la bodega y conocimiento exacto de qué vino elegiría Enric, preparó una copa aparte del mismo año que él siempre pedía. El frasco con sus huellas y las cámaras del garaje confirmaron su presencia anticipada.',
+},
+
+/* ── CASO 1 ── El Senderista */
+{
+  title:    'El Senderista',
+  kicker:   'Caso 02 · Pirineos · 3 de octubre',
+  headline: 'Una caída que no fue accidente',
+  body:     'Ferran Esteve (44 años), fotógrafo de naturaleza premiado internacionalmente, aparece en el fondo de un barranco del Pirineo catalán. La ruta estaba marcada, el tiempo era bueno, Ferran conocía esa montaña desde niño. El rescate dictamina accidente. Pero su seguro de vida —dos millones de euros— está a nombre de un único beneficiario, y la última persona que lo vio con vida miente en su declaración.',
+  meta:[
+    {label:'Víctima',   val:'Ferran Esteve, 44 años'},
+    {label:'Causa',     val:'Traumatismo craneoencefálico (caída)'},
+    {label:'Fecha',     val:'3 de octubre, hacia las 11:00'},
+    {label:'Lugar',     val:'Barranco de la Canal Seca, Alt Urgell'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🪨', q:'El punto de caída', a:'La roca desde donde cayó tiene marcas de arañazos en dirección contraria al vacío. <span class="clue-highlight">Compatibles con intentar agarrarse tras ser empujado</span>, no con tropezar.'},
+    {icon:'🎒', q:'La mochila de Ferran', a:'Su mochila aparece a 40 metros del cuerpo. <span class="clue-highlight">Abierta y con el contenido revuelto</span>. Sus memorias de cámara no están, aunque sí la cámara.'},
+    {icon:'👣', q:'Las huellas en el barro', a:'Llueve esa mañana. En el barro junto al precipicio hay <span class="clue-highlight">dos pares de pisadas distintas</span>. Solo se esperaba un senderista.'},
+  ],
+  testigos:[
+    {icon:'🧗', q:'El senderista del refugio', a:'Un hombre que estaba en el refugio la noche anterior recuerda haber visto a Ferran <span class="clue-highlight">discutir en voz baja por teléfono</span>. Oyó la palabra «contrato» y «no te lo voy a permitir».'},
+    {icon:'📞', q:'La llamada de Pilar Esteve', a:'La hermana de Ferran recibió un mensaje suyo a las 9:14: «Voy a contar todo lo que sé, hay cosas que no son limpias». <span class="clue-highlight">No llegó a explicarle a qué se refería.</span>'},
+  ],
+  sospechosos:[
+    {emoji:'👨‍💻', name:'Biel Sanz',      role:'Socio y mánager',    motive:'Beneficiario del seguro de vida de dos millones. Llevaba meses desviando ingresos de la empresa. Ferran lo estaba descubriendo.'},
+    {emoji:'👩', name:'Pilar Esteve',    role:'Hermana',            motive:'Conflictos por la herencia familiar, pero claramente afectada. Sin coartada sólida, pero tampoco móvil económico real.'},
+    {emoji:'📸', name:'Jordi Mas',       role:'Fotógrafo rival',    motive:'Había perdido un encargo importante a manos de Ferran. Rencor documentado, pero sin presencia confirmada en la zona.'},
+    {emoji:'👩‍🦰', name:'Marta Vila',    role:'Expareja',           motive:'Separación conflictiva hace 2 años. Tiene una orden de alejamiento. Fue vista en el pueblo el día anterior.'},
+  ],
+  pruebas:[
+    {icon:'💾', q:'Las memorias desaparecidas', a:'Las tarjetas de la cámara contenían fotografías de <span class="clue-highlight">documentos contables de la empresa</span> que Ferran había fotografiado. Biel era quien tenía acceso a esos archivos.'},
+    {icon:'📍', q:'Geolocalización del móvil de Biel', a:'El teléfono de Biel Sanz <span class="clue-highlight">aparece desactivado entre las 9:00 y las 13:30</span> de ese día. Dice que estaba en Barcelona. Las cámaras de la autopista no lo registran saliendo.'},
+    {icon:'🔬', q:'Análisis de la ropa de Ferran', a:'En la chaqueta de Ferran se encuentran <span class="clue-highlight">fibras de color azul marino</span> no pertenecientes a su ropa. Biel Sanz llevaba un anorak azul marino ese fin de semana.'},
+  ],
+  killer:       'Biel Sanz',
+  explanation:  'Biel Sanz llevaba 14 meses desviando ingresos de la sociedad que compartía con Ferran. Cuando Ferran fotografió los documentos comprometedores, Biel supo que tenía que actuar. Quedó con él en la montaña con el pretexto de una conversación importante, y lo empujó al barranco. Se llevó las tarjetas de memoria. Su móvil desconectado, las fibras de su anorak y la geolocalización incompleta lo situaron allí. Era el único beneficiario de los dos millones del seguro.',
+},
+
+/* ── CASO 2 ── La Herencia de la Masía */
+{
+  title:    'La Herencia de la Masía',
+  kicker:   'Caso 03 · Girona · 22 de agosto',
+  headline: 'Muerte natural. O eso dijeron.',
+  body:     'Dolors Valls (78 años) fallece durante la noche en su habitación de la masía familiar en el Empordà. Toda la familia está reunida ese fin de semana: el hijo mayor Marc, la hija Elena, el marido de Elena y los nietos. El médico de cabecera firma el certificado sin autopsia. Dolors tenía el corazón delicado. Pero tres días antes había llamado a su notario para modificar el testamento. Una llamada que Marc desconoce, supuestamente.',
+  meta:[
+    {label:'Víctima',   val:'Dolors Valls, 78 años'},
+    {label:'Causa oficial', val:'Insuficiencia cardíaca'},
+    {label:'Fecha',     val:'22 de agosto, durante la noche'},
+    {label:'Lugar',     val:'Masía Can Valls, Peralada (Girona)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🛏️', q:'La habitación de Dolors', a:'La almohada tiene pequeñas fibras en la cara interior, en una posición inusual. <span class="clue-highlight">Compatibles con haber sido presionada contra la cara de la víctima.</span>'},
+    {icon:'💊', q:'La medicación de la noche', a:'El pastillero de Dolors tiene una dosis de menos. Pero Elena afirma haberle dado la medicación ella misma a las 22:30. <span class="clue-highlight">La caja de somníferos está en el cajón de Marc.</span>'},
+    {icon:'🪟', q:'La ventana entreabierta', a:'La ventana de la habitación estaba entreabierta a pesar del frío de esa noche. <span class="clue-highlight">Dolors tenía fobia a las corrientes de aire</span> y jamás dormía con ventanas abiertas.'},
+  ],
+  testigos:[
+    {icon:'👦', q:'El nieto mayor, Pau', a:'Pau (17 años) no dormía. Desde su habitación oyó pasos en el pasillo hacia las 2:00 de la madrugada. <span class="clue-highlight">Pasos pesados, de adulto.</span> Luego silencio. Pensó que era alguien yendo al baño.'},
+    {icon:'📞', q:'La llamada al notario', a:'El notario confirma que Dolors le llamó el miércoles anterior. Quería <span class="clue-highlight">excluir a Marc del testamento</span> y dejarlo todo a su hija Elena y a una fundación de Alzheimer. La cita era el lunes siguiente.'},
+  ],
+  sospechosos:[
+    {emoji:'🧔', name:'Marc Valls',    role:'Hijo mayor',         motive:'Sabía que perdería la herencia. Tiene deudas por valor de 340.000 euros. La masía y los ahorros de Dolors eran su única salida.'},
+    {emoji:'👩', name:'Elena Valls',   role:'Hija',               motive:'La única que se preocupaba realmente de Dolors. Beneficiaria del nuevo testamento. Pero estaba dormida según su marido.'},
+    {emoji:'👨', name:'Toni Ferrer',  role:'Empleado de la masía',motive:'Trabaja allí desde hace 20 años. Conoce cada rincón, tiene llave de todo. Dolors le prometió una parte en el testamento anterior.'},
+    {emoji:'👩‍🦳', name:'Rosa Pau',   role:'Amiga íntima',       motive:'No estaba en la masía esa noche. Pero sabía del testamento y tenía contacto frecuente con Marc.'},
+  ],
+  pruebas:[
+    {icon:'🔬', q:'Segunda autopsia (exhumación)', a:'Solicitada por Elena. Encuentra <span class="clue-highlight">petequias en los ojos</span> de Dolors, compatibles con asfixia por sofocación, no con fallo cardíaco natural.'},
+    {icon:'📱', q:'El teléfono de Marc', a:'Tres días antes de la muerte, Marc buscó en Google: <span class="clue-highlight">«somníferos y fallo cardíaco»</span> y «dosis pastillas corazón efecto». El historial fue recuperado por la policía.'},
+    {icon:'🔑', q:'La caja del notario', a:'El sobre con el nuevo testamento borrador tenía las huellas de Marc. <span class="clue-highlight">Había accedido al despacho del notario</span> usando el nombre de su madre para solicitar una copia «de revisión».'},
+  ],
+  killer:       'Marc Valls',
+  explanation:  'Marc Valls administró somníferos a su madre mezclados con su medicación habitual y la asfixió con la almohada mientras dormía. Sabía que el lunes siguiente el testamento lo excluiría definitivamente. Las petequias de la segunda autopsia, el historial de búsquedas de su teléfono y las huellas en los documentos del notario lo incriminaron. Los pasos que oyó su sobrino Pau a las 2:00 de la madrugada eran los suyos.',
+},
+
+];
+
+/* ═══════════════════════════════════════════
+   ESTADO DEL JUEGO
+═══════════════════════════════════════════ */
+let currentCase   = null;
+let selectedSusp  = null;
+let revealedClues = {escena:[], testigos:[], pruebas:[]};
+let revealedSusps = [];
+
+function totalClues(c){
+  return c.escena.length + c.testigos.length + c.pruebas.length;
+}
+function countRevealed(){
+  return revealedClues.escena.length + revealedClues.testigos.length + revealedClues.pruebas.length;
+}
+
+/* ═══════════════════════════════════════════
+   NAVEGACIÓN
+═══════════════════════════════════════════ */
+function goHome(){
+  document.getElementById('screen-home').style.display   = '';
+  document.getElementById('screen-game').style.display   = 'none';
+  document.getElementById('screen-verdict').style.display= 'none';
+  currentCase = null; selectedSusp = null;
+  revealedClues = {escena:[],testigos:[],pruebas:[]};
+  revealedSusps = [];
+}
+
+function startCase(idx){
+  currentCase   = idx;
+  selectedSusp  = null;
+  revealedClues = {escena:[],testigos:[],pruebas:[]};
+  revealedSusps = [];
+  const c = CASES[idx];
+
+  document.getElementById('screen-home').style.display   = 'none';
+  document.getElementById('screen-verdict').style.display= 'none';
+  document.getElementById('screen-game').style.display   = '';
+  window.scrollTo(0,0);
+
+  // Header
+  document.getElementById('gh-title').textContent = c.title;
+  updateCluesBadge();
+
+  // Briefing
+  document.getElementById('br-kicker').textContent   = c.kicker;
+  document.getElementById('br-headline').textContent  = c.headline;
+  document.getElementById('br-body').textContent      = c.body;
+  const meta = document.getElementById('br-meta');
+  meta.innerHTML = c.meta.map(m=>`
+    <div class="meta-item">
+      <span class="meta-label">${m.label}</span>
+      <span class="meta-val">${m.val}</span>
+    </div>`).join('');
+
+  // Tabs
+  const tabs = document.getElementById('inv-tabs');
+  tabs.innerHTML = '';
+  const tabIds = ['escena','testigos','sospechosos','pruebas'];
+  c.tabs.forEach((t,i)=>{
+    const b = document.createElement('button');
+    b.className = 'inv-tab' + (i===0?' active':'');
+    b.textContent = t;
+    b.onclick = ()=> switchTab(tabIds[i], b);
+    tabs.appendChild(b);
+  });
+
+  // Panels
+  renderClues('escena',   c.escena);
+  renderClues('testigos', c.testigos);
+  renderClues('pruebas',  c.pruebas);
+  renderSuspects(c.sospechosos);
+
+  // Reset panels visibility
+  ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
+    document.getElementById('inv-'+id).className = 'inv-panel' + (id==='escena'?' active':'');
+  });
+
+  // Acusación
+  document.getElementById('btn-accuse').disabled = true;
+  document.getElementById('accuse-sub').textContent = 'Selecciona al sospechoso que crees culpable antes de acusar.';
+}
+
+function switchTab(panelId, btn){
+  document.querySelectorAll('.inv-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
+    const p = document.getElementById('inv-'+id);
+    p.classList.toggle('active', id===panelId);
+  });
+}
+
+function nextCase(){
+  const next = (currentCase+1) % CASES.length;
+  startCase(next);
+}
+
+/* ═══════════════════════════════════════════
+   RENDER CLUES
+═══════════════════════════════════════════ */
+function renderClues(type, clues){
+  const container = document.getElementById('clues-'+type);
+  container.innerHTML = '';
+  clues.forEach((cl,i)=>{
+    const div = document.createElement('div');
+    div.className = 'clue-item';
+    div.id = `clue-${type}-${i}`;
+    div.innerHTML = `
+      <div class="clue-header">
+        <span class="clue-icon">${cl.icon}</span>
+        <span class="clue-q">${cl.q}</span>
+        <span class="clue-status pending" id="cs-${type}-${i}">Examinar →</span>
+      </div>
+      <div class="clue-answer">${cl.a}<br><span class="clue-note">✦ Pista registrada en el expediente</span></div>
+    `;
+    div.onclick = ()=> revealClue(type, i, div);
+    container.appendChild(div);
+  });
+  updateProgress(type);
+}
+
+function revealClue(type, i, div){
+  if(div.classList.contains('revealed')) return;
+  div.classList.add('revealed');
+  div.querySelector('.clue-status').textContent = '✓ Analizado';
+  div.querySelector('.clue-status').classList.replace('pending','done');
+
+  if(!revealedClues[type].includes(i)) revealedClues[type].push(i);
+  updateProgress(type);
+  updateCluesBadge();
+}
+
+function updateProgress(type){
+  const total   = CASES[currentCase][type].length;
+  const done    = revealedClues[type].length;
+  document.getElementById(`prog-${type}-txt`).textContent  = `${done}/${total} pistas`;
+  document.getElementById(`prog-${type}-fill`).style.width = (total? done/total*100 :0)+'%';
+}
+
+function updateCluesBadge(){
+  const c     = CASES[currentCase];
+  const total = totalClues(c);
+  const done  = countRevealed();
+  document.getElementById('gh-clues').textContent = `${done} / ${total} pistas`;
+}
+
+/* ═══════════════════════════════════════════
+   RENDER SOSPECHOSOS
+═══════════════════════════════════════════ */
+function renderSuspects(suspects){
+  const grid = document.getElementById('suspect-grid');
+  grid.innerHTML = '';
+  suspects.forEach((s,i)=>{
+    const card = document.createElement('div');
+    card.className = 'suspect-card';
+    card.id = `susp-${i}`;
+    card.innerHTML = `
+      <div class="suspect-emoji">${s.emoji}</div>
+      <div class="suspect-name">${s.name}</div>
+      <div class="suspect-role">${s.role}</div>
+      <div class="suspect-motive">${s.motive}</div>
+    `;
+    card.onclick = ()=> selectSuspect(i, s.name, card);
+    grid.appendChild(card);
+  });
+}
+
+function selectSuspect(i, name, card){
+  // Revelar móvil al hacer clic
+  card.classList.add('revealed');
+
+  // Selección
+  document.querySelectorAll('.suspect-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected', 'revealed');
+  selectedSusp = name;
+
+  document.getElementById('btn-accuse').disabled = false;
+  document.getElementById('accuse-sub').textContent = `Vas a acusar a: ${name}. ¿Estás seguro/a?`;
+}
+
+/* ═══════════════════════════════════════════
+   ACUSACIÓN Y VEREDICTO
+═══════════════════════════════════════════ */
+function makeAccusation(){
+  if(!selectedSusp) return;
+  const c       = CASES[currentCase];
+  const correct = selectedSusp === c.killer;
+  const score   = countRevealed() + '/' + totalClues(c);
+
+  document.getElementById('screen-game').style.display    = 'none';
+  document.getElementById('screen-verdict').style.display = 'flex';
+  window.scrollTo(0,0);
+
+  document.getElementById('vd-icon').textContent        = correct ? '✅' : '❌';
+  document.getElementById('vd-result').textContent      = correct ? '¡Caso resuelto!' : 'Acusación incorrecta';
+  document.getElementById('vd-result').className        = 'verdict-result ' + (correct?'correct':'wrong');
+  document.getElementById('vd-accused').textContent     = `Has acusado a: ${selectedSusp}${correct ? '' : ` · El culpable era ${c.killer}`}`;
+  document.getElementById('vd-explanation').innerHTML   = c.explanation;
+  document.getElementById('vd-score').textContent       = score;
+
+  const btnNext = document.getElementById('btn-next-case');
+  btnNext.disabled   = false;
+  btnNext.textContent= currentCase < CASES.length-1 ? 'Siguiente caso →' : 'Volver al inicio';
+}
+
+function nextCase(){
+  if(currentCase < CASES.length-1) startCase(currentCase+1);
+  else goHome();
+}
+</script>
+</body>
+</html>
