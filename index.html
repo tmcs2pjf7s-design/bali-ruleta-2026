@@ -1074,8 +1074,8 @@ h1 em{
 ══════════════════════════════════════════ */
 #login-overlay{
   position:fixed;inset:0;z-index:9999;
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;overflow-y:auto;
   /* mismo fondo que el body */
   background:
     radial-gradient(ellipse 70% 25% at 20% 12%,rgba(160,145,120,.28) 0%,transparent 60%),
@@ -1400,6 +1400,13 @@ h1 em{
     </div>
 
   </div><!-- /login-card -->
+
+  <footer class="site-footer" style="position:relative;z-index:2">
+    <p class="footer-copy">© 2026 Ruslan</p>
+    <p class="footer-text">Web creada con café, estrés y decisiones cuestionables de última hora.<br>Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.</p>
+    <p class="footer-tag">🌐 esto es página de web, para que lo sepan</p>
+  </footer>
+
 </div><!-- /login-overlay -->
 
 <!-- ── Decoraciones atmosféricas ── -->
