@@ -2667,18 +2667,25 @@ $('option-input').addEventListener('keydown',e=>{
 $('btn-spin').addEventListener('click',spin);
 $('btn-reset').addEventListener('click',()=>{
   if(!assignments.some(Boolean)&&!pool.length){toast('No hay nada que reiniciar 😊');return}
-  if(!confirm('¿Reiniciar todo el itinerario y devolver las actividades al bombo?'))return;
-  assignments.forEach((_,i,a)=>{if(a[i])pool.push(a[i]);a[i]=null});
-  assignments=new Array(6).fill(null);spinTarget=-1;pendingResult=null;
+  if(!confirm('¿Borrar todo? Se eliminará el bombo y el itinerario completo.'))return;
+  pool=[];assignments=new Array(6).fill(null);nextId=1;
+  spinTarget=-1;pendingResult=null;autoSpinMode=false;
   $('result-box').classList.remove('show');
-  save();renderAll();toast('¡Todo reiniciado! 🔄');
+  save();renderAll();toast('✓ Todo borrado');
 });
 
 /* ═══════════════════════════════════════════
    INIT  (async por Supabase)
 ═══════════════════════════════════════════ */
 (async()=>{
-  await load();
+  // Reset único: limpia el estado guardado de pruebas
+  if(!localStorage.getItem('bali-clean-v1')){
+    pool=[];assignments=new Array(6).fill(null);nextId=1;
+    await save();
+    localStorage.setItem('bali-clean-v1','1');
+  } else {
+    await load();
+  }
   renderAll();
   renderSuggestions();
 })();
