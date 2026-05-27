@@ -463,7 +463,16 @@ h1 em{
   border-radius:10px;padding:9px 13px;text-align:left;gap:10px;
 }
 .status-row-label{font-size:.78rem;color:var(--t2);flex:1}
-.status-row-stars{font-size:.9rem;letter-spacing:1px;white-space:nowrap}
+.status-row-stars{display:flex;gap:3px}
+.star-btn{
+  font-size:1.1rem;background:none;border:none;cursor:pointer;
+  padding:0 1px;line-height:1;color:rgba(232,186,42,.25);
+  transition:color .12s,transform .1s;
+}
+.star-btn.on{color:var(--gold);text-shadow:0 0 8px rgba(232,186,42,.6)}
+.star-btn:hover{transform:scale(1.25)}
+.status-row-stars:hover .star-btn{color:rgba(232,186,42,.4)}
+.status-row-stars:hover .star-btn.on{color:var(--gold)}
 .btn-status-enter{
   width:100%;
   background:linear-gradient(135deg,#b84010,#e8a028);
@@ -1981,28 +1990,52 @@ const STATUS_SUBS = {
 };
 
 function rndInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-function stars(n){ return '★'.repeat(n)+'☆'.repeat(5-n); }
+function makeStarWidget(initial){
+  let current = initial;
+  const wrap = document.createElement('div');
+  wrap.className = 'status-row-stars';
+
+  function paint(hovered){
+    const val = hovered ?? current;
+    wrap.querySelectorAll('.star-btn').forEach((b,i)=>{
+      b.classList.toggle('on', i < val);
+      b.textContent = i < val ? '★' : '☆';
+    });
+  }
+
+  for(let i=1;i<=5;i++){
+    const b = document.createElement('button');
+    b.className = 'star-btn' + (i <= initial ? ' on' : '');
+    b.textContent = i <= initial ? '★' : '☆';
+    b.type = 'button';
+    b.addEventListener('mouseenter', ()=> paint(i));
+    b.addEventListener('mouseleave', ()=> paint(null));
+    b.addEventListener('click', ()=>{ current = i; paint(null); });
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
 
 let _statusWho = 'Ruslan';
 
 function renderStatus(who){
   _statusWho = who;
-  // botones activos
   document.querySelectorAll('.status-who-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.who===who);
   });
-  // subtítulo
   const subs = STATUS_SUBS[who];
   document.getElementById('status-subtitle').textContent = subs[rndInt(0,subs.length-1)];
-  // filas
   const rows = document.getElementById('status-rows');
   rows.innerHTML = '';
   STATUS_DATA[who].forEach(([label, min, max])=>{
     const n   = rndInt(min, max);
     const row = document.createElement('div');
     row.className = 'status-row';
-    row.innerHTML = `<span class="status-row-label">${label}</span>
-                     <span class="status-row-stars">${stars(n)}</span>`;
+    const lbl = document.createElement('span');
+    lbl.className = 'status-row-label';
+    lbl.textContent = label;
+    row.appendChild(lbl);
+    row.appendChild(makeStarWidget(n));
     rows.appendChild(row);
   });
 }
