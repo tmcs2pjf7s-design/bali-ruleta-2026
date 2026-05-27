@@ -120,6 +120,13 @@ h1,h2,h3{font-family:'Playfair Display',serif}
   border-radius:50px;padding:4px 14px;font-size:.72rem;font-weight:700;
   color:#c8a030;
 }
+.btn-restart{
+  background:none;border:1px solid rgba(200,160,48,.18);border-radius:8px;
+  color:rgba(212,201,168,.4);font-family:'DM Sans',sans-serif;
+  font-size:.72rem;font-weight:600;padding:5px 11px;cursor:pointer;
+  transition:all .2s;
+}
+.btn-restart:hover{border-color:rgba(200,100,40,.5);color:#c05030;}
 
 .game-body{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
 
@@ -340,7 +347,10 @@ h1,h2,h3{font-family:'Playfair Display',serif}
   <div class="game-header">
     <button class="btn-back" onclick="goHome()">← Casos</button>
     <div class="game-case-title" id="gh-title"></div>
-    <div class="game-clues-badge" id="gh-clues">0 / 0 pistas</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="game-clues-badge" id="gh-clues">0 / 0 pistas</div>
+      <button class="btn-restart" onclick="restartCase()" title="Reiniciar investigación">↺ Reiniciar</button>
+    </div>
   </div>
 
   <div class="game-body">
@@ -736,6 +746,11 @@ function makeAccusation(){
 function nextCase(){
   if(currentCase < CASES.length-1) startCase(currentCase+1);
   else goHome();
+}
+
+function restartCase(){
+  if(!confirm('¿Reiniciar la investigación? Se borrarán todas las pistas descubiertas.')) return;
+  startCase(currentCase);
 }
 </script>
 </body>
