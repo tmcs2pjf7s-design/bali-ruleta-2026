@@ -5,430 +5,854 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>CRIMS · Investigación Criminal</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet"/>
+
+  <!-- GSAP + ScrollTrigger (animaciones cinematográficas) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
   <style>
+/* ════════════════════════════════════════════════
+   RESET & TOKENS
+════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;cursor:none}
 body{
   font-family:'DM Sans',sans-serif;
-  background:#0a0a0a;
+  background:#060608;
   color:#d4c9a8;
   min-height:100vh;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
 
-/* ── Fondo ── */
-.bg-noise{
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(180,120,20,.06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(20,60,20,.08) 0%, transparent 55%),
-    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+:root{
+  --gold:    #c8a030;
+  --red:     #8b1a1a;
+  --red-l:   #c03030;
+  --cream:   #e8dcc0;
+  --dim:     rgba(212,201,168,0.55);
+  --dimmer:  rgba(212,201,168,0.3);
+  --surface: rgba(255,255,255,0.025);
+  --border:  rgba(200,160,48,0.15);
+  --border-h:rgba(200,160,48,0.5);
 }
 
-/* ── Tipografía ── */
-h1,h2,h3{font-family:'Playfair Display',serif}
-.mono{font-family:'Special Elite',serif}
+/* ── Cursor personalizado estilo detective ── */
+#cursor{
+  position:fixed;width:16px;height:16px;
+  border:2px solid var(--gold);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:width .18s,height .18s,border-color .18s,background .18s;
+  mix-blend-mode:difference;
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;
+  border:1px solid rgba(200,160,48,0.35);border-radius:50%;
+  pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);
+  transition:width .35s cubic-bezier(.25,.1,.25,1),height .35s cubic-bezier(.25,.1,.25,1);
+}
+#cursor-crosshair{
+  position:fixed;pointer-events:none;z-index:99997;
+  transform:translate(-50%,-50%);
+  opacity:0.4;
+}
+#cursor-crosshair::before,#cursor-crosshair::after{
+  content:'';position:absolute;background:var(--gold);
+}
+#cursor-crosshair::before{width:1px;height:12px;left:0;top:-6px;}
+#cursor-crosshair::after{width:12px;height:1px;left:-6px;top:0;}
+body:hover #cursor{opacity:1}
+a,button,.case-card,.clue-item,.suspect-card{cursor:none}
+a:hover ~ #cursor,
+button:hover ~ #cursor,
+.clickable:hover ~ #cursor{
+  width:24px;height:24px;background:rgba(200,160,48,.15);
+}
 
-/* ── PANTALLA: INICIO ── */
+/* ── Grain overlay cinemático ── */
+#grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9000;
+  opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:128px 128px;
+  animation:grainShift 0.15s steps(1) infinite;
+}
+@keyframes grainShift{
+  0%  {background-position:0 0}
+  25% {background-position:-20px 10px}
+  50% {background-position:15px -8px}
+  75% {background-position:-5px 18px}
+  100%{background-position:10px -15px}
+}
+
+/* ── Vignette ── */
+#vignette{
+  position:fixed;inset:0;pointer-events:none;z-index:8999;
+  background:radial-gradient(ellipse 85% 85% at 50% 50%,
+    transparent 55%,
+    rgba(0,0,0,.55) 85%,
+    rgba(0,0,0,.85) 100%);
+}
+
+/* ── Flash de transición ── */
+#flash{
+  position:fixed;inset:0;z-index:99990;
+  background:#000;
+  opacity:0;pointer-events:none;
+}
+
+/* ── Scanlines ── */
+#scanlines{
+  position:fixed;inset:0;pointer-events:none;z-index:8998;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,transparent 2px,
+    rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px
+  );
+}
+
+/* ════════════════════════════════════════════════
+   TIPOGRAFÍA
+════════════════════════════════════════════════ */
+h1,h2,h3{font-family:'Playfair Display',serif}
+.typeface{font-family:'Special Elite',serif}
+
+/* ── Glitch effect ── */
+.glitch{
+  position:relative;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+  overflow:hidden;
+}
+.glitch::before{
+  color:#c8a030;
+  animation:glitchTop 4s infinite linear;
+  clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
+  transform:translateX(-2px);
+}
+.glitch::after{
+  color:#8b1a1a;
+  animation:glitchBot 4s infinite linear;
+  clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
+  transform:translateX(2px);
+}
+@keyframes glitchTop{
+  0%,90%,100%{transform:translateX(-2px);opacity:0}
+  92%{transform:translateX(4px);opacity:.8}
+  94%{transform:translateX(-1px);opacity:.6}
+  96%{transform:translateX(2px);opacity:.9}
+  98%{transform:translateX(0);opacity:0}
+}
+@keyframes glitchBot{
+  0%,90%,100%{transform:translateX(2px);opacity:0}
+  91%{transform:translateX(-4px);opacity:.7}
+  93%{transform:translateX(1px);opacity:.5}
+  95%{transform:translateX(-2px);opacity:.8}
+  97%{transform:translateX(0);opacity:0}
+}
+
+/* ── Typewriter ── */
+.typewriter{
+  overflow:hidden;
+  white-space:nowrap;
+  border-right:2px solid var(--gold);
+  animation:typeCaret .6s step-end infinite;
+}
+.typewriter.done{border-color:transparent}
+@keyframes typeCaret{0%,100%{border-color:transparent}50%{border-color:var(--gold)}}
+
+/* ════════════════════════════════════════════════
+   PANTALLA HOME
+════════════════════════════════════════════════ */
 #screen-home{
   position:relative;z-index:1;
   min-height:100vh;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:40px 20px;
-  text-align:center;
+  padding:60px 20px;text-align:center;
+  /* Fondo noir */
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 40%,rgba(140,90,10,.08) 0%,transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,rgba(139,26,26,.06) 0%,transparent 60%);
 }
-.home-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  border:1px solid rgba(180,120,20,.4);border-radius:50px;
-  padding:6px 18px;font-size:.7rem;font-weight:700;
-  letter-spacing:.15em;text-transform:uppercase;color:#c8a030;
-  margin-bottom:24px;background:rgba(180,120,20,.06);
+
+/* Línea roja de apertura */
+.home-redline{
+  width:1px;height:60px;background:var(--red-l);
+  margin:0 auto 32px;
+  box-shadow:0 0 12px var(--red-l);
+  transform-origin:top;
 }
+
+.home-eyebrow{
+  font-size:.65rem;font-weight:700;letter-spacing:.25em;
+  text-transform:uppercase;color:var(--red-l);
+  margin-bottom:20px;opacity:.8;
+}
+
 .home-title{
-  font-size:clamp(3rem,8vw,6rem);font-weight:900;
-  letter-spacing:-.03em;line-height:.95;
-  color:#e8dcc0;text-shadow:0 0 60px rgba(200,160,48,.15);
-  margin-bottom:8px;
+  font-size:clamp(4rem,10vw,8rem);font-weight:900;
+  letter-spacing:-.04em;line-height:.9;
+  color:var(--cream);
+  text-shadow:0 0 80px rgba(200,130,30,.12);
+  margin-bottom:6px;
 }
-.home-title span{
-  color:#c8a030;font-style:italic;
-  text-shadow:0 0 40px rgba(200,160,48,.35);
+.home-title-sub{
+  font-family:'Special Elite',serif;
+  font-size:clamp(.9rem,2.5vw,1.4rem);
+  color:rgba(200,160,48,.6);letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:48px;
 }
+
+.home-divider{
+  display:flex;align-items:center;gap:16px;margin-bottom:48px;
+  width:100%;max-width:480px;
+}
+.home-divider-line{
+  flex:1;height:1px;
+  background:linear-gradient(to right,transparent,rgba(200,160,48,.3),transparent);
+}
+.home-divider-dot{color:var(--gold);font-size:.6rem;}
+
 .home-sub{
-  font-size:1rem;color:rgba(212,201,168,.5);
-  letter-spacing:.06em;margin-bottom:48px;
-  font-style:italic;
+  font-size:.85rem;color:var(--dimmer);letter-spacing:.06em;
+  font-style:italic;margin-bottom:56px;line-height:1.8;
 }
+
+/* Grid de casos */
 .case-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:16px;max-width:960px;width:100%;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;max-width:1100px;width:100%;
 }
+
+/* Tarjeta de caso */
 .case-card{
-  background:rgba(255,255,255,.025);
-  border:1px solid rgba(200,160,48,.15);
-  border-radius:16px;padding:26px 22px;
-  cursor:pointer;text-align:left;transition:all .25s;
+  background:rgba(255,255,255,.018);
+  border:1px solid var(--border);
+  border-radius:4px;padding:26px 22px;
+  cursor:none;text-align:left;
   position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
 }
+/* Borde izquierdo animado */
 .case-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(200,160,48,.05),transparent);
-  opacity:0;transition:opacity .25s;
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(to bottom,transparent,var(--red-l),transparent);
+  transform:scaleY(0);transform-origin:center;
+  transition:transform .4s cubic-bezier(.25,.1,.25,1);
 }
-.case-card:hover{border-color:rgba(200,160,48,.45);transform:translateY(-3px);
-  box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(200,160,48,.1);}
-.case-card:hover::before{opacity:1}
-.case-num{font-size:.65rem;font-weight:700;letter-spacing:.14em;
-  text-transform:uppercase;color:#c8a030;opacity:.7;margin-bottom:10px;}
-.case-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;
-  color:#e8dcc0;margin-bottom:8px;line-height:1.2;}
-.case-location{font-size:.75rem;color:rgba(212,201,168,.45);margin-bottom:14px;
-  display:flex;align-items:center;gap:5px;}
-.case-desc{font-size:.82rem;color:rgba(212,201,168,.6);line-height:1.65;}
+/* Overlay hover */
+.case-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,26,26,.06),transparent);
+  opacity:0;transition:opacity .35s;
+}
+.case-card:hover{
+  border-color:rgba(200,160,48,.35);
+  box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px rgba(200,160,48,.08);
+}
+.case-card:hover::before{transform:scaleY(1)}
+.case-card:hover::after{opacity:1}
+/* Luz de esquina */
+.case-card-glow{
+  position:absolute;top:-40px;right:-40px;
+  width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,160,48,.08),transparent 70%);
+  opacity:0;transition:opacity .4s;pointer-events:none;
+}
+.case-card:hover .case-card-glow{opacity:1}
+
+.case-num{
+  font-size:.6rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--red-l);opacity:.8;
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.case-num::before{
+  content:'';width:18px;height:1px;background:var(--red-l);opacity:.6;
+}
+.case-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;
+  color:var(--cream);margin-bottom:8px;line-height:1.2;
+}
+.case-location{
+  font-size:.72rem;color:var(--dimmer);margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;letter-spacing:.04em;
+}
+.case-desc{font-size:.8rem;color:rgba(212,201,168,.55);line-height:1.7;}
 .case-badge{
   display:inline-flex;align-items:center;gap:5px;
-  margin-top:16px;padding:4px 12px;border-radius:50px;
-  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  margin-top:18px;padding:4px 12px;border-radius:2px;
+  font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
 }
-.badge-open{background:rgba(42,158,80,.12);border:1px solid rgba(42,158,80,.3);color:#5cb85c;}
-.badge-locked{background:rgba(200,100,40,.08);border:1px solid rgba(200,100,40,.25);color:#c08040;}
+.badge-open{
+  background:rgba(139,26,26,.12);border:1px solid rgba(139,26,26,.35);color:#c05050;
+}
+.badge-dot{
+  width:5px;height:5px;border-radius:50%;background:currentColor;
+  animation:badgePulse 1.5s ease-in-out infinite;
+}
+@keyframes badgePulse{
+  0%,100%{opacity:.4;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.4)}
+}
 
-.home-footer{margin-top:48px;font-size:.65rem;color:rgba(212,201,168,.2);letter-spacing:.06em}
+.home-footer{
+  margin-top:60px;font-size:.6rem;color:rgba(212,201,168,.18);
+  letter-spacing:.06em;line-height:2;text-align:center;
+}
 
-/* ── PANTALLA: JUEGO ── */
+/* ════════════════════════════════════════════════
+   PANTALLA JUEGO
+════════════════════════════════════════════════ */
 #screen-game{display:none;position:relative;z-index:1;min-height:100vh}
 
+/* Header sticky */
 .game-header{
-  position:sticky;top:0;z-index:100;
-  background:rgba(10,10,10,.92);backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(200,160,48,.12);
-  padding:14px 24px;
-  display:flex;align-items:center;gap:16px;
+  position:sticky;top:0;z-index:500;
+  background:rgba(6,6,8,.88);backdrop-filter:blur(20px) saturate(1.2);
+  border-bottom:1px solid rgba(200,160,48,.08);
+  padding:12px 24px;
+  display:flex;align-items:center;gap:14px;
 }
 .btn-back{
-  background:none;border:1px solid rgba(200,160,48,.2);border-radius:8px;
-  color:rgba(212,201,168,.5);font-family:'DM Sans',sans-serif;
-  font-size:.78rem;font-weight:600;padding:6px 12px;cursor:pointer;
-  transition:all .2s;
+  background:none;border:1px solid rgba(200,160,48,.18);border-radius:3px;
+  color:rgba(212,201,168,.4);font-family:'DM Sans',sans-serif;
+  font-size:.72rem;font-weight:600;padding:6px 14px;cursor:none;
+  transition:all .25s;letter-spacing:.06em;
 }
-.btn-back:hover{border-color:rgba(200,160,48,.5);color:#c8a030;}
-.game-case-title{font-family:'Playfair Display',serif;font-size:1rem;
-  font-weight:700;color:#e8dcc0;flex:1;}
+.btn-back:hover{border-color:rgba(200,160,48,.5);color:var(--gold);}
+.game-case-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;color:var(--cream);flex:1;
+}
+.game-header-right{display:flex;gap:8px;align-items:center}
 .game-clues-badge{
-  background:rgba(200,160,48,.1);border:1px solid rgba(200,160,48,.25);
-  border-radius:50px;padding:4px 14px;font-size:.72rem;font-weight:700;
-  color:#c8a030;
+  background:rgba(200,160,48,.08);border:1px solid rgba(200,160,48,.2);
+  border-radius:2px;padding:4px 12px;font-size:.68rem;font-weight:700;
+  color:var(--gold);letter-spacing:.06em;font-family:'Special Elite',serif;
 }
 .btn-restart{
-  background:none;border:1px solid rgba(200,160,48,.18);border-radius:8px;
-  color:rgba(212,201,168,.4);font-family:'DM Sans',sans-serif;
-  font-size:.72rem;font-weight:600;padding:5px 11px;cursor:pointer;
-  transition:all .2s;
+  background:none;border:1px solid rgba(200,160,48,.12);border-radius:3px;
+  color:rgba(212,201,168,.3);font-family:'DM Sans',sans-serif;
+  font-size:.68rem;font-weight:600;padding:5px 10px;cursor:none;transition:all .2s;
 }
-.btn-restart:hover{border-color:rgba(200,100,40,.5);color:#c05030;}
+.btn-restart:hover{border-color:rgba(139,26,26,.5);color:#c05030;}
 
-.game-body{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+/* Cuerpo del juego */
+.game-body{max-width:920px;margin:0 auto;padding:40px 20px 100px;}
 
-/* Briefing */
-.briefing-card{
-  background:rgba(255,255,255,.02);border:1px solid rgba(200,160,48,.18);
-  border-radius:16px;padding:28px;margin-bottom:32px;
-  position:relative;overflow:hidden;
+/* Briefing cinematográfico */
+.briefing-wrap{
+  position:relative;margin-bottom:48px;
+  padding:36px;
+  border:1px solid rgba(200,160,48,.12);border-radius:4px;
+  background:rgba(255,255,255,.015);
+  overflow:hidden;
 }
-.briefing-card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+/* Línea superior decorativa */
+.briefing-wrap::before{
+  content:'';position:absolute;top:0;left:40px;right:40px;height:1px;
   background:linear-gradient(to right,transparent,rgba(200,160,48,.4),transparent);
 }
-.briefing-kicker{font-size:.65rem;font-weight:700;letter-spacing:.15em;
-  text-transform:uppercase;color:#c8a030;margin-bottom:12px;}
-.briefing-headline{font-family:'Playfair Display',serif;font-size:1.7rem;
-  font-weight:900;color:#e8dcc0;line-height:1.2;margin-bottom:16px;}
-.briefing-body{font-size:.9rem;line-height:1.8;color:rgba(212,201,168,.75);}
+/* Número de caso grande de fondo */
+.briefing-bg-num{
+  position:absolute;right:-10px;top:-20px;
+  font-family:'Playfair Display',serif;
+  font-size:14rem;font-weight:900;
+  color:rgba(200,160,48,.03);line-height:1;
+  pointer-events:none;user-select:none;
+  font-style:italic;
+}
+.briefing-kicker{
+  font-size:.6rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--red-l);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.briefing-kicker::before{
+  content:'';width:24px;height:1px;background:var(--red-l);
+}
+.briefing-headline{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;
+  color:var(--cream);line-height:1.15;margin-bottom:22px;
+}
+.briefing-body{
+  font-size:.88rem;line-height:1.9;color:rgba(212,201,168,.7);
+}
 .briefing-meta{
-  display:flex;flex-wrap:wrap;gap:16px;margin-top:20px;padding-top:20px;
-  border-top:1px solid rgba(200,160,48,.1);
+  display:flex;flex-wrap:wrap;gap:20px;
+  margin-top:24px;padding-top:24px;
+  border-top:1px solid rgba(200,160,48,.08);
 }
 .meta-item{display:flex;flex-direction:column;gap:3px;}
-.meta-label{font-size:.6rem;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:rgba(200,160,48,.5);}
-.meta-val{font-size:.85rem;font-weight:600;color:#e8dcc0;}
+.meta-label{
+  font-size:.58rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(200,160,48,.4);
+}
+.meta-val{
+  font-family:'Special Elite',serif;font-size:.82rem;color:var(--cream);
+}
 
-/* Pestañas investigación */
-.inv-tabs{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;}
+/* Pestañas */
+.inv-tabs{
+  display:flex;gap:1px;margin-bottom:28px;
+  border:1px solid rgba(200,160,48,.1);border-radius:3px;overflow:hidden;
+  background:rgba(200,160,48,.04);
+}
 .inv-tab{
-  padding:9px 18px;border-radius:10px;border:1px solid rgba(200,160,48,.15);
-  background:none;color:rgba(212,201,168,.45);font-family:'DM Sans',sans-serif;
-  font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;
+  flex:1;padding:11px 8px;border:none;
+  background:none;
+  color:rgba(212,201,168,.35);font-family:'DM Sans',sans-serif;
+  font-size:.75rem;font-weight:600;cursor:none;transition:all .25s;
+  letter-spacing:.04em;text-align:center;position:relative;
+  border-right:1px solid rgba(200,160,48,.08);
 }
+.inv-tab:last-child{border-right:none}
 .inv-tab.active{
-  background:rgba(200,160,48,.12);border-color:rgba(200,160,48,.45);color:#c8a030;
+  background:rgba(200,160,48,.1);color:var(--gold);
 }
-.inv-tab:hover:not(.active){border-color:rgba(200,160,48,.3);color:rgba(212,201,168,.75);}
+.inv-tab.active::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:var(--gold);
+}
+.inv-tab:hover:not(.active){color:rgba(212,201,168,.65);}
 
-.inv-panel{display:none;}
-.inv-panel.active{display:block;}
+.inv-panel{display:none}
+.inv-panel.active{display:block}
+
+/* Progreso */
+.clue-progress{
+  display:flex;align-items:center;gap:12px;margin-bottom:18px;
+}
+.clue-progress-label{
+  font-size:.65rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(200,160,48,.4);
+  white-space:nowrap;font-family:'Special Elite',serif;
+}
+.clue-progress-bar{
+  flex:1;height:1px;background:rgba(200,160,48,.1);
+  position:relative;overflow:visible;
+}
+.clue-progress-fill{
+  position:absolute;top:0;left:0;height:100%;
+  background:linear-gradient(to right,rgba(139,26,26,.6),var(--gold));
+  transition:width .6s cubic-bezier(.25,.1,.25,1);
+  box-shadow:0 0 8px rgba(200,160,48,.4);
+}
 
 /* Clues */
-.clue-grid{display:flex;flex-direction:column;gap:10px;}
+.clue-grid{display:flex;flex-direction:column;gap:8px;}
 .clue-item{
-  background:rgba(255,255,255,.02);border:1px solid rgba(200,160,48,.1);
-  border-radius:12px;padding:16px 18px;cursor:pointer;
-  transition:all .2s;position:relative;overflow:hidden;
+  background:rgba(255,255,255,.018);
+  border:1px solid rgba(200,160,48,.08);
+  border-radius:3px;padding:16px 18px;
+  cursor:none;transition:border-color .25s,background .25s;
+  position:relative;overflow:hidden;
+}
+.clue-item::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--gold);transform:scaleY(0);transform-origin:bottom;
+  transition:transform .35s cubic-bezier(.25,.1,.25,1);
 }
 .clue-item:hover:not(.revealed){
-  border-color:rgba(200,160,48,.35);background:rgba(200,160,48,.04);
+  border-color:rgba(200,160,48,.25);background:rgba(200,160,48,.03);
 }
-.clue-item.revealed{cursor:default;border-color:rgba(200,160,48,.25);}
-.clue-item.revealed::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:linear-gradient(to bottom,#c8a030,rgba(200,160,48,.3));
+.clue-item:hover:not(.revealed)::before{transform:scaleY(1)}
+.clue-item.revealed{
+  border-color:rgba(200,160,48,.2);cursor:default;
 }
-.clue-header{display:flex;align-items:center;gap:10px;}
-.clue-icon{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0;}
-.clue-q{font-size:.85rem;font-weight:600;color:#e8dcc0;flex:1;}
-.clue-status{font-size:.65rem;font-weight:700;letter-spacing:.06em;
-  text-transform:uppercase;white-space:nowrap;}
-.clue-status.pending{color:rgba(200,160,48,.4);}
-.clue-status.done{color:#c8a030;}
+.clue-item.revealed::before{transform:scaleY(1);background:var(--red-l)}
+
+/* Flash de revelado */
+.clue-flash{
+  position:absolute;inset:0;background:#fff;
+  opacity:0;pointer-events:none;border-radius:3px;
+}
+
+.clue-header{display:flex;align-items:center;gap:12px;}
+.clue-icon{font-size:1rem;width:26px;text-align:center;flex-shrink:0;opacity:.7}
+.clue-item.revealed .clue-icon{opacity:1}
+.clue-q{font-size:.83rem;font-weight:600;color:rgba(212,201,168,.8);flex:1;}
+.clue-item.revealed .clue-q{color:var(--cream)}
+.clue-status{
+  font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;white-space:nowrap;
+  font-family:'Special Elite',serif;
+}
+.clue-status.pending{color:rgba(200,160,48,.3);}
+.clue-status.done{color:var(--gold);}
+
 .clue-answer{
-  margin-top:12px;padding-top:12px;border-top:1px solid rgba(200,160,48,.1);
-  font-size:.84rem;line-height:1.7;color:rgba(212,201,168,.75);
-  display:none;
+  margin-top:14px;padding-top:14px;
+  border-top:1px solid rgba(200,160,48,.08);
+  font-size:.82rem;line-height:1.8;color:rgba(212,201,168,.65);
+  display:none;overflow:hidden;
 }
-.clue-item.revealed .clue-answer{display:block;}
-.clue-highlight{color:#c8a030;font-weight:700;}
+.clue-item.revealed .clue-answer{display:block}
+.clue-highlight{color:var(--gold);font-weight:700;}
+.clue-note{
+  display:inline-flex;align-items:center;gap:5px;margin-top:10px;
+  font-size:.62rem;color:rgba(200,160,48,.4);font-style:italic;
+  font-family:'Special Elite',serif;
+}
 
 /* Sospechosos */
-.suspect-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.suspect-intro{
+  font-size:.78rem;color:var(--dimmer);margin-bottom:18px;line-height:1.6;
+  padding:12px 16px;
+  border-left:2px solid rgba(200,160,48,.2);
+  background:rgba(200,160,48,.03);
+}
+.suspect-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;
+}
 .suspect-card{
-  background:rgba(255,255,255,.025);border:1px solid rgba(200,160,48,.1);
-  border-radius:12px;padding:18px;text-align:center;cursor:pointer;
-  transition:all .2s;position:relative;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(200,160,48,.08);
+  border-radius:3px;padding:18px 16px;
+  text-align:center;cursor:none;
+  transition:all .3s;position:relative;overflow:hidden;
 }
-.suspect-card:hover{border-color:rgba(200,160,48,.35);transform:translateY(-2px);}
-.suspect-card.selected{border-color:#c8a030;background:rgba(200,160,48,.08);}
+.suspect-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,26,26,.08),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.suspect-card:hover{
+  border-color:rgba(200,160,48,.3);transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.suspect-card:hover::before{opacity:1}
+.suspect-card.selected{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(200,160,48,.15),0 12px 40px rgba(0,0,0,.5);
+}
 .suspect-card.selected::after{
-  content:'✓';position:absolute;top:10px;right:12px;
-  color:#c8a030;font-weight:700;font-size:.8rem;
+  content:'◉';position:absolute;top:10px;right:12px;
+  color:var(--gold);font-size:.75rem;
 }
-.suspect-emoji{font-size:2rem;margin-bottom:8px;}
-.suspect-name{font-family:'Playfair Display',serif;font-size:.95rem;
-  font-weight:700;color:#e8dcc0;margin-bottom:4px;}
-.suspect-role{font-size:.72rem;color:rgba(212,201,168,.45);}
-.suspect-motive{font-size:.75rem;color:rgba(200,160,48,.6);margin-top:8px;
-  padding-top:8px;border-top:1px solid rgba(200,160,48,.1);display:none;}
-.suspect-card.revealed .suspect-motive{display:block;}
+.suspect-emoji{font-size:1.8rem;margin-bottom:10px;display:block}
+.suspect-name{
+  font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700;
+  color:var(--cream);margin-bottom:3px;
+}
+.suspect-role{font-size:.68rem;color:var(--dimmer);}
+.suspect-motive{
+  font-size:.72rem;color:rgba(200,160,48,.6);margin-top:10px;
+  padding-top:10px;border-top:1px solid rgba(200,160,48,.08);
+  text-align:left;line-height:1.65;display:none;
+}
+.suspect-card.revealed .suspect-motive{display:block}
 
-/* Panel acusación */
-.accuse-section{margin-top:32px;}
-.accuse-title{font-family:'Playfair Display',serif;font-size:1.1rem;
-  font-weight:700;color:#e8dcc0;margin-bottom:6px;}
-.accuse-sub{font-size:.8rem;color:rgba(212,201,168,.45);margin-bottom:20px;}
+/* Acusación */
+.accuse-section{
+  margin-top:40px;
+  padding:28px;
+  border:1px solid rgba(139,26,26,.2);border-radius:4px;
+  background:rgba(139,26,26,.04);
+  position:relative;overflow:hidden;
+}
+.accuse-section::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,rgba(139,26,26,.4),transparent);
+}
+.accuse-title{
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;
+  color:var(--cream);margin-bottom:6px;
+}
+.accuse-sub{
+  font-size:.78rem;color:var(--dimmer);margin-bottom:20px;line-height:1.6;
+}
 .btn-accuse{
   width:100%;padding:16px;
-  background:linear-gradient(135deg,#8b2020,#c03030);
-  border:none;border-radius:14px;color:#fff;
-  font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;
-  cursor:pointer;transition:all .2s;letter-spacing:.02em;
-  box-shadow:0 6px 24px rgba(140,32,32,.4);
+  background:linear-gradient(135deg,rgba(100,20,20,.8),rgba(160,30,30,.6));
+  border:1px solid rgba(139,26,26,.5);border-radius:3px;
+  color:rgba(220,180,180,.7);
+  font-family:'Special Elite',serif;font-size:.95rem;
+  cursor:none;transition:all .25s;letter-spacing:.04em;
+  position:relative;overflow:hidden;
 }
-.btn-accuse:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(140,32,32,.55);}
-.btn-accuse:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-accuse::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(200,50,50,.15),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.btn-accuse:hover:not(:disabled){
+  border-color:rgba(192,48,48,.8);color:#e8c0c0;
+  box-shadow:0 0 30px rgba(139,26,26,.3);
+}
+.btn-accuse:hover:not(:disabled)::before{opacity:1}
+.btn-accuse:disabled{opacity:.3;cursor:not-allowed}
 
-/* Veredicto */
-#screen-verdict{display:none;position:relative;z-index:1;
-  min-height:100vh;display:none;align-items:center;justify-content:center;
-  padding:40px 20px;}
-.verdict-card{
-  max-width:560px;width:100%;
-  background:rgba(10,10,10,.97);border-radius:24px;padding:40px 32px;
-  text-align:center;border:1px solid rgba(200,160,48,.2);
-  box-shadow:0 40px 100px rgba(0,0,0,.8);
-  animation:popIn .4s cubic-bezier(.17,.67,.3,1.3);
+/* ════════════════════════════════════════════════
+   PANTALLA VEREDICTO
+════════════════════════════════════════════════ */
+#screen-verdict{
+  display:none;position:relative;z-index:1;
+  min-height:100vh;
+  align-items:center;justify-content:center;
+  padding:40px 20px;
 }
-@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
-.verdict-icon{font-size:4rem;margin-bottom:16px;display:block;}
-.verdict-result{font-family:'Playfair Display',serif;font-size:2rem;
-  font-weight:900;margin-bottom:10px;}
-.verdict-result.correct{color:#5cb85c;text-shadow:0 0 30px rgba(92,184,92,.3);}
-.verdict-result.wrong{color:#c05040;text-shadow:0 0 30px rgba(192,80,64,.3);}
-.verdict-accused{font-size:.9rem;color:rgba(212,201,168,.65);margin-bottom:20px;}
+
+.verdict-card{
+  max-width:600px;width:100%;
+  background:rgba(6,6,8,.97);
+  border:1px solid rgba(200,160,48,.15);
+  border-radius:4px;padding:48px 36px;
+  text-align:center;
+  box-shadow:0 50px 120px rgba(0,0,0,.9);
+}
+.verdict-icon-wrap{
+  width:80px;height:80px;border-radius:50%;
+  margin:0 auto 24px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;position:relative;
+}
+.verdict-icon-wrap::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:1px solid rgba(200,160,48,.2);
+  animation:verdictRing 2s ease-in-out infinite;
+}
+@keyframes verdictRing{
+  0%,100%{transform:scale(1);opacity:.5}
+  50%{transform:scale(1.08);opacity:1}
+}
+.verdict-result{
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;font-weight:900;margin-bottom:10px;line-height:1;
+}
+.verdict-result.correct{color:#4a9a5a}
+.verdict-result.wrong{color:#9a3030}
+.verdict-accused{
+  font-size:.82rem;color:var(--dimmer);margin-bottom:24px;
+  letter-spacing:.04em;
+}
 .verdict-explanation{
-  font-size:.88rem;line-height:1.8;color:rgba(212,201,168,.75);
-  background:rgba(255,255,255,.02);border:1px solid rgba(200,160,48,.1);
-  border-radius:12px;padding:18px;margin-bottom:24px;text-align:left;
+  font-size:.84rem;line-height:1.9;color:rgba(212,201,168,.68);
+  background:rgba(255,255,255,.018);
+  border:1px solid rgba(200,160,48,.08);
+  border-radius:3px;padding:20px;margin-bottom:24px;text-align:left;
 }
 .verdict-score{
   display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:.85rem;color:rgba(212,201,168,.55);margin-bottom:28px;
+  font-size:.78rem;color:var(--dimmer);margin-bottom:32px;
+  font-family:'Special Elite',serif;letter-spacing:.06em;
 }
-.score-num{font-family:'Playfair Display',serif;font-size:1.5rem;
-  font-weight:900;color:#c8a030;}
+.score-num{
+  font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--gold);
+}
+.verdict-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .btn-verdict-home{
-  background:rgba(200,160,48,.12);border:1px solid rgba(200,160,48,.35);
-  border-radius:12px;color:#c8a030;font-family:'DM Sans',sans-serif;
-  font-size:.9rem;font-weight:700;padding:13px 28px;cursor:pointer;
-  transition:all .2s;margin-right:10px;
+  background:none;border:1px solid rgba(200,160,48,.25);border-radius:3px;
+  color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:12px 24px;cursor:none;transition:all .2s;letter-spacing:.04em;
 }
-.btn-verdict-home:hover{background:rgba(200,160,48,.22);}
+.btn-verdict-home:hover{background:rgba(200,160,48,.08);}
 .btn-verdict-next{
-  background:linear-gradient(135deg,#8b2020,#c03030);
-  border:none;border-radius:12px;color:#fff;
-  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
-  padding:13px 28px;cursor:pointer;transition:all .2s;
+  background:linear-gradient(135deg,rgba(100,20,20,.8),rgba(160,30,30,.6));
+  border:1px solid rgba(139,26,26,.5);border-radius:3px;
+  color:rgba(220,180,180,.8);font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:600;padding:12px 24px;cursor:none;transition:all .2s;
 }
-.btn-verdict-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(140,32,32,.45);}
-.btn-verdict-next:disabled{opacity:.35;cursor:not-allowed;}
+.btn-verdict-next:hover{border-color:rgba(192,48,48,.7);color:#e8c0c0}
+.btn-verdict-next:disabled{opacity:.3;cursor:not-allowed}
 
-/* Progreso clues */
-.clue-progress{
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:16px;font-size:.75rem;color:rgba(212,201,168,.4);
-}
-.clue-progress-bar{
-  flex:1;height:3px;background:rgba(200,160,48,.12);border-radius:99px;overflow:hidden;
-}
-.clue-progress-fill{
-  height:100%;background:linear-gradient(to right,#8b6020,#c8a030);
-  border-radius:99px;transition:width .4s ease;
+/* ════════════════════════════════════════════════
+   PARTÍCULAS DE VEREDICTO
+════════════════════════════════════════════════ */
+.verdict-particle{
+  position:fixed;width:4px;height:4px;border-radius:50%;
+  pointer-events:none;z-index:99995;
 }
 
-/* Notita clue */
-.clue-note{
-  display:inline-flex;align-items:center;gap:5px;
-  margin-top:8px;font-size:.65rem;color:rgba(200,160,48,.5);
-  font-style:italic;
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════ */
+@media(max-width:680px){
+  .game-body{padding:24px 14px 80px}
+  .briefing-wrap{padding:24px 18px}
+  .briefing-bg-num{font-size:8rem}
+  .inv-tab{font-size:.65rem;padding:9px 4px}
+  .suspect-grid{grid-template-columns:repeat(2,1fr)}
+  .verdict-card{padding:32px 20px}
 }
 </style>
 </head>
 <body>
-<div class="bg-noise"></div>
 
-<!-- ═══════════ PANTALLA INICIO ═══════════ -->
+<!-- ── Efectos de capa ── -->
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="scanlines"></div>
+<div id="flash"></div>
+
+<!-- ── Cursor detective ── -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-crosshair"></div>
+
+<!-- ════════════════════════════════════════════════
+     PANTALLA INICIO
+════════════════════════════════════════════════ -->
 <div id="screen-home">
-  <div class="home-badge">🔍 Investigación Criminal</div>
-  <h1 class="home-title">CRIMS<br><span>detective</span></h1>
-  <p class="home-sub">Cinco casos reales. Un culpable. ¿Puedes resolverlos?</p>
+  <div class="home-redline" id="home-redline"></div>
+  <div class="home-eyebrow" id="home-eyebrow">Casos reales · España</div>
 
-  <div class="case-grid">
+  <h1 class="home-title glitch" data-text="CRIMS" id="home-title">CRIMS</h1>
+  <p class="home-title-sub" id="home-title-sub">detective</p>
+
+  <div class="home-divider" id="home-divider">
+    <div class="home-divider-line"></div>
+    <span class="home-divider-dot">◆</span>
+    <div class="home-divider-line"></div>
+  </div>
+
+  <p class="home-sub" id="home-sub">
+    Cinco casos que conmocionaron España.<br>
+    Lee, investiga, acusa. La verdad está en las pruebas.
+  </p>
+
+  <div class="case-grid" id="case-grid">
 
     <div class="case-card" onclick="startCase(0)">
+      <div class="case-card-glow"></div>
       <div class="case-num">Caso 01 · Real</div>
       <div class="case-title">El Caso Asunta</div>
       <div class="case-location">🏡 Santiago de Compostela · 2013</div>
-      <div class="case-desc">Asunta Basterra Porto, 12 años, aparece muerta en una carretera comarcal. Adoptada de China, hija de una familia de clase alta gallega. El crimen conmocionó España.</div>
-      <div class="case-badge badge-open">● Abierto</div>
+      <div class="case-desc">Asunta Basterra Porto, 12 años. Adoptada de China. Encontrada muerta envuelta en una manta. Sus padres dieron la alarma.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
     </div>
 
     <div class="case-card" onclick="startCase(1)">
+      <div class="case-card-glow"></div>
       <div class="case-num">Caso 02 · Real</div>
       <div class="case-title">Diana Quer</div>
       <div class="case-location">🌊 A Pobra do Caramiñal · 2016</div>
-      <div class="case-desc">Diana Quer, 18 años, desaparece de madrugada en un pueblo gallego. Su cuerpo no aparecerá hasta 16 meses después. El caso paralizó al país.</div>
-      <div class="case-badge badge-open">● Abierto</div>
+      <div class="case-desc">18 años. Desaparece de madrugada. Su cuerpo no aparecerá hasta 16 meses después en el interior de un pozo.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
     </div>
 
     <div class="case-card" onclick="startCase(2)">
+      <div class="case-card-glow"></div>
       <div class="case-num">Caso 03 · Real</div>
       <div class="case-title">Rocío Wanninkhof</div>
       <div class="case-location">🌊 Mijas, Málaga · 1999</div>
-      <div class="case-desc">Rocío Wanninkhof, 19 años, desaparece una noche de octubre. Su cuerpo aparece días después. Una inocente pasa 17 meses en prisión antes de encontrarse al verdadero asesino.</div>
-      <div class="case-badge badge-open">● Abierto</div>
+      <div class="case-desc">19 años. Una inocente pasa 17 meses en prisión. El verdadero asesino mata de nuevo antes de ser identificado.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
     </div>
 
     <div class="case-card" onclick="startCase(3)">
+      <div class="case-card-glow"></div>
       <div class="case-num">Caso 04 · Real</div>
       <div class="case-title">Marta del Castillo</div>
       <div class="case-location">🌆 Sevilla · 2009</div>
-      <div class="case-desc">Marta del Castillo, 17 años, desaparece después de quedar con su exnovio. El confeso asesino nunca ha revelado dónde está el cuerpo. Sigue sin encontrarse.</div>
-      <div class="case-badge badge-open">● Abierto</div>
+      <div class="case-desc">17 años. El asesino confesó. Nunca dijo dónde está el cuerpo. Sus padres siguen buscando más de 15 años después.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
     </div>
 
     <div class="case-card" onclick="startCase(4)">
+      <div class="case-card-glow"></div>
       <div class="case-num">Caso 05 · Real</div>
       <div class="case-title">El Caso Bretón</div>
       <div class="case-location">🌳 Córdoba · 2011</div>
-      <div class="case-desc">Ruth y José, de 2 y 6 años, desaparecen durante una visita con su padre en un parque de Córdoba. Su padre dice que se los llevó su madre. Nadie le creyó demasiado tarde.</div>
-      <div class="case-badge badge-open">● Abierto</div>
+      <div class="case-desc">Ruth, 6 años. José, 2 años. Desaparecen con su padre en un parque. Las cámaras registran que nunca salieron.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
     </div>
 
   </div>
 
-  <div class="home-footer">Casos reales de la historia criminal española · Basado en hechos judicialmente probados · Inspirado en Crims de Carles Porta</div>
+  <div class="home-footer">
+    Casos basados en hechos judicialmente probados · Inspirado en Crims de Carles Porta<br>
+    <span style="opacity:.5">Este juego tiene fines divulgativos sobre la historia criminal española</span>
+  </div>
 </div>
 
-<!-- ═══════════ PANTALLA JUEGO ═══════════ -->
+<!-- ════════════════════════════════════════════════
+     PANTALLA JUEGO
+════════════════════════════════════════════════ -->
 <div id="screen-game">
   <div class="game-header">
     <button class="btn-back" onclick="goHome()">← Casos</button>
     <div class="game-case-title" id="gh-title"></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="game-clues-badge" id="gh-clues">0 / 0 pistas</div>
-      <button class="btn-restart" onclick="restartCase()" title="Reiniciar investigación">↺ Reiniciar</button>
+    <div class="game-header-right">
+      <div class="game-clues-badge" id="gh-clues">0 / 0</div>
+      <button class="btn-restart" onclick="restartCase()">↺ Reiniciar</button>
     </div>
   </div>
 
   <div class="game-body">
     <!-- Briefing -->
-    <div class="briefing-card">
+    <div class="briefing-wrap" id="briefing-wrap">
+      <div class="briefing-bg-num" id="br-bgnum"></div>
       <div class="briefing-kicker" id="br-kicker"></div>
       <div class="briefing-headline" id="br-headline"></div>
       <div class="briefing-body" id="br-body"></div>
       <div class="briefing-meta" id="br-meta"></div>
     </div>
 
-    <!-- Tabs investigación -->
+    <!-- Tabs -->
     <div class="inv-tabs" id="inv-tabs"></div>
 
+    <!-- Paneles -->
     <div id="inv-escena" class="inv-panel active">
       <div class="clue-progress">
-        <span id="prog-escena-txt">0/0 pistas</span>
+        <span class="clue-progress-label" id="prog-escena-txt">0/0</span>
         <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-escena-fill" style="width:0%"></div></div>
       </div>
       <div class="clue-grid" id="clues-escena"></div>
     </div>
     <div id="inv-testigos" class="inv-panel">
       <div class="clue-progress">
-        <span id="prog-testigos-txt">0/0 pistas</span>
+        <span class="clue-progress-label" id="prog-testigos-txt">0/0</span>
         <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-testigos-fill" style="width:0%"></div></div>
       </div>
       <div class="clue-grid" id="clues-testigos"></div>
     </div>
     <div id="inv-sospechosos" class="inv-panel">
-      <p style="font-size:.82rem;color:rgba(212,201,168,.45);margin-bottom:16px;">Haz clic en un sospechoso para revelar su móvil conocido. Selecciona al culpable cuando estés seguro/a.</p>
+      <div class="suspect-intro">Haz clic en un sospechoso para revisar su móvil documentado. Selecciona al culpable cuando hayas reunido suficientes pruebas.</div>
       <div class="suspect-grid" id="suspect-grid"></div>
     </div>
     <div id="inv-pruebas" class="inv-panel">
       <div class="clue-progress">
-        <span id="prog-pruebas-txt">0/0 pistas</span>
+        <span class="clue-progress-label" id="prog-pruebas-txt">0/0</span>
         <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-pruebas-fill" style="width:0%"></div></div>
       </div>
       <div class="clue-grid" id="clues-pruebas"></div>
     </div>
 
     <!-- Acusación -->
-    <div class="accuse-section">
+    <div class="accuse-section" id="accuse-section">
       <div class="accuse-title">⚖️ Acusación formal</div>
-      <div class="accuse-sub" id="accuse-sub">Selecciona al sospechoso que crees culpable antes de acusar.</div>
+      <div class="accuse-sub" id="accuse-sub">Selecciona un sospechoso antes de presentar la acusación.</div>
       <button class="btn-accuse" id="btn-accuse" disabled onclick="makeAccusation()">
-        🔒 Acusar formalmente
+        Presentar acusación formal
       </button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ PANTALLA VEREDICTO ═══════════ -->
+<!-- ════════════════════════════════════════════════
+     PANTALLA VEREDICTO
+════════════════════════════════════════════════ -->
 <div id="screen-verdict" style="display:none">
-  <div class="verdict-card">
-    <span class="verdict-icon" id="vd-icon"></span>
+  <div class="verdict-card" id="verdict-card">
+    <div class="verdict-icon-wrap" id="vd-icon-wrap">
+      <span id="vd-icon"></span>
+    </div>
     <div class="verdict-result" id="vd-result"></div>
     <div class="verdict-accused" id="vd-accused"></div>
     <div class="verdict-explanation" id="vd-explanation"></div>
     <div class="verdict-score">
       Pistas descubiertas: <span class="score-num" id="vd-score"></span>
     </div>
-    <div>
+    <div class="verdict-actions">
       <button class="btn-verdict-home" onclick="goHome()">← Casos</button>
       <button class="btn-verdict-next" id="btn-next-case" onclick="nextCase()">Siguiente caso →</button>
     </div>
@@ -436,323 +860,435 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 </div>
 
 <script>
-/* ═══════════════════════════════════════════
-   DATOS DE CASOS
-═══════════════════════════════════════════ */
+/* ════════════════════════════════════════════════
+   CURSOR PERSONALIZADO
+════════════════════════════════════════════════ */
+(()=>{
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  const cursorCH   = document.getElementById('cursor-crosshair');
+  let mx=0,my=0,rx=0,ry=0;
+
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX;my=e.clientY;
+    cursor.style.left     = mx+'px';
+    cursor.style.top      = my+'px';
+    cursorCH.style.left   = mx+'px';
+    cursorCH.style.top    = my+'px';
+  });
+
+  // Ring con lag suave
+  (function ringLoop(){
+    rx += (mx-rx)*.12;
+    ry += (my-ry)*.12;
+    cursorRing.style.left = rx+'px';
+    cursorRing.style.top  = ry+'px';
+    requestAnimationFrame(ringLoop);
+  })();
+
+  // Expandir ring en hover de elementos interactivos
+  document.addEventListener('mouseover',e=>{
+    if(e.target.matches('button,a,.case-card,.clue-item,.suspect-card')){
+      gsap.to(cursorRing,{width:52,height:52,borderColor:'rgba(200,160,48,.6)',duration:.25});
+      gsap.to(cursor,{scale:1.4,duration:.2});
+    }
+  });
+  document.addEventListener('mouseout',e=>{
+    if(e.target.matches('button,a,.case-card,.clue-item,.suspect-card')){
+      gsap.to(cursorRing,{width:36,height:36,borderColor:'rgba(200,160,48,.35)',duration:.25});
+      gsap.to(cursor,{scale:1,duration:.2});
+    }
+  });
+  document.addEventListener('mousedown',()=>{
+    gsap.to(cursor,{scale:.7,duration:.1});
+    gsap.to(cursorRing,{scale:.85,duration:.1});
+  });
+  document.addEventListener('mouseup',()=>{
+    gsap.to(cursor,{scale:1,duration:.15});
+    gsap.to(cursorRing,{scale:1,duration:.15});
+  });
+})();
+
+/* ════════════════════════════════════════════════
+   ANIMACIÓN DE ENTRADA — HOME
+════════════════════════════════════════════════ */
+gsap.registerPlugin(ScrollTrigger);
+
+(()=>{
+  const tl = gsap.timeline({defaults:{ease:'power3.out'}});
+  tl
+    .from('#home-redline',   {scaleY:0,duration:.8,transformOrigin:'top'})
+    .from('#home-eyebrow',   {opacity:0,y:10,duration:.5},'-=.2')
+    .from('#home-title',     {opacity:0,scale:.96,duration:.9},'-=.3')
+    .from('#home-title-sub', {opacity:0,y:8,duration:.5},'-=.5')
+    .from('#home-divider',   {opacity:0,scaleX:.3,duration:.6,transformOrigin:'center'},'-=.3')
+    .from('#home-sub',       {opacity:0,y:12,duration:.6},'-=.3')
+    .from('#case-grid .case-card',{
+      opacity:0,y:30,stagger:.1,duration:.6,ease:'power2.out'
+    },'-=.2')
+    .from('.home-footer',    {opacity:0,duration:.5},'-=.2');
+})();
+
+/* ════════════════════════════════════════════════
+   DATOS: 5 CASOS REALES
+════════════════════════════════════════════════ */
 const CASES = [
 
-/* ══ CASO 0 ══ El Caso Asunta (REAL · España · 2013) */
+/* ══ 0 ══ Asunta */
 {
-  title:    'El Caso Asunta',
-  kicker:   'Caso Real 01 · Santiago de Compostela · 21 septiembre 2013',
-  headline: 'La niña que no debía morir',
-  body:     'Asunta Basterra Porto, 12 años, de origen chino y adoptada por una familia de clase alta gallega, es encontrada muerta envuelta en una manta en una carretera comarcal de Teo, a las afueras de Santiago de Compostela. Sus padres —Alfonso Basterra, periodista, y Rosario Porto, abogada— dan la alarma por su desaparición horas antes. Desde el primer momento, las contradicciones en sus declaraciones y la frialdad con la que afrontan las cámaras llaman la atención de los investigadores. El caso conmocionó España entera.',
+  title:'El Caso Asunta', bgNum:'01',
+  kicker:'Caso Real 01 · Santiago de Compostela · 21 septiembre 2013',
+  headline:'La niña que no debía morir',
+  body:'Asunta Basterra Porto, 12 años, de origen chino y adoptada por una familia de clase alta gallega, es encontrada muerta envuelta en una manta en una carretera comarcal de Teo. Sus padres —Alfonso Basterra, periodista, y Rosario Porto, abogada— dan la alarma por su desaparición horas antes. Desde el primer momento, las contradicciones en sus declaraciones y la frialdad con la que afrontan las cámaras llaman la atención de los investigadores.',
   meta:[
-    {label:'Víctima',      val:'Asunta Basterra Porto, 12 años'},
-    {label:'Causa',        val:'Asfixia mecánica (somníferos + sofocación)'},
-    {label:'Hallazgo',     val:'21 septiembre 2013, carretera de Teo (Galicia)'},
-    {label:'Condena',      val:'18 años de prisión para cada progenitor (2015)'},
+    {label:'Víctima',val:'Asunta Basterra Porto, 12 años'},
+    {label:'Causa',val:'Asfixia (somníferos + sofocación)'},
+    {label:'Hallazgo',val:'21 sep. 2013 · Teo, Galicia'},
+    {label:'Condena',val:'18 años cada progenitor (2015)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🛣️', q:'El lugar del hallazgo', a:'El cuerpo de Asunta aparece en una carretera poco transitada, <span class="clue-highlight">a escasos kilómetros de la segunda residencia de la familia</span>. Envuelta en una manta con prendas de ropa propias del hogar familiar. No hay señales de agresión sexual ni de forcejeo externo.'},
-    {icon:'💊', q:'El Orfidal en sangre', a:'La autopsia revela <span class="clue-highlight">lorazepam (Orfidal) en sangre a dosis altas</span>. Lo sorprendente: análisis de muestras de pelo anteriores muestran que Asunta llevaba siendo sedada de forma intermitente <span class="clue-highlight">al menos dos meses antes de su muerte</span>.'},
-    {icon:'📦', q:'La manta y las sogas', a:'La manta que envuelve el cuerpo es identificada como <span class="clue-highlight">propiedad de la familia Porto-Basterra</span>. Las sogas usadas para atarla son del mismo tipo que las halladas en la casa de campo de los padres en Teo.'},
+    {icon:'🛣️',q:'El lugar del hallazgo',a:'El cuerpo de Asunta aparece en una carretera poco transitada, <span class="clue-highlight">a escasos kilómetros de la segunda residencia de la familia</span>. Envuelta en una manta con prendas propias del hogar. Sin señales de agresión externa.'},
+    {icon:'💊',q:'El Orfidal en sangre',a:'La autopsia revela <span class="clue-highlight">lorazepam (Orfidal) en sangre a dosis altas</span>. Los análisis de cabello muestran que Asunta llevaba siendo sedada de forma intermitente <span class="clue-highlight">al menos dos meses antes de su muerte</span>.'},
+    {icon:'📦',q:'La manta y las sogas',a:'La manta que envuelve el cuerpo es identificada como <span class="clue-highlight">propiedad de la familia Porto-Basterra</span>. Las sogas son del mismo tipo que las halladas en la casa de campo en Teo.'},
   ],
   testigos:[
-    {icon:'👁️', q:'El vecino de la finca', a:'Un vecino declara haber visto el <span class="clue-highlight">coche de Rosario Porto</span> pasar por la carretera donde fue hallado el cuerpo la noche del 21 de septiembre, en un horario incompatible con la coartada facilitada por los padres.'},
-    {icon:'📱', q:'Las llamadas de esa noche', a:'El análisis de las torres de telefonía móvil ubica los teléfonos de <span class="clue-highlight">ambos padres en la zona de Teo</span> durante las horas en que afirman estar en casa. Realizaron 23 llamadas entre sí en menos de dos horas.'},
+    {icon:'👁️',q:'El vecino de la finca',a:'Un vecino declara haber visto el <span class="clue-highlight">coche de Rosario Porto</span> pasar por la carretera del hallazgo la noche del 21 de septiembre, en horario incompatible con la coartada de los padres.'},
+    {icon:'📱',q:'Las llamadas de esa noche',a:'Las torres de telefonía ubican los teléfonos de <span class="clue-highlight">ambos padres en la zona de Teo</span> durante las horas en que afirman estar en casa. Realizaron 23 llamadas entre sí en menos de dos horas.'},
   ],
   sospechosos:[
-    {emoji:'👩‍⚖️', name:'Rosario Porto',     role:'Madre adoptiva · Abogada',   motive:'Considerada instigadora por el tribunal. Relación deteriorada con Asunta. Había iniciado trámites de separación con Alfonso. Algunos testigos apuntan a que la niña era fuente de conflicto en la pareja.'},
-    {emoji:'📰',   name:'Alfonso Basterra',   role:'Padre adoptivo · Periodista', motive:'Condenado como coautor. Encontraron en su ordenador imágenes inapropiadas de Asunta. Su papel en el crimen fue determinado como activo aunque subordinado a Rosario.'},
-    {emoji:'👩‍🦳', name:'Carmen Porto',       role:'Abuela materna',             motive:'Figura controvertida durante el juicio. Alegaba conocer secretos de la familia. Sin evidencias directas de participación.'},
-    {emoji:'🧑',   name:'Compañero del colegio',role:'Entorno escolar de Asunta', motive:'Línea de investigación inicial descartada. Asunta no presentaba indicios de conflictos graves fuera del entorno familiar.'},
+    {emoji:'👩‍⚖️',name:'Rosario Porto',role:'Madre adoptiva · Abogada',motive:'Considerada instigadora por el tribunal. Relación deteriorada con Asunta. Inició trámites de separación. Algunos testigos apuntan a que la niña era fuente de conflicto.'},
+    {emoji:'📰',name:'Alfonso Basterra',role:'Padre adoptivo · Periodista',motive:'Condenado como coautor. En su ordenador se encontraron imágenes inapropiadas de Asunta. Papel activo aunque subordinado a Rosario.'},
+    {emoji:'👩‍🦳',name:'Carmen Porto',role:'Abuela materna',motive:'Figura controvertida durante el juicio. Alegaba conocer secretos de la familia. Sin evidencias directas de participación.'},
+    {emoji:'🧑',name:'Entorno escolar',role:'Compañeros de colegio',motive:'Línea de investigación inicial, descartada. Asunta no presentaba conflictos graves fuera del entorno familiar.'},
   ],
   pruebas:[
-    {icon:'🔬', q:'Análisis de cabello (historia de sedación)', a:'Los análisis forenses de distintos segmentos del cabello de Asunta permiten trazar una <span class="clue-highlight">cronología de administración de Orfidal</span> que comienza semanas antes del crimen, descartando una ingesta accidental o voluntaria.'},
-    {icon:'📱', q:'El rastro digital de los padres', a:'Las búsquedas realizadas desde dispositivos de la familia incluyen términos como <span class="clue-highlight">«dosis letales sedantes»</span> y consultas sobre efectos del lorazepam. Los metadatos sitúan las búsquedas semanas antes del crimen.'},
-    {icon:'🚗', q:'La cámara de tráfico', a:'Una cámara de la DGT registra el <span class="clue-highlight">vehículo de Rosario Porto</span> circulando por la zona de Teo en la franja horaria en que fue depositado el cuerpo, contradiciendo su declaración inicial ante la Guardia Civil.'},
+    {icon:'🔬',q:'Historia de sedación (análisis capilar)',a:'Distintos segmentos del cabello de Asunta permiten trazar una <span class="clue-highlight">cronología de administración de Orfidal</span> que comienza semanas antes del crimen. Descarta ingesta accidental o voluntaria.'},
+    {icon:'📱',q:'El rastro digital de los padres',a:'Las búsquedas en dispositivos de la familia incluyen <span class="clue-highlight">«dosis letales sedantes»</span> y consultas sobre efectos del lorazepam, fechadas semanas antes del crimen.'},
+    {icon:'🚗',q:'La cámara de tráfico',a:'Una cámara de la DGT registra el <span class="clue-highlight">vehículo de Rosario Porto</span> en la zona de Teo en la franja horaria del depósito del cuerpo, contradiciendo su declaración inicial.'},
   ],
-  killer:      'Rosario Porto',
-  explanation: 'Rosario Porto fue considerada la autora intelectual del crimen, con Alfonso Basterra como coautor. Ambos fueron condenados a 18 años de prisión en 2015. El tribunal concluyó que Asunta fue sedada con Orfidal de forma repetida durante meses y finalmente asfixiada. Los motivos exactos nunca quedaron del todo claros, aunque los peritos apuntaron a una relación materno-filial muy deteriorada. Rosario Porto se suicidó en prisión en 2020. El caso sigue siendo uno de los más estudiados de la criminología española reciente.',
+  killer:'Rosario Porto',
+  explanation:'Rosario Porto fue considerada la autora intelectual del crimen, con Alfonso Basterra como coautor. Ambos condenados a 18 años en 2015. El tribunal concluyó que Asunta fue sedada con Orfidal durante meses y finalmente asfixiada. Los motivos exactos nunca quedaron claros. Rosario Porto se suicidó en prisión en 2020. El caso es uno de los más estudiados de la criminología española reciente.',
 },
 
-/* ══ CASO 1 ══ Diana Quer (REAL · España · 2016) */
+/* ══ 1 ══ Diana Quer */
 {
-  title:    'Diana Quer',
-  kicker:   'Caso Real 02 · A Pobra do Caramiñal, Galicia · Agosto 2016',
-  headline: 'La noche que no volvió a casa',
-  body:     'Diana Quer López-Pinel, 18 años, desaparece en la madrugada del 22 al 23 de agosto de 2016 en A Pobra do Caramiñal (A Coruña), donde veraneaba con su familia. Sale a una fiesta y no regresa. Su teléfono se apaga de golpe a las 4:06 de la madrugada. Las búsquedas se prolongan durante 16 meses sin resultado. Su cuerpo es hallado en diciembre de 2017 en el interior de un pozo en una nave abandonada. El caso pone de manifiesto las carencias del sistema de búsqueda de personas desaparecidas.',
+  title:'Diana Quer', bgNum:'02',
+  kicker:'Caso Real 02 · A Pobra do Caramiñal · Agosto 2016',
+  headline:'La noche que no volvió a casa',
+  body:'Diana Quer López-Pinel, 18 años, desaparece en la madrugada del 22 al 23 de agosto de 2016 en A Pobra do Caramiñal (A Coruña), donde veraneaba. Sale a una fiesta y no regresa. Su teléfono se apaga a las 4:06. Las búsquedas se prolongan 16 meses. Su cuerpo es hallado en diciembre de 2017 en el interior de un pozo en una nave abandonada.',
   meta:[
-    {label:'Víctima',  val:'Diana Quer López-Pinel, 18 años'},
-    {label:'Causa',    val:'Asfixia mecánica (estrangulamiento con brida)'},
-    {label:'Desapareció', val:'23 agosto 2016, A Pobra do Caramiñal'},
-    {label:'Condena',  val:'Perpetua revisable para José E. Abuín (2019)'},
+    {label:'Víctima',val:'Diana Quer López-Pinel, 18 años'},
+    {label:'Causa',val:'Asfixia (estrangulamiento con brida)'},
+    {label:'Desapareció',val:'23 ago. 2016 · A Pobra do Caramiñal'},
+    {label:'Condena',val:'Prisión permanente revisable (2019)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'👟', q:'La sandalia en la carretera', a:'Pocas horas después de la desaparición, la Guardia Civil localiza <span class="clue-highlight">una sandalia de Diana en la calzada</span>, junto a una zona poco iluminada por la que habría pasado de regreso a casa. Indica que algo ocurrió en ese punto.'},
-    {icon:'📍', q:'El último ping del móvil', a:'El teléfono de Diana emite su última señal a las <span class="clue-highlight">04:06 horas desde una antena</span> próxima a la zona donde luego se encontraría la sandalia. A partir de ahí, silencio absoluto. La batería no estaba agotada.'},
-    {icon:'🏚️', q:'La nave de O Milladoiro', a:'El cuerpo de Diana es hallado 16 meses después en el <span class="clue-highlight">interior de una cisterna en una nave en ruinas</span> de O Milladoiro (Ames). La nave era conocida en el entorno de El Chicle. Sus restos presentan indicios de estrangulamiento con brida.'},
+    {icon:'👟',q:'La sandalia en la carretera',a:'Horas después de la desaparición, la Guardia Civil localiza <span class="clue-highlight">una sandalia de Diana en la calzada</span>, en una zona poco iluminada por la que habría pasado de regreso a casa. Indica que algo ocurrió en ese punto.'},
+    {icon:'📍',q:'El último ping del móvil',a:'El teléfono emite su última señal a las <span class="clue-highlight">04:06 horas desde una antena próxima</span> a la zona de la sandalia. La batería no estaba agotada. A partir de ahí, silencio absoluto.'},
+    {icon:'🏚️',q:'La nave de O Milladoiro',a:'El cuerpo de Diana es hallado 16 meses después en el <span class="clue-highlight">interior de una cisterna en una nave en ruinas</span>. La nave era conocida en el entorno del agresor. Los restos presentan indicios de estrangulamiento con brida.'},
   ],
   testigos:[
-    {icon:'🚗', q:'El testigo de la carretera', a:'Un conductor declara haber visto a Diana caminar sola por la carretera en la dirección de su domicilio. Poco después, en el mismo tramo, <span class="clue-highlight">vio un coche detenido con las luces apagadas</span>. No le dio importancia en el momento.'},
-    {icon:'📞', q:'El entorno de El Chicle', a:'Investigadores detectan que <span class="clue-highlight">José Enrique Abuín "El Chicle"</span> tenía antecedentes por un intento de agresión sexual en la misma zona en 2005. Vivía en un municipio próximo y conocía bien la nave de O Milladoiro.'},
+    {icon:'🚗',q:'El testigo de la carretera',a:'Un conductor declara haber visto a Diana caminar sola. Poco después, en el mismo tramo, <span class="clue-highlight">vio un coche detenido con las luces apagadas</span>. No le dio importancia en el momento.'},
+    {icon:'📞',q:'El entorno de El Chicle',a:'Investigadores detectan que <span class="clue-highlight">José Enrique Abuín "El Chicle"</span> tenía antecedentes por intento de agresión sexual en la misma zona en 2005 y conocía la nave de O Milladoiro.'},
   ],
   sospechosos:[
-    {emoji:'🔪', name:'José E. Abuín "El Chicle"', role:'Vecino de la comarca',      motive:'Antecedentes por agresión sexual. Su ADN fue hallado en una brida junto al cuerpo. Conocía la nave donde fue ocultado el cadáver. Finalmente confesó el crimen en 2017.'},
-    {emoji:'👦', name:'Conocido de la fiesta',      role:'Joven del entorno social',  motive:'Línea investigada inicialmente. Sin relación probada con los hechos. Descartado por coartada verificada.'},
-    {emoji:'👨', name:'Exnovio de Diana',            role:'Ex pareja sentimental',    motive:'Relación reciente y conflictiva. Interrogado en las primeras semanas. Alibi verificado por cámaras de seguridad en otra localidad.'},
-    {emoji:'🚶', name:'Desconocido de la zona',      role:'Sin identificar inicialmente',motive:'Hipótesis manejada durante los primeros meses. Descartada al identificarse a El Chicle mediante ADN.'},
+    {emoji:'🔪',name:'José E. Abuín "El Chicle"',role:'Vecino de la comarca',motive:'Antecedentes por agresión sexual. Su ADN hallado en una brida junto al cuerpo. Conocía la nave donde fue ocultado el cadáver. Confesó el crimen en 2017.'},
+    {emoji:'👦',name:'Conocido de la fiesta',role:'Joven del entorno social',motive:'Línea investigada inicialmente. Sin relación probada. Descartado por coartada verificada.'},
+    {emoji:'👨',name:'Exnovio de Diana',role:'Ex pareja sentimental',motive:'Relación reciente. Interrogado en las primeras semanas. Alibi verificado por cámaras de seguridad en otra localidad.'},
+    {emoji:'🚶',name:'Desconocido de la zona',role:'Sin identificar inicialmente',motive:'Hipótesis manejada durante los primeros meses. Descartada al identificarse a El Chicle mediante ADN.'},
   ],
   pruebas:[
-    {icon:'🧬', q:'El ADN en la brida', a:'Un análisis de ADN practicado sobre una <span class="clue-highlight">brida de plástico hallada junto al cuerpo</span> arroja coincidencia con José Enrique Abuín Gey. Es la prueba que cierra el caso y provoca su detención en diciembre de 2017.'},
-    {icon:'📱', q:'Geolocalización del vehículo', a:'Los datos del teléfono de El Chicle sitúan su vehículo <span class="clue-highlight">en las inmediaciones del lugar de desaparición</span> de Diana en la franja horaria crítica de la madrugada del 22 al 23 de agosto.'},
-    {icon:'🔗', q:'Confesión y reconstrucción', a:'Tras su detención, El Chicle conduce a la Guardia Civil hasta el pozo donde ocultó el cuerpo. Confiesa haberla abordado en la carretera, <span class="clue-highlight">atado con una brida y estrangulado</span> al resistirse. Es condenado a prisión permanente revisable en 2019.'},
+    {icon:'🧬',q:'El ADN en la brida',a:'Análisis de ADN practicado sobre una <span class="clue-highlight">brida de plástico hallada junto al cuerpo</span> coincide con José Enrique Abuín Gey. Es la prueba que cierra el caso y provoca su detención en diciembre de 2017.'},
+    {icon:'📱',q:'Geolocalización del vehículo',a:'Los datos del teléfono de El Chicle sitúan su vehículo <span class="clue-highlight">en las inmediaciones del lugar de desaparición</span> de Diana en la franja horaria crítica de la madrugada.'},
+    {icon:'🔗',q:'Confesión y reconstrucción',a:'Tras su detención, El Chicle conduce a la Guardia Civil hasta el pozo. Confiesa haberla abordado, <span class="clue-highlight">atado con una brida y estrangulado</span> al resistirse. Prisión permanente revisable en 2019.'},
   ],
-  killer:      'José E. Abuín "El Chicle"',
-  explanation: 'José Enrique Abuín Gey, conocido como "El Chicle", abordó a Diana Quer mientras caminaba sola de madrugada. La inmovilizó con una brida de plástico y la estranguló. Escondió su cuerpo en una cisterna de una nave abandonada que conocía de antes. Fue detenido en diciembre de 2017 tras el hallazgo del cadáver y la coincidencia de su ADN. En 2019 fue condenado a prisión permanente revisable. Su caso impulsó la llamada "Ley Diana Quer" para endurecer las penas en crímenes sexuales con resultado de muerte.',
+  killer:'José E. Abuín "El Chicle"',
+  explanation:'José Enrique Abuín Gey abordó a Diana mientras caminaba sola de madrugada, la inmovilizó con una brida y la estranguló. Escondió el cuerpo en una cisterna que conocía. Detenido en diciembre de 2017 tras el hallazgo del cadáver y la coincidencia de su ADN. Condenado a prisión permanente revisable en 2019. Su caso impulsó la "Ley Diana Quer".',
 },
 
-/* ══ CASO 2 ══ Rocío Wanninkhof (REAL · España · 1999-2003) */
+/* ══ 2 ══ Rocío Wanninkhof */
 {
-  title:    'Rocío Wanninkhof',
-  kicker:   'Caso Real 03 · Mijas, Málaga · 9 octubre 1999',
-  headline: 'Una inocente en prisión. El asesino, libre.',
-  body:     'Rocío Wanninkhof, 19 años, desaparece la noche del 9 de octubre de 1999 tras salir a pasear cerca de su casa en Mijas Costa (Málaga). Su cuerpo aparece días después con señales de violencia. La investigación se centra desde el principio en Dolores Vázquez, expareja de la madre de Rocío, basándose en indicios y en una pericial caligráfica cuestionable. Dolores es condenada en 2001 y pasa 17 meses en prisión. En 2003, el mismo asesino ataca a otra joven (Sonia Carabantes) y su ADN lo vincula también a Rocío. La historia se convirtió en símbolo del error judicial.',
+  title:'Rocío Wanninkhof', bgNum:'03',
+  kicker:'Caso Real 03 · Mijas, Málaga · 9 octubre 1999',
+  headline:'Una inocente en prisión. El asesino, libre.',
+  body:'Rocío Wanninkhof, 19 años, desaparece el 9 de octubre de 1999 cerca de su casa en Mijas Costa. Su cuerpo aparece días después. La investigación se centra en Dolores Vázquez, expareja de la madre de Rocío. Dolores es condenada en 2001 y pasa 17 meses en prisión. En 2003, el mismo asesino ataca a otra joven y su ADN lo vincula también al crimen de Rocío.',
   meta:[
-    {label:'Víctima',  val:'Rocío Wanninkhof Hornos, 19 años'},
-    {label:'Causa',    val:'Heridas por arma blanca'},
-    {label:'Fecha',    val:'9 octubre 1999, Mijas Costa (Málaga)'},
-    {label:'Condena',  val:'25 años para Tony Alexander King (2006)'},
+    {label:'Víctima',val:'Rocío Wanninkhof Hornos, 19 años'},
+    {label:'Causa',val:'Heridas por arma blanca'},
+    {label:'Fecha',val:'9 oct. 1999 · Mijas Costa, Málaga'},
+    {label:'Condena',val:'25 años para Tony Alexander King (2006)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🌿', q:'El lugar del hallazgo', a:'El cuerpo de Rocío es encontrado en un descampado a varios kilómetros de su casa, con <span class="clue-highlight">múltiples heridas de arma blanca</span>. El lugar es poco frecuentado. No hay testigos directos del crimen.'},
-    {icon:'🔍', q:'Ausencia de pruebas físicas concluyentes', a:'En el escenario no se recuperan huellas dactilares ni fibras que apunten a un sospechoso concreto. <span class="clue-highlight">El ADN no se procesa adecuadamente en ese momento</span>, lo que retrasará años la identificación del verdadero culpable.'},
-    {icon:'📝', q:'La nota anónima', a:'Durante la investigación aparece una nota anónima que los peritos atribuyen inicialmente a Dolores Vázquez. <span class="clue-highlight">La pericial caligráfica fue después muy cuestionada</span> y considerada un error fundamental del proceso.'},
+    {icon:'🌿',q:'El lugar del hallazgo',a:'El cuerpo de Rocío es encontrado en un descampado, con <span class="clue-highlight">múltiples heridas de arma blanca</span>. No hay testigos directos. El ADN no se procesa adecuadamente en ese momento, retrasando años la identificación del culpable.'},
+    {icon:'📝',q:'La nota anónima',a:'Una nota anónima es atribuida inicialmente a Dolores Vázquez por los peritos. <span class="clue-highlight">La pericial caligráfica fue después muy cuestionada</span> y considerada un error fundamental del proceso.'},
+    {icon:'🔍',q:'Ausencia de pruebas físicas',a:'En el escenario no se recuperan huellas ni fibras concluyentes. <span class="clue-highlight">El ADN no se procesa correctamente</span> con la tecnología disponible en 1999, lo que retrasará la solución del caso cuatro años.'},
   ],
   testigos:[
-    {icon:'👩', q:'La declaración de la madre de Rocío', a:'Alicia Hornos, madre de Rocío, señala directamente a Dolores Vázquez por la mala relación que mantenían desde la ruptura sentimental. <span class="clue-highlight">Su testimonio influye decisivamente</span> en la dirección inicial de la investigación.'},
-    {icon:'🏘️', q:'Testigos del barrio', a:'Varios vecinos declaran haber visto a Dolores en la zona la noche del crimen. Después del juicio y la condena de Tony King, <span class="clue-highlight">muchos de esos testimonios fueron reconsiderados</span> como confusos o influenciados por el clima mediático.'},
+    {icon:'👩',q:'La declaración de la madre',a:'Alicia Hornos señala directamente a Dolores Vázquez por la mala relación que mantenían. <span class="clue-highlight">Su testimonio influye decisivamente</span> en la dirección inicial de la investigación.'},
+    {icon:'🏘️',q:'Testigos del barrio',a:'Vecinos declaran haber visto a Dolores en la zona esa noche. Tras la condena de Tony King, <span class="clue-highlight">muchos testimonios fueron reconsiderados</span> como confusos o influenciados por el clima mediático.'},
   ],
   sospechosos:[
-    {emoji:'🇬🇧', name:'Tony Alexander King',   role:'Ciudadano británico residente en la zona', motive:'Conocido depredador sexual con antecedentes en Reino Unido. Vivía en la misma comarca. En 2003 mata a Sonia Carabantes y su ADN lo conecta también al crimen de Rocío.'},
-    {emoji:'👩', name:'Dolores Vázquez',         role:'Expareja de la madre de Rocío',           motive:'Condenada erróneamente en 2001. La mala relación con la familia Wanninkhof y una pericial caligráfica errónea la convirtieron en sospechosa. Pasó 17 meses presa siendo inocente.'},
-    {emoji:'🧑', name:'Conocido de la discoteca', role:'Joven del entorno social de Rocío',      motive:'Hipótesis inicial sin sustento probatorio. Descartado en las primeras semanas de investigación.'},
-    {emoji:'🚗', name:'Conductor desconocido',    role:'Sin identificar',                        motive:'Hipótesis alternativa manejada por la defensa de Dolores Vázquez. Sin base probatoria sólida en el momento del juicio.'},
+    {emoji:'🇬🇧',name:'Tony Alexander King',role:'Ciudadano británico residente',motive:'Depredador sexual con antecedentes en Reino Unido. Vivía en la comarca bajo identidad falsa. En 2003 mata a Sonia Carabantes y su ADN lo conecta también a Rocío.'},
+    {emoji:'👩',name:'Dolores Vázquez',role:'Expareja de la madre de Rocío',motive:'Condenada erróneamente en 2001. La mala relación con la familia Wanninkhof y una pericial caligráfica errónea la convirtieron en sospechosa. Inocente. 17 meses presa.'},
+    {emoji:'🧑',name:'Conocido de la discoteca',role:'Joven del entorno social',motive:'Hipótesis inicial sin sustento probatorio. Descartado en las primeras semanas.'},
+    {emoji:'🚗',name:'Conductor desconocido',role:'Sin identificar',motive:'Hipótesis alternativa de la defensa de Dolores Vázquez. Sin base probatoria en el momento del juicio.'},
   ],
   pruebas:[
-    {icon:'🧬', q:'El ADN que lo cambió todo', a:'En 2003, Tony Alexander King agrede y mata a Sonia Carabantes en Coín (Málaga). El análisis de ADN del nuevo crimen es <span class="clue-highlight">contrastado con muestras del caso Wanninkhof</span> y coincide. King es el asesino de Rocío.'},
-    {icon:'📋', q:'Los antecedentes de King en Reino Unido', a:'Investigaciones posteriores revelan que Tony Alexander King había sido <span class="clue-highlight">condenado en Gran Bretaña por agresiones sexuales</span> antes de instalarse en España bajo identidad falsa. La Interpol no lo había detectado.'},
-    {icon:'⚖️', q:'La revisión del juicio de Dolores Vázquez', a:'Tras la identificación de King, <span class="clue-highlight">Dolores Vázquez es absuelta y exonerada</span>. El Tribunal Supremo reconoció que la condena se basó en pruebas insuficientes y en una pericial caligráfica errónea. King fue condenado a 25 años en 2006.'},
+    {icon:'🧬',q:'El ADN que lo cambió todo',a:'En 2003, King agrede y mata a Sonia Carabantes en Coín. El ADN del nuevo crimen es <span class="clue-highlight">contrastado con muestras del caso Wanninkhof y coincide</span>. King es el asesino de Rocío.'},
+    {icon:'📋',q:'Antecedentes de King en Reino Unido',a:'Investigaciones revelan que King había sido <span class="clue-highlight">condenado en Gran Bretaña por agresiones sexuales</span> antes de instalarse en España bajo identidad falsa. La Interpol no lo había detectado.'},
+    {icon:'⚖️',q:'La absolución de Dolores Vázquez',a:'Tras la identificación de King, <span class="clue-highlight">Dolores Vázquez es absuelta y exonerada</span>. El Tribunal Supremo reconoce que la condena se basó en pruebas insuficientes. King fue condenado a 25 años en 2006.'},
   ],
-  killer:      'Tony Alexander King',
-  explanation: 'Tony Alexander King, ciudadano británico con antecedentes por agresiones sexuales en su país, asesinó a Rocío Wanninkhof en 1999. Vivía en la comarca bajo identidad falsa. Durante años, Dolores Vázquez cargó con una condena errónea basada en indicios débiles. Cuando King mató a Sonia Carabantes en 2003, el análisis de ADN lo conectó a ambos crímenes. Fue condenado a 25 años. El caso se estudia como ejemplo de error judicial grave y de los peligros de la presión mediática sobre los procesos penales.',
+  killer:'Tony Alexander King',
+  explanation:'Tony Alexander King, ciudadano británico con antecedentes por agresiones sexuales, asesinó a Rocío Wanninkhof en 1999. Dolores Vázquez cargó con una condena errónea durante 17 meses. Cuando King mató a Sonia Carabantes en 2003, el ADN lo conectó a ambos crímenes. Condenado a 25 años. El caso se estudia como ejemplo de error judicial y los peligros de la presión mediática.',
 },
 
-/* ══ CASO 3 ══ Marta del Castillo (REAL · España · 2009) */
+/* ══ 3 ══ Marta del Castillo */
 {
-  title:    'Marta del Castillo',
-  kicker:   'Caso Real 04 · Sevilla · 24 enero 2009',
-  headline: 'Confesó el crimen. Nunca dijo dónde está.',
-  body:     'Marta del Castillo Casilari, 17 años, desaparece en Sevilla el 24 de enero de 2009 tras quedar con su exnovio Miguel Carcaño. Días después, Carcaño confiesa haberla matado accidentalmente en su piso y haber arrojado el cuerpo al río Guadalquivir. A pesar de múltiples búsquedas y de que otros implicados han cambiado su versión varias veces, el cuerpo de Marta nunca ha sido encontrado. El caso sigue abierto en ese sentido. Sus padres llevan más de 15 años reclamando que alguien les diga la verdad.',
+  title:'Marta del Castillo', bgNum:'04',
+  kicker:'Caso Real 04 · Sevilla · 24 enero 2009',
+  headline:'Confesó el crimen. Nunca dijo dónde está.',
+  body:'Marta del Castillo Casilari, 17 años, desaparece en Sevilla el 24 de enero de 2009 tras quedar con su exnovio Miguel Carcaño. Días después, Carcaño confiesa haberla matado y haber arrojado el cuerpo al río Guadalquivir. A pesar de múltiples búsquedas, el cuerpo de Marta nunca ha sido encontrado. Sus padres llevan más de 15 años reclamando la verdad.',
   meta:[
-    {label:'Víctima',     val:'Marta del Castillo Casilari, 17 años'},
-    {label:'Causa',       val:'Homicidio (cuerpo no recuperado)'},
-    {label:'Desapareció', val:'24 enero 2009, Sevilla'},
-    {label:'Condena',     val:'12 años para Miguel Carcaño (luego ampliada)'},
+    {label:'Víctima',val:'Marta del Castillo Casilari, 17 años'},
+    {label:'Causa',val:'Homicidio (cuerpo no recuperado)'},
+    {label:'Desapareció',val:'24 ene. 2009 · Sevilla'},
+    {label:'Condena',val:'21 años para Miguel Carcaño (revisión)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🏠', q:'El piso de Carcaño', a:'La investigación detecta en el domicilio de Miguel Carcaño <span class="clue-highlight">restos de sangre de Marta del Castillo</span>, pese a que la vivienda había sido limpiada. Los análisis forenses confirman que Marta estuvo allí la noche de su desaparición.'},
-    {icon:'🌊', q:'El río Guadalquivir', a:'Carcaño confiesa haber arrojado el cuerpo al Guadalquivir. Se realizan <span class="clue-highlight">búsquedas exhaustivas durante semanas</span> con buzos y dragas. El cuerpo nunca es localizado. Años después cambia su versión en varias ocasiones.'},
-    {icon:'🚗', q:'El coche que transportó el cuerpo', a:'Testigos y análisis señalan que el cuerpo fue trasladado en un vehículo. Se identifican <span class="clue-highlight">manchas biológicas de Marta en un coche</span> usado esa noche por personas del entorno de Carcaño.'},
+    {icon:'🏠',q:'El piso de Carcaño',a:'La investigación detecta en el domicilio de Carcaño <span class="clue-highlight">restos de sangre de Marta</span>, pese a que la vivienda había sido limpiada. Los análisis confirman que Marta estuvo allí la noche de su desaparición.'},
+    {icon:'🌊',q:'El río Guadalquivir',a:'Carcaño confiesa haber arrojado el cuerpo al Guadalquivir. Se realizan <span class="clue-highlight">búsquedas exhaustivas durante semanas</span> con buzos y dragas. El cuerpo nunca es localizado. Cambia su versión en varias ocasiones.'},
+    {icon:'🚗',q:'El vehículo de traslado',a:'Testigos y análisis señalan que el cuerpo fue trasladado en un coche. Se identifican <span class="clue-highlight">manchas biológicas de Marta en un vehículo</span> usado esa noche por el entorno de Carcaño.'},
   ],
   testigos:[
-    {icon:'👥', q:'Los amigos de Carcaño', a:'Varios jóvenes del entorno de Carcaño han ofrecido versiones contradictorias a lo largo de los años. Algunos admitieron estar en el piso esa noche. <span class="clue-highlight">Francisco Javier García Martínez "El Cuco"</span> fue condenado como cómplice, aunque su condena fue revisada.'},
-    {icon:'👨‍👩‍👧', q:'La familia de Marta', a:'Los padres de Marta, Antonio del Castillo y Eva Casanueva, se han convertido en referentes del activismo por los derechos de las víctimas. Han denunciado que <span class="clue-highlight">los implicados saben dónde está el cuerpo</span> y no lo dicen para evitar agravar sus condenas.'},
+    {icon:'👥',q:'Los amigos de Carcaño',a:'Varios jóvenes del entorno han ofrecido versiones contradictorias. <span class="clue-highlight">Francisco Javier García "El Cuco"</span> fue condenado como cómplice, aunque su condena fue revisada posteriormente.'},
+    {icon:'👨‍👩‍👧',q:'La familia de Marta',a:'Los padres, Antonio del Castillo y Eva Casanueva, denuncian que <span class="clue-highlight">los implicados saben dónde está el cuerpo</span> y no lo dicen para evitar agravar sus condenas. Se han convertido en referentes del activismo por las víctimas.'},
   ],
   sospechosos:[
-    {emoji:'🧑', name:'Miguel Carcaño',              role:'Exnovio de Marta',          motive:'Confesó haberla matado accidentalmente durante una discusión en su piso. Cambió su versión múltiples veces sobre la localización del cuerpo. Condenado a 21 años (revisión de condena).'},
-    {emoji:'👦', name:'Francisco J. García "El Cuco"', role:'Amigo de Carcaño',        motive:'Condenado inicialmente como cómplice. Después absuelto en revisión. Se sospecha que conoce la ubicación real del cuerpo. Ha variado su testimonio en reiteradas ocasiones.'},
-    {emoji:'👨', name:'Hermano de Carcaño',           role:'Familiar implicado',        motive:'Investigado por posible participación en el traslado del cuerpo. Declaró en el juicio. Su grado de implicación real sigue siendo objeto de debate judicial.'},
-    {emoji:'👩', name:'Amiga del grupo',              role:'Testigo del entorno',       motive:'Conocía tanto a Marta como a Carcaño. Sus declaraciones contribuyeron a la reconstrucción de los hechos aunque su versión también fue considerada parcial.'},
+    {emoji:'🧑',name:'Miguel Carcaño',role:'Exnovio de Marta',motive:'Confesó haberla matado accidentalmente. Cambió su versión múltiples veces sobre la localización del cuerpo. Condenado a 21 años.'},
+    {emoji:'👦',name:'Francisco J. García "El Cuco"',role:'Amigo de Carcaño',motive:'Condenado inicialmente como cómplice, después absuelto en revisión. Se sospecha que conoce la ubicación real del cuerpo.'},
+    {emoji:'👨',name:'Hermano de Carcaño',role:'Familiar implicado',motive:'Investigado por posible participación en el traslado del cuerpo. Su grado de implicación real sigue siendo objeto de debate judicial.'},
+    {emoji:'👩',name:'Amiga del grupo',role:'Testigo del entorno',motive:'Conocía a ambos. Sus declaraciones contribuyeron a la reconstrucción de los hechos aunque consideradas parciales.'},
   ],
   pruebas:[
-    {icon:'🧬', q:'ADN de Marta en el piso', a:'A pesar de la limpieza intensiva del piso de Carcaño, los forenses recuperan <span class="clue-highlight">muestras biológicas compatibles con el ADN de Marta</span> en grietas del suelo y la pared. Confirman que allí se produjo el crimen.'},
-    {icon:'📱', q:'Los mensajes de esa noche', a:'El análisis del móvil de Marta muestra que sus últimas comunicaciones son con Carcaño, quien la cita en su domicilio. <span class="clue-highlight">A las 23:52 deja de haber actividad</span> en su teléfono. Nunca volvió a encenderse.'},
-    {icon:'🔎', q:'Las versiones cambiantes sobre el cuerpo', a:'A lo largo de los años, Carcaño ha señalado hasta <span class="clue-highlight">cuatro localizaciones distintas</span> para el cuerpo: el Guadalquivir, un vertedero, una finca… Cada búsqueda ha resultado infructuosa. Muchos creen que el cuerpo nunca llegó al río.'},
+    {icon:'🧬',q:'ADN de Marta en el piso',a:'A pesar de la limpieza intensiva, los forenses recuperan <span class="clue-highlight">muestras biológicas de Marta</span> en grietas del suelo y la pared. Confirman que allí se produjo el crimen.'},
+    {icon:'📱',q:'Los mensajes de esa noche',a:'Las últimas comunicaciones de Marta son con Carcaño, que la cita en su domicilio. <span class="clue-highlight">A las 23:52 deja de haber actividad</span> en su teléfono. Nunca volvió a encenderse.'},
+    {icon:'🔎',q:'Versiones cambiantes sobre el cuerpo',a:'Carcaño ha señalado hasta <span class="clue-highlight">cuatro localizaciones distintas</span>: el Guadalquivir, un vertedero, una finca… Cada búsqueda ha resultado infructuosa. Muchos creen que el cuerpo nunca llegó al río.'},
   ],
-  killer:      'Miguel Carcaño',
-  explanation: 'Miguel Carcaño confesó haber matado a Marta del Castillo en su piso de Sevilla el 24 de enero de 2009 y haber arrojado su cuerpo al río Guadalquivir. Las sucesivas búsquedas no encontraron los restos. Fue condenado a 21 años de prisión (tras varias revisiones). El caso se mantiene abierto en un sentido crucial: el cuerpo de Marta sigue sin aparecer. Sus padres, convertidos en referentes del activismo por las víctimas, continúan reclamando justicia y la localización de los restos de su hija.',
+  killer:'Miguel Carcaño',
+  explanation:'Miguel Carcaño confesó haber matado a Marta del Castillo en su piso y haber arrojado su cuerpo al Guadalquivir. Las sucesivas búsquedas no encontraron los restos. Condenado a 21 años. El cuerpo de Marta sigue sin aparecer. Sus padres continúan reclamando justicia y la localización de los restos de su hija.',
 },
 
-/* ══ CASO 4 ══ El Caso Bretón (REAL · España · 2011) */
+/* ══ 4 ══ Bretón */
 {
-  title:    'El Caso Bretón',
-  kicker:   'Caso Real 05 · Córdoba · 8 octubre 2011',
-  headline: 'Los niños que no volvieron del parque',
-  body:     'Ruth y José Bretón Ortiz, de 6 y 2 años respectivamente, desaparecen el 8 de octubre de 2011 durante una visita con su padre, José Bretón, en el Parque Cruz Conde de Córdoba. El padre denuncia que su ex-mujer, Ruth Ortiz, se los había llevado sin su permiso. Las cámaras del parque demuestran que eso es mentira: los niños nunca salieron. Los restos de Ruth y José son hallados meses después, calcinados, en la finca familiar de La Rinconada. El caso evidenció los fallos del sistema de protección a menores en procesos de separación conflictivos.',
+  title:'El Caso Bretón', bgNum:'05',
+  kicker:'Caso Real 05 · Córdoba · 8 octubre 2011',
+  headline:'Los niños que no volvieron del parque',
+  body:'Ruth y José Bretón Ortiz, de 6 y 2 años, desaparecen el 8 de octubre de 2011 durante una visita con su padre en el Parque Cruz Conde de Córdoba. El padre denuncia que su ex-mujer se los había llevado. Las cámaras demuestran que es mentira: los niños nunca salieron. Sus restos son hallados meses después, calcinados, en la finca familiar de La Rinconada.',
   meta:[
-    {label:'Víctimas',    val:'Ruth (6 años) y José (2 años) Bretón Ortiz'},
-    {label:'Causa',       val:'Homicidio. Cuerpos quemados (incendio provocado)'},
-    {label:'Desaparecieron', val:'8 octubre 2011, Parque Cruz Conde, Córdoba'},
-    {label:'Condena',     val:'40 años de prisión para José Bretón (2013)'},
+    {label:'Víctimas',val:'Ruth (6 años) y José (2 años) Bretón Ortiz'},
+    {label:'Causa',val:'Homicidio · Cuerpos incinerados'},
+    {label:'Desaparecieron',val:'8 oct. 2011 · Parque Cruz Conde, Córdoba'},
+    {label:'Condena',val:'40 años de prisión para José Bretón (2013)'},
   ],
   tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
   escena:[
-    {icon:'🌳', q:'Las cámaras del parque', a:'Las grabaciones de las cámaras de seguridad del Parque Cruz Conde son determinantes: <span class="clue-highlight">los niños nunca salieron del parque con nadie</span>. La coartada del padre —que la madre se los llevó— queda destruida desde el primer día.'},
-    {icon:'🔥', q:'El incendio en La Rinconada', a:'Meses antes de la desaparición, José Bretón encendió una <span class="clue-highlight">gran hoguera en la finca familiar de La Rinconada</span> (Sevilla). Vecinos lo vieron. Los investigadores obtienen una orden para excavar el lugar.'},
-    {icon:'🦴', q:'Los restos hallados en la finca', a:'En la finca de La Rinconada aparecen <span class="clue-highlight">restos óseos calcinados</span>. El análisis forense y genético confirma que pertenecen a Ruth y José. Los niños fueron quemados en ese lugar.'},
+    {icon:'🌳',q:'Las cámaras del parque',a:'Las grabaciones son determinantes: <span class="clue-highlight">los niños nunca salieron del parque con nadie</span>. La coartada del padre —que la madre se los llevó— queda destruida desde el primer día.'},
+    {icon:'🔥',q:'El incendio en La Rinconada',a:'Meses antes de la desaparición, Bretón encendió una <span class="clue-highlight">gran hoguera en la finca familiar de La Rinconada</span> (Sevilla). Vecinos lo vieron. Los investigadores obtienen una orden para excavar el lugar.'},
+    {icon:'🦴',q:'Los restos hallados en la finca',a:'En la finca aparecen <span class="clue-highlight">restos óseos calcinados</span>. El análisis genético confirma que pertenecen a Ruth y José. Los niños fueron quemados en ese lugar.'},
   ],
   testigos:[
-    {icon:'👨‍🌾', q:'Los vecinos de La Rinconada', a:'Varios vecinos de la finca familiar declaran haber visto a <span class="clue-highlight">José Bretón encender una gran hoguera</span> varios días y recoger los restos. En el momento no relacionaron lo que veían con la desaparición de sus hijos.'},
-    {icon:'👩', q:'La madre, Ruth Ortiz', a:'Ruth Ortiz denuncia desde el primer momento que su ex-marido es el responsable de la desaparición. Señala la conflictividad del proceso de separación y <span class="clue-highlight">la incapacidad del sistema para proteger a sus hijos</span> a pesar de sus advertencias previas.'},
+    {icon:'👨‍🌾',q:'Los vecinos de La Rinconada',a:'Varios vecinos declaran haber visto a <span class="clue-highlight">Bretón encender una gran hoguera</span> varios días y recoger los restos. No relacionaron lo que veían con la desaparición de sus hijos.'},
+    {icon:'👩',q:'Ruth Ortiz, la madre',a:'Denuncia desde el primer momento que su ex-marido es responsable. Señala la conflictividad de la separación y <span class="clue-highlight">la incapacidad del sistema para proteger a sus hijos</span> a pesar de sus advertencias previas.'},
   ],
   sospechosos:[
-    {emoji:'👨', name:'José Bretón',     role:'Padre de los menores',        motive:'Inmerso en un proceso de separación muy conflictivo con Ruth Ortiz. Acusó a la madre como estrategia para desviar la investigación. Condenado a 40 años. Los niños eran vistos como un instrumento en su guerra con su ex-pareja.'},
-    {emoji:'👩', name:'Ruth Ortiz',      role:'Madre de los menores',        motive:'Acusada falsamente por el padre. Víctima de la estrategia de Bretón. Fue sospechosa en los primeros días hasta que las cámaras desmontaron la coartada de su ex-marido.'},
-    {emoji:'👴', name:'Familiar de Bretón', role:'Entorno familiar del padre', motive:'Investigado por posible conocimiento de los hechos. Sin cargos finales. La finca pertenecía a la familia.'},
-    {emoji:'🧑', name:'Conocido del parque', role:'Hipótesis inicial',        motive:'Línea investigada en los primeros días ante la ausencia del cuerpo. Descartada rápidamente con las grabaciones de las cámaras de seguridad.'},
+    {emoji:'👨',name:'José Bretón',role:'Padre de los menores',motive:'Inmerso en una separación muy conflictiva. Acusó a la madre como estrategia. Condenado a 40 años. Los niños eran un instrumento en su guerra con su ex-pareja.'},
+    {emoji:'👩',name:'Ruth Ortiz',role:'Madre de los menores',motive:'Acusada falsamente por el padre. Víctima de la estrategia de Bretón. Fue sospechosa en los primeros días hasta que las cámaras desmontaron la coartada.'},
+    {emoji:'👴',name:'Familiar de Bretón',role:'Entorno familiar del padre',motive:'Investigado por posible conocimiento de los hechos. Sin cargos. La finca pertenecía a la familia.'},
+    {emoji:'🧑',name:'Hipótesis del desconocido',role:'Línea inicial',motive:'Investigada en los primeros días. Descartada rápidamente con las grabaciones del parque.'},
   ],
   pruebas:[
-    {icon:'🧬', q:'Identificación genética de los restos', a:'Los fragmentos óseos hallados en La Rinconada son sometidos a análisis de ADN mitocondrial. <span class="clue-highlight">Los resultados confirman que pertenecen a Ruth y José Bretón Ortiz</span>, hijos del acusado. La prueba es definitiva.'},
-    {icon:'📹', q:'Las grabaciones del parque', a:'Las cámaras de seguridad del Parque Cruz Conde registran a José Bretón entrando con los niños pero <span class="clue-highlight">saliendo solo</span>. Ninguna imagen muestra a Ruth Ortiz en el parque ese día. La coartada del padre colapsa.'},
-    {icon:'🔦', q:'Análisis del lugar de cremación', a:'Los forenses determinan que el fuego fue de <span class="clue-highlight">alta temperatura y larga duración</span>, compatible con la intención de destruir los restos de forma completa. Se encuentran también objetos personales de los niños entre las cenizas.'},
+    {icon:'🧬',q:'Identificación genética de los restos',a:'Los fragmentos óseos son sometidos a análisis de ADN mitocondrial. <span class="clue-highlight">Confirman que pertenecen a Ruth y José Bretón Ortiz</span>. La prueba es definitiva.'},
+    {icon:'📹',q:'Las grabaciones del parque',a:'Las cámaras registran a José Bretón entrando con los niños pero <span class="clue-highlight">saliendo solo</span>. Ninguna imagen muestra a Ruth Ortiz ese día. La coartada colapsa.'},
+    {icon:'🔦',q:'Análisis del lugar de cremación',a:'Los forenses determinan que el fuego fue de <span class="clue-highlight">alta temperatura y larga duración</span>, con intención de destruir los restos completamente. Se encuentran objetos personales de los niños entre las cenizas.'},
   ],
-  killer:      'José Bretón',
-  explanation: 'José Bretón mató a sus hijos Ruth (6 años) y José (2 años) y quemó sus cuerpos en la finca familiar de La Rinconada para culpar a su ex-mujer. Las cámaras del parque desmontaron su coartada desde el primer día. Fue condenado en 2013 a 40 años de prisión. El caso evidenció los fallos del sistema judicial y de protección a menores ante situaciones de violencia vicaria: Ruth Ortiz había alertado en múltiples ocasiones del comportamiento de su ex-marido sin ser escuchada. José Bretón continúa sin pedir perdón.',
+  killer:'José Bretón',
+  explanation:'José Bretón mató a sus hijos Ruth y José y quemó sus cuerpos en la finca familiar para culpar a su ex-mujer. Las cámaras del parque desmontaron su coartada desde el primer día. Condenado a 40 años en 2013. El caso evidenció los fallos del sistema ante situaciones de violencia vicaria: Ruth Ortiz había alertado en múltiples ocasiones del comportamiento de su ex-marido.',
 },
 
 ];
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════════════
    ESTADO DEL JUEGO
-═══════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 let currentCase   = null;
 let selectedSusp  = null;
-let revealedClues = {escena:[], testigos:[], pruebas:[]};
-let revealedSusps = [];
+let revealedClues = {escena:[],testigos:[],pruebas:[]};
 
-function totalClues(c){
-  return c.escena.length + c.testigos.length + c.pruebas.length;
-}
-function countRevealed(){
-  return revealedClues.escena.length + revealedClues.testigos.length + revealedClues.pruebas.length;
+function totalClues(c){ return c.escena.length+c.testigos.length+c.pruebas.length; }
+function countRevealed(){ return revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length; }
+
+/* ════════════════════════════════════════════════
+   TRANSICIÓN CINEMATOGRÁFICA
+════════════════════════════════════════════════ */
+function cinemaTransition(fn){
+  const flash = document.getElementById('flash');
+  gsap.to(flash,{opacity:1,duration:.25,ease:'power2.in',onComplete:()=>{
+    fn();
+    gsap.to(flash,{opacity:0,duration:.4,delay:.05,ease:'power2.out'});
+  }});
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════════════
    NAVEGACIÓN
-═══════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 function goHome(){
-  document.getElementById('screen-home').style.display   = 'flex';
-  document.getElementById('screen-game').style.display   = 'none';
-  document.getElementById('screen-verdict').style.display= 'none';
-  currentCase = null; selectedSusp = null;
-  revealedClues = {escena:[],testigos:[],pruebas:[]};
-  revealedSusps = [];
+  cinemaTransition(()=>{
+    document.getElementById('screen-home').style.display    = 'flex';
+    document.getElementById('screen-game').style.display   = 'none';
+    document.getElementById('screen-verdict').style.display= 'none';
+    currentCase=null; selectedSusp=null;
+    revealedClues={escena:[],testigos:[],pruebas:[]};
+    window.scrollTo(0,0);
+  });
 }
 
 function startCase(idx){
-  currentCase   = idx;
-  selectedSusp  = null;
-  revealedClues = {escena:[],testigos:[],pruebas:[]};
-  revealedSusps = [];
-  const c = CASES[idx];
+  cinemaTransition(()=>{
+    currentCase   = idx;
+    selectedSusp  = null;
+    revealedClues = {escena:[],testigos:[],pruebas:[]};
+    const c = CASES[idx];
 
-  document.getElementById('screen-home').style.display   = 'none';
-  document.getElementById('screen-verdict').style.display= 'none';
-  document.getElementById('screen-game').style.display   = 'block';
-  window.scrollTo(0,0);
+    document.getElementById('screen-home').style.display    = 'none';
+    document.getElementById('screen-verdict').style.display = 'none';
+    document.getElementById('screen-game').style.display    = 'block';
+    window.scrollTo(0,0);
 
-  // Header
-  document.getElementById('gh-title').textContent = c.title;
-  updateCluesBadge();
+    // Populate header
+    document.getElementById('gh-title').textContent = c.title;
+    updateCluesBadge();
 
-  // Briefing
-  document.getElementById('br-kicker').textContent   = c.kicker;
-  document.getElementById('br-headline').textContent  = c.headline;
-  document.getElementById('br-body').textContent      = c.body;
-  const meta = document.getElementById('br-meta');
-  meta.innerHTML = c.meta.map(m=>`
-    <div class="meta-item">
-      <span class="meta-label">${m.label}</span>
-      <span class="meta-val">${m.val}</span>
-    </div>`).join('');
+    // Briefing
+    document.getElementById('br-bgnum').textContent    = c.bgNum;
+    document.getElementById('br-kicker').textContent   = c.kicker;
+    document.getElementById('br-headline').textContent = c.headline;
+    document.getElementById('br-body').textContent     = c.body;
+    const meta = document.getElementById('br-meta');
+    meta.innerHTML = c.meta.map(m=>`
+      <div class="meta-item">
+        <span class="meta-label">${m.label}</span>
+        <span class="meta-val">${m.val}</span>
+      </div>`).join('');
 
-  // Tabs
-  const tabs = document.getElementById('inv-tabs');
-  tabs.innerHTML = '';
-  const tabIds = ['escena','testigos','sospechosos','pruebas'];
-  c.tabs.forEach((t,i)=>{
-    const b = document.createElement('button');
-    b.className = 'inv-tab' + (i===0?' active':'');
-    b.textContent = t;
-    b.onclick = ()=> switchTab(tabIds[i], b);
-    tabs.appendChild(b);
+    // Tabs
+    const tabs   = document.getElementById('inv-tabs');
+    const tabIds = ['escena','testigos','sospechosos','pruebas'];
+    tabs.innerHTML='';
+    c.tabs.forEach((t,i)=>{
+      const b=document.createElement('button');
+      b.className='inv-tab'+(i===0?' active':'');
+      b.textContent=t;b.onclick=()=>switchTab(tabIds[i],b);
+      tabs.appendChild(b);
+    });
+
+    // Panels
+    renderClues('escena',  c.escena);
+    renderClues('testigos',c.testigos);
+    renderClues('pruebas', c.pruebas);
+    renderSuspects(c.sospechosos);
+    ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
+      document.getElementById('inv-'+id).className='inv-panel'+(id==='escena'?' active':'');
+    });
+
+    // Acusación reset
+    document.getElementById('btn-accuse').disabled=true;
+    document.getElementById('accuse-sub').textContent='Selecciona un sospechoso antes de presentar la acusación.';
+
+    // Animar entrada del juego
+    animateGameEntry();
   });
+}
 
-  // Panels
-  renderClues('escena',   c.escena);
-  renderClues('testigos', c.testigos);
-  renderClues('pruebas',  c.pruebas);
-  renderSuspects(c.sospechosos);
-
-  // Reset panels visibility
-  ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
-    document.getElementById('inv-'+id).className = 'inv-panel' + (id==='escena'?' active':'');
-  });
-
-  // Acusación
-  document.getElementById('btn-accuse').disabled = true;
-  document.getElementById('accuse-sub').textContent = 'Selecciona al sospechoso que crees culpable antes de acusar.';
+function animateGameEntry(){
+  const tl = gsap.timeline({defaults:{ease:'power3.out'}});
+  tl
+    .from('#briefing-wrap',       {opacity:0,y:40,duration:.7})
+    .from('#briefing-wrap .briefing-kicker',   {opacity:0,x:-20,duration:.5},'-=.4')
+    .from('#briefing-wrap .briefing-headline', {opacity:0,y:16,duration:.6},'-=.3')
+    .from('#briefing-wrap .briefing-body',     {opacity:0,duration:.5},'-=.2')
+    .from('#briefing-wrap .briefing-meta',     {opacity:0,y:8,duration:.4},'-=.2')
+    .from('#inv-tabs',            {opacity:0,y:10,duration:.4},'-=.2')
+    .from('.clue-item',           {opacity:0,x:-16,stagger:.06,duration:.4},'-=.1')
+    .from('#accuse-section',      {opacity:0,duration:.4},'-=.1');
 }
 
 function switchTab(panelId, btn){
   document.querySelectorAll('.inv-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
-    const p = document.getElementById('inv-'+id);
-    p.classList.toggle('active', id===panelId);
+    const p=document.getElementById('inv-'+id);
+    const active=id===panelId;
+    p.className='inv-panel'+(active?' active':'');
+    if(active){
+      gsap.from(p.children,{opacity:0,y:12,stagger:.05,duration:.3,ease:'power2.out'});
+    }
   });
 }
 
-function nextCase(){
-  const next = (currentCase+1) % CASES.length;
-  startCase(next);
+function restartCase(){
+  if(!confirm('¿Reiniciar la investigación? Se borrarán todas las pistas descubiertas.')) return;
+  startCase(currentCase);
 }
 
-/* ═══════════════════════════════════════════
+function nextCase(){
+  if(currentCase<CASES.length-1) startCase(currentCase+1);
+  else goHome();
+}
+
+/* ════════════════════════════════════════════════
    RENDER CLUES
-═══════════════════════════════════════════ */
-function renderClues(type, clues){
-  const container = document.getElementById('clues-'+type);
-  container.innerHTML = '';
+════════════════════════════════════════════════ */
+function renderClues(type,clues){
+  const container=document.getElementById('clues-'+type);
+  container.innerHTML='';
   clues.forEach((cl,i)=>{
-    const div = document.createElement('div');
-    div.className = 'clue-item';
-    div.id = `clue-${type}-${i}`;
-    div.innerHTML = `
+    const div=document.createElement('div');
+    div.className='clue-item';div.id=`clue-${type}-${i}`;
+    div.innerHTML=`
+      <div class="clue-flash" id="flash-${type}-${i}"></div>
       <div class="clue-header">
         <span class="clue-icon">${cl.icon}</span>
         <span class="clue-q">${cl.q}</span>
         <span class="clue-status pending" id="cs-${type}-${i}">Examinar →</span>
       </div>
-      <div class="clue-answer">${cl.a}<br><span class="clue-note">✦ Pista registrada en el expediente</span></div>
-    `;
-    div.onclick = ()=> revealClue(type, i, div);
+      <div class="clue-answer">${cl.a}<br><span class="clue-note">◆ Pista registrada en el expediente</span></div>`;
+    div.onclick=()=>revealClue(type,i,div,cl);
     container.appendChild(div);
   });
   updateProgress(type);
 }
 
-function revealClue(type, i, div){
-  if(div.classList.contains('revealed')) return;
+function revealClue(type,i,div,cl){
+  if(div.classList.contains('revealed'))return;
+
+  // Flash de cámara fotográfica
+  const flashEl=document.getElementById(`flash-${type}-${i}`);
+  gsap.timeline()
+    .to(flashEl,{opacity:.7,duration:.06,ease:'none'})
+    .to(flashEl,{opacity:0,duration:.25,ease:'power2.out'});
+
   div.classList.add('revealed');
-  div.querySelector('.clue-status').textContent = '✓ Analizado';
+  div.querySelector('.clue-status').textContent='✓ Analizado';
   div.querySelector('.clue-status').classList.replace('pending','done');
+
+  // Animar respuesta
+  const answer=div.querySelector('.clue-answer');
+  answer.style.display='block';
+  gsap.from(answer,{opacity:0,height:0,duration:.4,ease:'power2.out'});
 
   if(!revealedClues[type].includes(i)) revealedClues[type].push(i);
   updateProgress(type);
@@ -760,86 +1296,126 @@ function revealClue(type, i, div){
 }
 
 function updateProgress(type){
-  const total   = CASES[currentCase][type].length;
-  const done    = revealedClues[type].length;
-  document.getElementById(`prog-${type}-txt`).textContent  = `${done}/${total} pistas`;
-  document.getElementById(`prog-${type}-fill`).style.width = (total? done/total*100 :0)+'%';
+  const total=CASES[currentCase][type].length;
+  const done=revealedClues[type].length;
+  document.getElementById(`prog-${type}-txt`).textContent=`${done} / ${total} pistas`;
+  document.getElementById(`prog-${type}-fill`).style.width=(total?done/total*100:0)+'%';
 }
 
 function updateCluesBadge(){
-  const c     = CASES[currentCase];
-  const total = totalClues(c);
-  const done  = countRevealed();
-  document.getElementById('gh-clues').textContent = `${done} / ${total} pistas`;
+  const c=CASES[currentCase];
+  const total=totalClues(c),done=countRevealed();
+  document.getElementById('gh-clues').textContent=`${done} / ${total}`;
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════════════
    RENDER SOSPECHOSOS
-═══════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 function renderSuspects(suspects){
-  const grid = document.getElementById('suspect-grid');
-  grid.innerHTML = '';
+  const grid=document.getElementById('suspect-grid');
+  grid.innerHTML='';
   suspects.forEach((s,i)=>{
-    const card = document.createElement('div');
-    card.className = 'suspect-card';
-    card.id = `susp-${i}`;
-    card.innerHTML = `
-      <div class="suspect-emoji">${s.emoji}</div>
+    const card=document.createElement('div');
+    card.className='suspect-card';card.id=`susp-${i}`;
+    card.innerHTML=`
+      <span class="suspect-emoji">${s.emoji}</span>
       <div class="suspect-name">${s.name}</div>
       <div class="suspect-role">${s.role}</div>
-      <div class="suspect-motive">${s.motive}</div>
-    `;
-    card.onclick = ()=> selectSuspect(i, s.name, card);
+      <div class="suspect-motive">${s.motive}</div>`;
+    card.onclick=()=>selectSuspect(i,s.name,card);
     grid.appendChild(card);
   });
 }
 
-function selectSuspect(i, name, card){
-  // Revelar móvil al hacer clic
+function selectSuspect(i,name,card){
   card.classList.add('revealed');
 
-  // Selección
+  // Animar reveal del móvil
+  const motive=card.querySelector('.suspect-motive');
+  motive.style.display='block';
+  gsap.from(motive,{opacity:0,height:0,duration:.35,ease:'power2.out'});
+
   document.querySelectorAll('.suspect-card').forEach(c=>c.classList.remove('selected'));
-  card.classList.add('selected', 'revealed');
-  selectedSusp = name;
+  card.classList.add('selected','revealed');
+  selectedSusp=name;
 
-  document.getElementById('btn-accuse').disabled = false;
-  document.getElementById('accuse-sub').textContent = `Vas a acusar a: ${name}. ¿Estás seguro/a?`;
+  // Pulso de selección
+  gsap.fromTo(card,{boxShadow:'0 0 0 0 rgba(200,160,48,.6)'},{
+    boxShadow:'0 0 0 8px rgba(200,160,48,0)',duration:.6,ease:'power2.out'
+  });
+
+  document.getElementById('btn-accuse').disabled=false;
+  document.getElementById('accuse-sub').textContent=`Sospechoso seleccionado: ${name}. ¿Presentas la acusación formal?`;
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════════════
    ACUSACIÓN Y VEREDICTO
-═══════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 function makeAccusation(){
-  if(!selectedSusp) return;
-  const c       = CASES[currentCase];
-  const correct = selectedSusp === c.killer;
-  const score   = countRevealed() + '/' + totalClues(c);
+  if(!selectedSusp)return;
+  const c=CASES[currentCase];
+  const correct=selectedSusp===c.killer;
+  const score=countRevealed()+'/'+totalClues(c);
 
-  document.getElementById('screen-game').style.display    = 'none';
-  document.getElementById('screen-verdict').style.display = 'flex';
-  window.scrollTo(0,0);
+  cinemaTransition(()=>{
+    document.getElementById('screen-game').style.display   ='none';
+    document.getElementById('screen-verdict').style.display='flex';
+    window.scrollTo(0,0);
 
-  document.getElementById('vd-icon').textContent        = correct ? '✅' : '❌';
-  document.getElementById('vd-result').textContent      = correct ? '¡Caso resuelto!' : 'Acusación incorrecta';
-  document.getElementById('vd-result').className        = 'verdict-result ' + (correct?'correct':'wrong');
-  document.getElementById('vd-accused').textContent     = `Has acusado a: ${selectedSusp}${correct ? '' : ` · El culpable era ${c.killer}`}`;
-  document.getElementById('vd-explanation').innerHTML   = c.explanation;
-  document.getElementById('vd-score').textContent       = score;
+    document.getElementById('vd-icon').textContent       = correct?'✓':'✗';
+    document.getElementById('vd-icon-wrap').style.background = correct
+      ? 'rgba(74,154,90,.15)' : 'rgba(154,48,48,.15)';
+    document.getElementById('vd-icon-wrap').style.borderColor = correct
+      ? 'rgba(74,154,90,.3)' : 'rgba(154,48,48,.3)';
+    document.getElementById('vd-result').textContent     = correct?'Caso resuelto':'Acusación incorrecta';
+    document.getElementById('vd-result').className       = 'verdict-result '+(correct?'correct':'wrong');
+    document.getElementById('vd-accused').textContent    = `Has acusado a: ${selectedSusp}`+(correct?'':` · El culpable era ${c.killer}`);
+    document.getElementById('vd-explanation').innerHTML  = c.explanation;
+    document.getElementById('vd-score').textContent      = score;
 
-  const btnNext = document.getElementById('btn-next-case');
-  btnNext.disabled   = false;
-  btnNext.textContent= currentCase < CASES.length-1 ? 'Siguiente caso →' : 'Volver al inicio';
+    const btnNext=document.getElementById('btn-next-case');
+    btnNext.disabled=false;
+    btnNext.textContent=currentCase<CASES.length-1?'Siguiente caso →':'Volver al inicio';
+
+    // Animación de entrada del veredicto
+    setTimeout(()=>animateVerdict(correct),100);
+  });
 }
 
-function nextCase(){
-  if(currentCase < CASES.length-1) startCase(currentCase+1);
-  else goHome();
+function animateVerdict(correct){
+  const card=document.getElementById('verdict-card');
+
+  gsap.fromTo(card,
+    {opacity:0,scale:.92,y:30},
+    {opacity:1,scale:1,y:0,duration:.7,ease:'power3.out'}
+  );
+
+  if(correct){
+    // Partículas doradas
+    for(let i=0;i<24;i++){
+      setTimeout(()=>spawnParticle(),i*60);
+    }
+  } else {
+    // Shake rojo
+    gsap.to(card,{x:-6,duration:.05,yoyo:true,repeat:7,ease:'none'});
+  }
 }
 
-function restartCase(){
-  if(!confirm('¿Reiniciar la investigación? Se borrarán todas las pistas descubiertas.')) return;
-  startCase(currentCase);
+function spawnParticle(){
+  const p=document.createElement('div');
+  p.className='verdict-particle';
+  const hue=Math.random()>.5?'rgba(200,160,48,1)':'rgba(74,154,90,1)';
+  const x=20+Math.random()*60;
+  p.style.cssText=`left:${x}vw;top:60%;background:${hue}`;
+  document.body.appendChild(p);
+  gsap.to(p,{
+    y:-(100+Math.random()*200),
+    x:(Math.random()-.5)*80,
+    opacity:0,scale:Math.random()*.8+.4,
+    duration:1.2+Math.random()*.8,
+    ease:'power2.out',
+    onComplete:()=>p.remove()
+  });
 }
 </script>
 </body>
