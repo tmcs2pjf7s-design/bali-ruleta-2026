@@ -2596,7 +2596,7 @@ function applyPlan(picks){
 function pickRandom(){
   const hasData = assignments.some(Boolean) || pool.length > 0;
   if(hasData && !confirm('🎲 ¿Generar un plan sorpresa completo?\nSe reemplazará el itinerario actual.')) return;
-  showPlanModal(generatePicks());
+  applyPlan(generatePicks());
 }
 
 $('btn-random').addEventListener('click', pickRandom);
