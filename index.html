@@ -2188,6 +2188,8 @@ function spin(){
       spinning=false;
       $('btn-spin').disabled=false;
       launchConfetti();
+      // En modo auto-sorpresa: confirma solo tras 2.5 s para que el usuario vea el resultado
+      if(autoSpinMode) setTimeout(()=>{ if(pendingResult) $('btn-confirm').click(); }, 2500);
     }
   }
   requestAnimationFrame(frame);
@@ -2212,8 +2214,13 @@ $('btn-confirm').addEventListener('click',()=>{
   $('result-box').classList.remove('show');
   renderAll();
   const done=assignments.filter(Boolean).length;
-  if(done===6) toast('¡Itinerario completo!');
-  else         toast('¡Asignado! Gira para el siguiente día 🌴');
+  if(autoSpinMode){
+    // Encadena el siguiente giro automáticamente
+    autoSpinNext();
+  } else {
+    if(done===6) toast('¡Itinerario completo!');
+    else         toast('¡Asignado! Gira para el siguiente día 🌴');
+  }
 });
 
 /* ═══════════════════════════════════════════
@@ -2556,52 +2563,53 @@ $('sugg-search').addEventListener('keydown', e=>{
   if(e.key==='Enter') searchAndOpen($('sugg-search').value);
 });
 
-/* ── Plan aleatorio completo desde SUGGESTIONS ── */
-let _pendingPicks = null; // guarda las picks antes de confirmar
+/* ── Plan sorpresa: carga bombo y gira automáticamente ── */
+let autoSpinMode = false;
 
 function generatePicks(){
   const universe = [...SUGGESTIONS, ...savedSuggs.filter(s=>!SUGGESTIONS.find(x=>x.l===s.l))];
   return [...universe].sort(()=>Math.random()-0.5).slice(0, 6);
 }
 
-function showPlanModal(picks){
-  _pendingPicks = picks;
-  const rows = $('plan-rows');
-  rows.innerHTML = '';
-  picks.forEach((s, i)=>{
-    const row = document.createElement('div');
-    row.className = 'plan-row';
-    row.innerHTML = `<span class="plan-row-date">${TRIP[i].date}</span>
-                     <span class="plan-row-name">${s.e} ${s.l}</span>`;
-    rows.appendChild(row);
-  });
-  $('plan-overlay').classList.add('show');
-}
-
-function applyPlan(picks){
-  assignments = new Array(6).fill(null);
-  pool        = [];
-  nextId      = 1;
-  picks.forEach((sugg, i)=>{
-    assignments[i] = {id:nextId++, label:sugg.e+' '+sugg.l, color:PALETTE[i%PALETTE.length]};
-  });
-  spinTarget = -1;
-  save();
-  renderAll();
-  launchConfetti();
-  $('plan-overlay').classList.remove('show');
-  _pendingPicks = null;
+function autoSpinNext(){
+  if(!autoSpinMode) return;
+  const nextDay = getNextEmptyDay();
+  if(nextDay === -1){
+    autoSpinMode = false;
+    toast('🌴 ¡Plan completo! ✦');
+    launchConfetti();
+    return;
+  }
+  spinTarget = nextDay;
+  setTimeout(()=> spin(), 500);
 }
 
 function pickRandom(){
   const hasData = assignments.some(Boolean) || pool.length > 0;
-  if(hasData && !confirm('🎲 ¿Generar un plan sorpresa completo?\nSe reemplazará el itinerario actual.')) return;
-  applyPlan(generatePicks());
+  if(hasData && !confirm('🎲 ¿Generar un plan sorpresa?\nSe cargará la ruleta y girará día a día.')) return;
+
+  // Resetea todo
+  assignments = new Array(6).fill(null);
+  pool        = [];
+  nextId      = 1;
+
+  // Mete 6 picks aleatorios en el bombo
+  generatePicks().forEach((sugg, i)=>{
+    pool.push({id:nextId++, label:sugg.e+' '+sugg.l, color:PALETTE[i%PALETTE.length]});
+  });
+
+  spinTarget    = -1;
+  autoSpinMode  = true;
+  save();
+  renderAll();
+
+  // Arranca el primer giro tras un momento para que el usuario vea la ruleta cargada
+  setTimeout(()=> autoSpinNext(), 900);
 }
 
 $('btn-random').addEventListener('click', pickRandom);
-$('btn-plan-ok').addEventListener('click', ()=>{ if(_pendingPicks) applyPlan(_pendingPicks); });
-$('btn-plan-reroll').addEventListener('click', ()=> showPlanModal(generatePicks()));
+$('btn-plan-ok').addEventListener('click', ()=>{});     // reservado
+$('btn-plan-reroll').addEventListener('click', ()=>{});  // reservado
 $('plan-overlay').addEventListener('click', e=>{
   if(e.target===$('plan-overlay')) $('plan-overlay').classList.remove('show');
 });
