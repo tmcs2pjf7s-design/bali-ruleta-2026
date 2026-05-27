@@ -1773,6 +1773,15 @@ function cinemaTransition(fn){
    NAVEGACIÓN
 ════════════════════════════════════════════════ */
 function goHome(){
+  clearTheme();
+  hideTimeline();
+  disableParanoia();
+  clearTimeout(paranoiaTimer);
+  const _epPanel=document.getElementById('evidence-panel');
+  if(_epPanel) _epPanel.classList.remove('open');
+  const _ebBtn=document.getElementById('evidence-board-btn');
+  if(_ebBtn) _ebBtn.classList.remove('active');
+
   cinemaTransition(()=>{
     document.getElementById('screen-home').style.display    = 'flex';
     document.getElementById('screen-game').style.display   = 'none';
@@ -1780,10 +1789,13 @@ function goHome(){
     currentCase=null; selectedSusp=null;
     revealedClues={escena:[],testigos:[],pruebas:[]};
     window.scrollTo(0,0);
+    setTimeout(()=>DetectiveRank.updateBadge(), 600);
   });
 }
 
 function startCase(idx){
+  applyTheme(idx);
+  showLoadingScreen(idx, CASES[idx]?.title||'Caso '+idx, ()=>{
   cinemaTransition(()=>{
     currentCase   = idx;
     selectedSusp  = null;
@@ -1837,7 +1849,18 @@ function startCase(idx){
 
     // Animar entrada del juego
     animateGameEntry();
+
+    // Premium features
+    AudioSystem.playForCase(idx);
+    setTimeout(()=>{
+      addStampsToClues();
+      renderTimeline(c);
+      resetParanoia();
+      const _eb=document.getElementById('evidence-board-btn');
+      if(_eb) _eb.classList.add('active');
+    }, 600);
   });
+  }); // close showLoadingScreen
 }
 
 function animateGameEntry(){
@@ -1910,6 +1933,10 @@ function revealClue(type,i,div,cl){
 
   div.classList.add('revealed');
   div.querySelector('.clue-status').textContent='✓ Analizado';
+  // Remove classified stamp
+  const _stamp=div.querySelector('.clue-stamp');
+  if(_stamp) gsap.to(_stamp,{opacity:0,scale:1.1,duration:.3,onComplete:()=>_stamp.remove()});
+  resetParanoia();
   div.querySelector('.clue-status').classList.replace('pending','done');
 
   // Animar respuesta
@@ -1973,6 +2000,13 @@ function selectSuspect(i,name,card){
 
   document.getElementById('btn-accuse').disabled=false;
   document.getElementById('accuse-sub').textContent=`Sospechoso seleccionado: ${name}. ¿Presentas la acusación formal?`;
+
+  // Interrogation modal
+  const _c=CASES[currentCase];
+  if(_c&&_c.sospechosos){
+    const _s=_c.sospechosos[i];
+    if(_s) setTimeout(()=>openInterrogation(i,_s.name,_s.emoji||'🕵️',_s.role||'',_s.motive||''),250);
+  }
 }
 
 /* ════════════════════════════════════════════════
@@ -1980,6 +2014,7 @@ function selectSuspect(i,name,card){
 ════════════════════════════════════════════════ */
 function makeAccusation(){
   if(!selectedSusp)return;
+  disableParanoia();
   const c=CASES[currentCase];
   const correct=selectedSusp===c.killer;
   const score=countRevealed()+'/'+totalClues(c);
@@ -2006,6 +2041,15 @@ function makeAccusation(){
 
     // Animación de entrada del veredicto
     setTimeout(()=>animateVerdict(correct),100);
+
+    // Premium: sound feedback + detective rank
+    if(correct){
+      AudioSystem.successChime();
+      const _clues=revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length;
+      DetectiveRank.addPoints(3+_clues);
+    } else {
+      AudioSystem.heartbeat();
+    }
   });
 }
 
@@ -2358,7 +2402,7 @@ function renderEvidenceBoard(caseIdx){
     html += `<div class="ep-section">`;
     html += `<div class="ep-section-label">${sec.label}</div>`;
     sec.items.forEach((item, i)=>{
-      const revealed = revealedClues[sec.key] && revealedClues[sec.key][i];
+      const revealed = Array.isArray(revealedClues[sec.key]) && revealedClues[sec.key].includes(i);
       html += `<div class="ep-item ${revealed ? 'unlocked' : 'locked'}">`;
       if(revealed){
         html += `<strong>${item.q}</strong><br>${item.a}`;
@@ -2536,109 +2580,6 @@ function addStampsToClues(){
    REVEALED CLUES TRACKER (for evidence board)
 ════════════════════════════════════════════════ */
 let revealedClues = {escena:{}, testigos:{}, pruebas:{}};
-
-/* ════════════════════════════════════════════════
-   OVERRIDE: startCase — adds loading + theme + audio
-════════════════════════════════════════════════ */
-const _origStartCase = startCase;
-function startCase(idx){
-  const c = CASES[idx];
-  if(!c) return;
-  revealedClues = {escena:{}, testigos:{}, pruebas:{}};
-
-  showLoadingScreen(idx, c.title, ()=>{
-    _origStartCase(idx);
-    AudioSystem.playForCase(idx);
-    setTimeout(()=>{
-      addStampsToClues();
-      renderTimeline(c);
-      resetParanoia();
-      // Show evidence board button
-      const btn = document.getElementById('evidence-board-btn');
-      if(btn) btn.classList.add('active');
-    }, 600);
-  });
-}
-
-/* ════════════════════════════════════════════════
-   OVERRIDE: revealClue — track revealed for board
-════════════════════════════════════════════════ */
-const _origRevealClue = revealClue;
-function revealClue(type, i, div, cl){
-  _origRevealClue(type, i, div, cl);
-  // Track which clues are revealed
-  if(type==='escena')   revealedClues.escena[i]=true;
-  if(type==='testigos') revealedClues.testigos[i]=true;
-  if(type==='pruebas')  revealedClues.pruebas[i]=true;
-  resetParanoia();
-  // Remove stamp from revealed clue
-  if(div){
-    const stamp = div.querySelector('.clue-stamp');
-    if(stamp){ gsap.to(stamp,{opacity:0,duration:.3,onComplete:()=>stamp.remove()}); }
-  }
-}
-
-/* ════════════════════════════════════════════════
-   OVERRIDE: selectSuspect — opens interrogation
-════════════════════════════════════════════════ */
-const _origSelectSuspect = selectSuspect;
-function selectSuspect(i, name, card){
-  _origSelectSuspect(i, name, card);
-  const c = CASES[currentCase];
-  if(!c || !c.sospechosos) return;
-  const s = c.sospechosos[i];
-  if(!s) return;
-  // Open interrogation after a brief beat
-  setTimeout(()=>{
-    openInterrogation(i, s.name, s.emoji||'🕵️', s.role||'', s.motive||'');
-  }, 220);
-}
-
-/* ════════════════════════════════════════════════
-   OVERRIDE: makeAccusation — adds rank pts + sound
-════════════════════════════════════════════════ */
-const _origMakeAccusation = makeAccusation;
-function makeAccusation(){
-  _origMakeAccusation();
-  disableParanoia();
-  // Determine if correct (check after short delay so verdict is shown)
-  setTimeout(()=>{
-    const c = CASES[currentCase];
-    const correct = (selectedSusp === c?.killer);
-    if(correct){
-      AudioSystem.successChime();
-      const clueCount = Object.values(revealedClues).reduce((s,o)=>s+Object.keys(o).length, 0);
-      const pts = 3 + clueCount; // base pts + bonus for clues found
-      DetectiveRank.addPoints(pts);
-    } else {
-      AudioSystem.heartbeat();
-    }
-  }, 350);
-}
-
-/* ════════════════════════════════════════════════
-   OVERRIDE: goHome — cleanup
-════════════════════════════════════════════════ */
-const _origGoHome = goHome;
-function goHome(){
-  clearTheme();
-  hideTimeline();
-  disableParanoia();
-  clearTimeout(paranoiaTimer);
-  revealedClues = {escena:{}, testigos:{}, pruebas:{}};
-  const btn = document.getElementById('evidence-board-btn');
-  if(btn) btn.classList.remove('active');
-  const panel = document.getElementById('evidence-panel');
-  if(panel) panel.classList.remove('open');
-  _origGoHome();
-  // Update rank badge each visit home
-  setTimeout(()=>DetectiveRank.updateBadge(), 800);
-}
-
-/* ════════════════════════════════════════════════
-   INIT: rank badge + interaction reset paranoia
-════════════════════════════════════════════════ */
-DetectiveRank.updateBadge();
 
 document.addEventListener('keydown', ()=>{ if(paranoiaTimer) resetParanoia(); });
 document.addEventListener('click', ()=>{  if(paranoiaTimer) resetParanoia(); });
