@@ -1074,6 +1074,113 @@ body[data-t] .btn-accuse:not(:disabled){
 ════════════════════════════════════════════════ */
 body.loading{overflow:hidden}
 
+
+/* ════════════════════════════════════════════════
+   SELECCIÓN DE JUGADOR
+════════════════════════════════════════════════ */
+#player-modal{
+  display:none;
+  position:fixed;inset:0;z-index:88000;
+  background:rgba(4,4,6,.97);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:36px;
+  backdrop-filter:blur(16px);
+}
+#player-modal.active{display:flex}
+
+.pm-label{
+  font-size:.6rem;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--dim);
+}
+.pm-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.4rem,4vw,2.2rem);
+  color:var(--cream);letter-spacing:.04em;
+  text-align:center;
+}
+.pm-title span{color:var(--gold);font-style:italic}
+
+.pm-players{
+  display:flex;gap:20px;flex-wrap:wrap;justify-content:center;
+}
+.pm-player-btn{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:32px 44px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  cursor:none;
+  transition:border-color .25s,background .25s,transform .2s,box-shadow .25s;
+  position:relative;overflow:hidden;
+  min-width:160px;
+}
+.pm-player-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(200,160,48,.04));
+  opacity:0;transition:opacity .25s;
+}
+.pm-player-btn:hover{
+  border-color:var(--gold);
+  background:rgba(200,160,48,.06);
+  transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.pm-player-btn:hover::before{opacity:1}
+
+.pm-player-emoji{font-size:2.8rem;line-height:1}
+.pm-player-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;color:var(--cream);letter-spacing:.04em;
+}
+.pm-player-rank{
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);
+}
+.pm-player-pts{
+  font-size:.75rem;color:var(--gold);font-weight:600;
+}
+.pm-divider{
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dimmer);align-self:center;
+  padding:8px 0;
+}
+
+/* Active player indicator in game header */
+#game-player-tag{
+  font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);border:1px solid rgba(200,160,48,.25);
+  padding:4px 10px;border-radius:2px;
+  opacity:.85;
+}
+
+/* ════════════════════════════════════════════════
+   SCOREBOARD — HOME SCREEN
+════════════════════════════════════════════════ */
+#scoreboard{
+  display:flex;gap:24px;margin-top:16px;
+  flex-wrap:wrap;justify-content:center;
+}
+.sb-player{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:14px 24px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  min-width:130px;
+  transition:border-color .25s;
+}
+.sb-player:hover{border-color:rgba(200,160,48,.35)}
+.sb-player-emoji{font-size:1.6rem}
+.sb-player-name{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;color:var(--cream);
+}
+.sb-player-rank-txt{
+  font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);
+}
+.sb-player-pts-txt{
+  font-size:.7rem;color:var(--dim);
+}
+
 </style>
 </head>
 <body>
@@ -1102,6 +1209,20 @@ body.loading{overflow:hidden}
     <span class="rank-icon" id="rank-icon">🔍</span>
     <span class="rank-label" id="rank-label">Detective Novato</span>
     <span class="rank-pts" id="rank-pts">· 0 pts</span>
+  </div>
+  <div id="scoreboard">
+    <div class="sb-player">
+      <span class="sb-player-emoji">🕵️</span>
+      <span class="sb-player-name">Ruslan</span>
+      <span class="sb-player-rank-txt" id="sb-rank-Ruslan">Novato</span>
+      <span class="sb-player-pts-txt" id="sb-pts-Ruslan">0 pts</span>
+    </div>
+    <div class="sb-player">
+      <span class="sb-player-emoji">🔎</span>
+      <span class="sb-player-name">Anabel</span>
+      <span class="sb-player-rank-txt" id="sb-rank-Anabel">Novata</span>
+      <span class="sb-player-pts-txt" id="sb-pts-Anabel">0 pts</span>
+    </div>
   </div>
 
   <div class="home-divider" id="home-divider">
@@ -1224,6 +1345,7 @@ body.loading{overflow:hidden}
   <div class="game-header">
     <button class="btn-back" onclick="goHome()">← Casos</button>
     <div class="game-case-title" id="gh-title"></div>
+    <div id="game-player-tag"></div>
     <div class="game-header-right">
       <div class="game-clues-badge" id="gh-clues">0 / 0</div>
       <button class="btn-restart" onclick="restartCase()">↺ Reiniciar</button>
@@ -1789,78 +1911,16 @@ function goHome(){
     currentCase=null; selectedSusp=null;
     revealedClues={escena:[],testigos:[],pruebas:[]};
     window.scrollTo(0,0);
-    setTimeout(()=>DetectiveRank.updateBadge(), 600);
+    setTimeout(()=>{ DetectiveRank.updateBadge();
+updateScoreboard(); updateScoreboard(); }, 600);
   });
 }
 
+let _pendingCaseIdx = null;
+
 function startCase(idx){
-  applyTheme(idx);
-  showLoadingScreen(idx, CASES[idx]?.title||'Caso '+idx, ()=>{
-  cinemaTransition(()=>{
-    currentCase   = idx;
-    selectedSusp  = null;
-    revealedClues = {escena:[],testigos:[],pruebas:[]};
-    const c = CASES[idx];
-
-    document.getElementById('screen-home').style.display    = 'none';
-    document.getElementById('screen-verdict').style.display = 'none';
-    document.getElementById('screen-game').style.display    = 'block';
-    window.scrollTo(0,0);
-
-    // Populate header
-    document.getElementById('gh-title').textContent = c.title;
-    updateCluesBadge();
-
-    // Briefing
-    document.getElementById('br-bgnum').textContent    = c.bgNum;
-    document.getElementById('br-kicker').textContent   = c.kicker;
-    document.getElementById('br-headline').textContent = c.headline;
-    document.getElementById('br-body').textContent     = c.body;
-    const meta = document.getElementById('br-meta');
-    meta.innerHTML = c.meta.map(m=>`
-      <div class="meta-item">
-        <span class="meta-label">${m.label}</span>
-        <span class="meta-val">${m.val}</span>
-      </div>`).join('');
-
-    // Tabs
-    const tabs   = document.getElementById('inv-tabs');
-    const tabIds = ['escena','testigos','sospechosos','pruebas'];
-    tabs.innerHTML='';
-    c.tabs.forEach((t,i)=>{
-      const b=document.createElement('button');
-      b.className='inv-tab'+(i===0?' active':'');
-      b.textContent=t;b.onclick=()=>switchTab(tabIds[i],b);
-      tabs.appendChild(b);
-    });
-
-    // Panels
-    renderClues('escena',  c.escena);
-    renderClues('testigos',c.testigos);
-    renderClues('pruebas', c.pruebas);
-    renderSuspects(c.sospechosos);
-    ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
-      document.getElementById('inv-'+id).className='inv-panel'+(id==='escena'?' active':'');
-    });
-
-    // Acusación reset
-    document.getElementById('btn-accuse').disabled=true;
-    document.getElementById('accuse-sub').textContent='Selecciona un sospechoso antes de presentar la acusación.';
-
-    // Animar entrada del juego
-    animateGameEntry();
-
-    // Premium features
-    AudioSystem.playForCase(idx);
-    setTimeout(()=>{
-      addStampsToClues();
-      renderTimeline(c);
-      resetParanoia();
-      const _eb=document.getElementById('evidence-board-btn');
-      if(_eb) _eb.classList.add('active');
-    }, 600);
-  });
-  }); // close showLoadingScreen
+  _pendingCaseIdx = idx;
+  showPlayerModal(idx);
 }
 
 function animateGameEntry(){
@@ -2046,7 +2106,9 @@ function makeAccusation(){
     if(correct){
       AudioSystem.successChime();
       const _clues=revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length;
-      DetectiveRank.addPoints(3+_clues);
+      const _pts=3+_clues;
+      if(currentPlayer) addPlayerPts(currentPlayer, _pts);
+      DetectiveRank.addPoints(_pts);
     } else {
       AudioSystem.heartbeat();
     }
@@ -2579,6 +2641,145 @@ function addStampsToClues(){
 document.addEventListener('keydown', ()=>{ if(paranoiaTimer) resetParanoia(); });
 document.addEventListener('click', ()=>{  if(paranoiaTimer) resetParanoia(); });
 
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE JUGADORES — Ruslan & Anabel
+════════════════════════════════════════════════ */
+let currentPlayer = null; // 'Ruslan' | 'Anabel'
+
+const PLAYERS = ['Ruslan','Anabel'];
+
+const RANKS_FEMALE = [
+  {min:0,    icon:'🔍', title:'Detective Novata'},
+  {min:5,    icon:'📋', title:'Inspectora'},
+  {min:15,   icon:'🗂️', title:'Investigadora Senior'},
+  {min:30,   icon:'⚖️', title:'Fiscal Especial'},
+  {min:50,   icon:'🏛️', title:'Jueza de Instrucción'},
+  {min:80,   icon:'🎖️', title:'Maestra Detective'},
+];
+
+function getPlayerPts(name){
+  return parseInt(localStorage.getItem('crims_pts_'+name)||'0');
+}
+function addPlayerPts(name, pts){
+  const cur = getPlayerPts(name);
+  localStorage.setItem('crims_pts_'+name, String(cur+pts));
+  return cur+pts;
+}
+function getPlayerRank(name){
+  const pts = getPlayerPts(name);
+  const RANKS_LIST = name==='Anabel' ? RANKS_FEMALE : [
+    {min:0,    icon:'🔍', title:'Detective Novato'},
+    {min:5,    icon:'📋', title:'Inspector'},
+    {min:15,   icon:'🗂️', title:'Investigador Senior'},
+    {min:30,   icon:'⚖️', title:'Fiscal Especial'},
+    {min:50,   icon:'🏛️', title:'Juez de Instrucción'},
+    {min:80,   icon:'🎖️', title:'Maestro Detective'},
+  ];
+  let r = RANKS_LIST[0];
+  for(const rank of RANKS_LIST){ if(pts>=rank.min) r=rank; }
+  return r;
+}
+
+function updateScoreboard(){
+  PLAYERS.forEach(name=>{
+    const pts  = getPlayerPts(name);
+    const rank = getPlayerRank(name);
+    // home scoreboard
+    const sbR = document.getElementById('sb-rank-'+name);
+    const sbP = document.getElementById('sb-pts-'+name);
+    if(sbR) sbR.textContent = rank.title;
+    if(sbP) sbP.textContent = pts+' pts';
+    // player modal
+    const pmR = document.getElementById('pm-rank-'+name);
+    const pmP = document.getElementById('pm-pts-'+name);
+    if(pmR) pmR.textContent = rank.title;
+    if(pmP) pmP.textContent = pts+' pts';
+  });
+}
+
+function showPlayerModal(caseIdx){
+  updateScoreboard();
+  applyTheme(caseIdx);
+  const modal = document.getElementById('player-modal');
+  modal.classList.add('active');
+  // GSAP entrance
+  gsap.fromTo('.pm-title',{opacity:0,y:20},{opacity:1,y:0,duration:.5,ease:'power3.out',delay:.1});
+  gsap.fromTo('.pm-player-btn',{opacity:0,y:30,scale:.96},{opacity:1,y:0,scale:1,stagger:.12,duration:.5,ease:'power3.out',delay:.2});
+}
+
+function selectPlayer(name, emoji){
+  currentPlayer = name;
+  const modal = document.getElementById('player-modal');
+  // Show who's playing in game header
+  const tag = document.getElementById('game-player-tag');
+  if(tag) tag.textContent = emoji+' '+name;
+
+  gsap.to('.pm-players',{opacity:0,y:-20,duration:.3,ease:'power2.in',onComplete:()=>{
+    modal.classList.remove('active');
+    // Proceed to loading screen
+    const c = CASES[_pendingCaseIdx];
+    showLoadingScreen(_pendingCaseIdx, c?.title||'Caso', ()=>{
+      cinemaTransition(()=>{
+        currentCase   = _pendingCaseIdx;
+        selectedSusp  = null;
+        revealedClues = {escena:[],testigos:[],pruebas:[]};
+
+        document.getElementById('screen-home').style.display    = 'none';
+        document.getElementById('screen-verdict').style.display = 'none';
+        document.getElementById('screen-game').style.display    = 'block';
+        window.scrollTo(0,0);
+
+        const ci = CASES[_pendingCaseIdx];
+        document.getElementById('gh-title').textContent = ci.title;
+        updateCluesBadge();
+        document.getElementById('br-bgnum').textContent    = ci.bgNum;
+        document.getElementById('br-kicker').textContent   = ci.kicker;
+        document.getElementById('br-headline').textContent = ci.headline;
+        document.getElementById('br-body').textContent     = ci.body;
+        const meta = document.getElementById('br-meta');
+        meta.innerHTML = ci.meta.map(m=>`
+          <div class="meta-item">
+            <span class="meta-label">${m.label}</span>
+            <span class="meta-val">${m.val}</span>
+          </div>`).join('');
+
+        const tabs   = document.getElementById('inv-tabs');
+        const tabIds = ['escena','testigos','sospechosos','pruebas'];
+        tabs.innerHTML='';
+        ci.tabs.forEach((t,i)=>{
+          const b=document.createElement('button');
+          b.className='inv-tab'+(i===0?' active':'');
+          b.textContent=t;b.onclick=()=>switchTab(tabIds[i],b);
+          tabs.appendChild(b);
+        });
+
+        renderClues('escena',  ci.escena);
+        renderClues('testigos',ci.testigos);
+        renderClues('pruebas', ci.pruebas);
+        renderSuspects(ci.sospechosos);
+        ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
+          document.getElementById('inv-'+id).className='inv-panel'+(id==='escena'?' active':'');
+        });
+
+        document.getElementById('btn-accuse').disabled=true;
+        document.getElementById('accuse-sub').textContent='Selecciona un sospechoso antes de presentar la acusación.';
+
+        animateGameEntry();
+        AudioSystem.playForCase(_pendingCaseIdx);
+        setTimeout(()=>{
+          addStampsToClues();
+          renderTimeline(ci);
+          resetParanoia();
+          const _eb=document.getElementById('evidence-board-btn');
+          if(_eb) _eb.classList.add('active');
+        }, 600);
+      });
+    });
+    gsap.set('.pm-players',{opacity:1,y:0});
+  }});
+}
+
 </script>
 
 <!-- ════ LOADING SCREEN ════ -->
@@ -2633,6 +2834,28 @@ document.addEventListener('click', ()=>{  if(paranoiaTimer) resetParanoia(); });
 
 <!-- ════ TIMELINE STRIP ════ -->
 <div id="timeline-strip"><div class="timeline-inner" id="timeline-inner"></div></div>
+
+
+<!-- ════ PLAYER SELECTION MODAL ════ -->
+<div id="player-modal">
+  <div class="pm-label">Identificación de detective</div>
+  <div class="pm-title">¿Quién investiga <span>este caso</span>?</div>
+  <div class="pm-players">
+    <button class="pm-player-btn" onclick="selectPlayer('Ruslan','🕵️')">
+      <span class="pm-player-emoji">🕵️</span>
+      <span class="pm-player-name">Ruslan</span>
+      <span class="pm-player-rank" id="pm-rank-Ruslan">Detective Novato</span>
+      <span class="pm-player-pts" id="pm-pts-Ruslan">0 pts</span>
+    </button>
+    <div class="pm-divider">vs</div>
+    <button class="pm-player-btn" onclick="selectPlayer('Anabel','🔎')">
+      <span class="pm-player-emoji">🔎</span>
+      <span class="pm-player-name">Anabel</span>
+      <span class="pm-player-rank" id="pm-rank-Anabel">Detective Novata</span>
+      <span class="pm-player-pts" id="pm-pts-Anabel">0 pts</span>
+    </button>
+  </div>
+</div>
 
 </body>
 </html>
