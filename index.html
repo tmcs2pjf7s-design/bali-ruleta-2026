@@ -422,6 +422,20 @@ h1 em{
 }
 .btn-logout:hover{border-color:rgba(232,186,42,.45);color:var(--gold)}
 
+/* Aviso login */
+.login-aviso{
+  margin-top:28px;padding:18px 24px;max-width:360px;
+  background:rgba(0,0,0,.35);border:1px solid rgba(232,186,42,.12);
+  border-radius:14px;text-align:center;
+  backdrop-filter:blur(8px);
+}
+.login-aviso-text{
+  font-size:.72rem;color:var(--t3);line-height:1.75;font-style:italic;margin-bottom:10px;
+}
+.login-aviso-copy{
+  font-size:.62rem;color:rgba(232,186,42,.35);font-weight:600;letter-spacing:.04em;
+}
+
 /* Footer */
 .site-footer{
   margin-top:60px;padding:32px 20px 20px;
@@ -1401,11 +1415,13 @@ h1 em{
 
   </div><!-- /login-card -->
 
-  <footer class="site-footer" style="position:relative;z-index:2">
-    <p class="footer-copy">© 2026 Ruslan</p>
-    <p class="footer-text">Web creada con café, estrés y decisiones cuestionables de última hora.<br>Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.</p>
-    <p class="footer-tag">🌐 esto es página de web, para que lo sepan</p>
-  </footer>
+  <div class="login-aviso">
+    <p class="login-aviso-text">
+      Web creada con café, estrés y decisiones cuestionables de última hora.<br>
+      Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.
+    </p>
+    <p class="login-aviso-copy">© 2026 El Desconocido &nbsp;·&nbsp; 🌐 esto es página de web, para que lo sepan</p>
+  </div>
 
 </div><!-- /login-overlay -->
 
@@ -1703,7 +1719,7 @@ h1 em{
   </div>
 
   <footer class="site-footer">
-    <p class="footer-copy">© 2026 Ruslan</p>
+    <p class="footer-copy">© 2026 El Desconocido</p>
     <p class="footer-text">Web creada con café, estrés y decisiones cuestionables de última hora.<br>Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.</p>
     <p class="footer-tag">🌐 esto es página de web, para que lo sepan</p>
   </footer>
