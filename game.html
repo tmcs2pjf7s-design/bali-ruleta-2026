@@ -703,7 +703,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 ════════════════════════════════════════════════ -->
 <div id="screen-home">
   <div class="home-redline" id="home-redline"></div>
-  <div class="home-eyebrow" id="home-eyebrow">Casos reales &amp; ficción · España</div>
+  <div class="home-eyebrow" id="home-eyebrow">Casos criminales · España</div>
 
   <h1 class="home-title glitch" data-text="CRIMS" id="home-title">CRIMS</h1>
   <p class="home-title-sub" id="home-title-sub">detective</p>
@@ -715,8 +715,8 @@ h1,h2,h3{font-family:'Playfair Display',serif}
   </div>
 
   <p class="home-sub" id="home-sub">
-    Diez casos. Cinco reales. Cinco de ficción.<br>
-    Lee, investiga, acusa. La verdad siempre tiene un culpable.
+    Diez casos. Diez culpables. Una sola verdad.<br>
+    Lee, investiga, acusa. Las pruebas no mienten.
   </p>
 
   <div class="case-grid" id="case-grid">
@@ -768,7 +768,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 
     <div class="case-card" onclick="startCase(5)">
       <div class="case-card-glow"></div>
-      <div class="case-num">Caso 06 · Ficción</div>
+      <div class="case-num">Caso 06</div>
       <div class="case-title">El Violinista de Gracia</div>
       <div class="case-location">🎻 Barcelona · 2019</div>
       <div class="case-desc">Un violinista de fama nacional muere en su apartamento. Aparente infarto. Pero hay una marca de punción que nadie vio venir.</div>
@@ -777,7 +777,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 
     <div class="case-card" onclick="startCase(6)">
       <div class="case-card-glow"></div>
-      <div class="case-num">Caso 07 · Ficción</div>
+      <div class="case-num">Caso 07</div>
       <div class="case-title">La Herencia de los Balmaseda</div>
       <div class="case-location">🏛️ Salamanca · 2021</div>
       <div class="case-desc">Un anciano millonario muere la noche después de firmar un nuevo testamento. Tres herederos. Un médico con secretos. Un veneno en su propia medicación.</div>
@@ -786,7 +786,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 
     <div class="case-card" onclick="startCase(7)">
       <div class="case-card-glow"></div>
-      <div class="case-num">Caso 08 · Ficción</div>
+      <div class="case-num">Caso 08</div>
       <div class="case-title">El Fotógrafo del Puerto</div>
       <div class="case-location">🚢 Valencia · 2018</div>
       <div class="case-desc">Una fotógrafa documentalista dijo tener «la foto definitiva». Horas después estaba muerta en un almacén del puerto. La tarjeta de memoria había desaparecido.</div>
@@ -795,7 +795,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 
     <div class="case-card" onclick="startCase(8)">
       <div class="case-card-glow"></div>
-      <div class="case-num">Caso 09 · Ficción</div>
+      <div class="case-num">Caso 09</div>
       <div class="case-title">La Profesora de Cuenca</div>
       <div class="case-location">⛪ Cuenca · 2020</div>
       <div class="case-desc">Una historiadora cae desde el campanario de un monasterio. En sus notas, una palabra subrayada tres veces: PLAGIO. Su colega de investigación estaba en el edificio esa noche.</div>
@@ -804,7 +804,7 @@ h1,h2,h3{font-family:'Playfair Display',serif}
 
     <div class="case-card" onclick="startCase(9)">
       <div class="case-card-glow"></div>
-      <div class="case-num">Caso 10 · Ficción</div>
+      <div class="case-num">Caso 10</div>
       <div class="case-title">Doce Minutos</div>
       <div class="case-location">🛵 Sevilla · 2023</div>
       <div class="case-desc">Un rider de reparto tarda 12 minutos en subir al cuarto. Nadie debería tardar 12 minutos. Lo encontraron en el garaje. Había grabado algo con el móvil.</div>
@@ -814,8 +814,9 @@ h1,h2,h3{font-family:'Playfair Display',serif}
   </div>
 
   <div class="home-footer">
-    Casos 01–05: hechos judicialmente probados · Casos 06–10: ficción original · Inspirado en Crims de Carles Porta<br>
-    <span style="opacity:.5">Este juego tiene fines divulgativos y de entretenimiento · Los casos de ficción son completamente inventados</span>
+    © 2026 El Desconocido &nbsp;·&nbsp; Web creada con café, estrés y decisiones cuestionables de última hora.<br>
+    Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.<br>
+    <span style="opacity:.5">🌐 esto es página de web, para que lo sepan</span>
   </div>
 </div>
 
@@ -1167,7 +1168,7 @@ const CASES = [
 /* ══ 6 ══ El Violinista de Gracia — FICCIÓN */
 {
   title:'El Violinista de Gracia', bgNum:'06',
-  kicker:'Caso de Ficción 06 · Barcelona, Gracia · Enero 2019',
+  kicker:'Caso 06 · Barcelona, Gracia · Enero 2019',
   headline:'Una nota perfecta, un final disonante',
   body:'Rafael Montaner, 58 años, violinista reconocido a nivel nacional, es hallado muerto en el salón de su apartamento del barrio de Gracia. El forense determina inicialmente un fallo cardíaco, pero una pequeña marca de punción oculta bajo la correa de su reloj cambia el curso de la investigación. Rafael vivía solo, era meticuloso y no tenía enemigos conocidos. O eso creían todos.',
   meta:[
@@ -1204,7 +1205,7 @@ const CASES = [
 /* ══ 7 ══ La Herencia de los Balmaseda — FICCIÓN */
 {
   title:'La Herencia de los Balmaseda', bgNum:'07',
-  kicker:'Caso de Ficción 07 · Salamanca · Marzo 2021',
+  kicker:'Caso 07 · Salamanca · Marzo 2021',
   headline:'El testamento fue firmado en lunes. El martes, nadie llegó a cobrar.',
   body:'Don Augusto Balmaseda, 78 años, patriarca de una familia acomodada de Salamanca, fallece en su estudio en lo que parece un fallo cardíaco. Sin embargo, lo llamativo es el momento: muere la noche siguiente a haber firmado un nuevo testamento que desheredaba a su hijo mayor y dejaba casi todo a su sobrina. El forense ordena un análisis toxicológico de oficio. El resultado cambia todo.',
   meta:[
@@ -1241,7 +1242,7 @@ const CASES = [
 /* ══ 8 ══ El Fotógrafo del Puerto — FICCIÓN */
 {
   title:'El Fotógrafo del Puerto', bgNum:'08',
-  kicker:'Caso de Ficción 08 · Valencia, Zona Portuaria · Noviembre 2018',
+  kicker:'Caso 08 · Valencia, Zona Portuaria · Noviembre 2018',
   headline:'Tenía las fotos. Por eso no pudo contarlas.',
   body:'Irene Salgado, 34 años, fotógrafa documentalista especializada en investigación portuaria, es hallada muerta en un almacén en desuso de la zona del puerto de Valencia. Traumatismo craneal compatible con golpe. La escena fue limpiada a conciencia, pero los rastros biológicos no mienten. Su cámara apareció cerca. Sin tarjeta de memoria. Horas antes le había dicho a su editor que tenía "la foto definitiva".',
   meta:[
@@ -1278,7 +1279,7 @@ const CASES = [
 /* ══ 9 ══ La Profesora de Cuenca — FICCIÓN */
 {
   title:'La Profesora de Cuenca', bgNum:'09',
-  kicker:'Caso de Ficción 09 · Monasterio de Uclés, Cuenca · Agosto 2020',
+  kicker:'Caso 09 · Monasterio de Uclés, Cuenca · Agosto 2020',
   headline:'Cayó desde el campanario donde había encontrado la prueba.',
   body:'Sofía Ibáñez, 45 años, profesora de historia medieval en la UAM, es hallada al amanecer al pie de la torre norte del monasterio de Uclés, donde llevaba semanas investigando un manuscrito del siglo XV. Traumatismo mortal por caída. En el suelo, alrededor del cuerpo, páginas de su bloc de notas desperdigadas. En una de ellas, subrayada tres veces con tinta roja: la palabra PLAGIO. Su colega de investigación, Abel Moya, estaba alojado en el pueblo esa noche.',
   meta:[
@@ -1315,7 +1316,7 @@ const CASES = [
 /* ══ 10 ══ Doce Minutos — FICCIÓN */
 {
   title:'Doce Minutos', bgNum:'10',
-  kicker:'Caso de Ficción 10 · Sevilla, Barrio de Triana · Mayo 2023',
+  kicker:'Caso 10 · Sevilla, Barrio de Triana · Mayo 2023',
   headline:'Tardó doce minutos en subir al cuarto. Nadie debería tardar doce minutos.',
   body:'Marco Benítez, 29 años, rider de reparto a domicilio, es encontrado muerto en el garaje del Edificio Alameda de Triana, Sevilla. Herida de arma blanca. Su moto está aparcada. El pedido sin entregar. El tiempo de entrega registrado por la app: llegada al edificio a las 23:14. El cuerpo, a las 23:26. Doce minutos. Y en su teléfono, antes de que le rompieran la pantalla, alcanzó a mandar un audio a su compañero de trabajo.',
   meta:[
