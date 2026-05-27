@@ -2188,8 +2188,6 @@ function spin(){
       spinning=false;
       $('btn-spin').disabled=false;
       launchConfetti();
-      // En modo auto-sorpresa: confirma solo tras 2.5 s para que el usuario vea el resultado
-      if(autoSpinMode) setTimeout(()=>{ if(pendingResult) $('btn-confirm').click(); }, 2500);
     }
   }
   requestAnimationFrame(frame);
@@ -2214,13 +2212,8 @@ $('btn-confirm').addEventListener('click',()=>{
   $('result-box').classList.remove('show');
   renderAll();
   const done=assignments.filter(Boolean).length;
-  if(autoSpinMode){
-    // Encadena el siguiente giro automáticamente
-    autoSpinNext();
-  } else {
-    if(done===6) toast('¡Itinerario completo!');
-    else         toast('¡Asignado! Gira para el siguiente día 🌴');
-  }
+  if(done===6) toast('¡Itinerario completo! 🌴🍷');
+  else         toast('¡Asignado! Selecciona el siguiente día 🎯');
 });
 
 /* ═══════════════════════════════════════════
@@ -2563,48 +2556,27 @@ $('sugg-search').addEventListener('keydown', e=>{
   if(e.key==='Enter') searchAndOpen($('sugg-search').value);
 });
 
-/* ── Plan sorpresa: carga bombo y gira automáticamente ── */
-let autoSpinMode = false;
+/* ── Selección al azar: carga sugerencias en el bombo y gira para el día seleccionado ── */
+let autoSpinMode = false; // reservado, ya no se usa en auto
 
 function generatePicks(){
   const universe = [...SUGGESTIONS, ...savedSuggs.filter(s=>!SUGGESTIONS.find(x=>x.l===s.l))];
-  return [...universe].sort(()=>Math.random()-0.5).slice(0, 6);
-}
-
-function autoSpinNext(){
-  if(!autoSpinMode) return;
-  const nextDay = getNextEmptyDay();
-  if(nextDay === -1){
-    autoSpinMode = false;
-    toast('🌴 ¡Plan completo! ✦');
-    launchConfetti();
-    return;
-  }
-  spinTarget = nextDay;
-  setTimeout(()=> spin(), 500);
+  return [...universe].sort(()=>Math.random()-0.5);
 }
 
 function pickRandom(){
-  const hasData = assignments.some(Boolean) || pool.length > 0;
-  if(hasData && !confirm('🎲 ¿Generar un plan sorpresa?\nSe cargará la ruleta y girará día a día.')) return;
-
-  // Resetea todo
-  assignments = new Array(6).fill(null);
-  pool        = [];
-  nextId      = 1;
-
-  // Mete 6 picks aleatorios en el bombo
-  generatePicks().forEach((sugg, i)=>{
-    pool.push({id:nextId++, label:sugg.e+' '+sugg.l, color:PALETTE[i%PALETTE.length]});
-  });
-
-  spinTarget    = -1;
-  autoSpinMode  = true;
-  save();
-  renderAll();
-
-  // Arranca el primer giro tras un momento para que el usuario vea la ruleta cargada
-  setTimeout(()=> autoSpinNext(), 900);
+  // Si el bombo está vacío, carga sugerencias aleatorias
+  if(!pool.length){
+    generatePicks().forEach((sugg, i)=>{
+      pool.push({id:nextId++, label:sugg.e+' '+sugg.l, color:PALETTE[i%PALETTE.length]});
+    });
+    save();
+    renderAll();
+    toast('🎲 Sugerencias cargadas — ¡gira!');
+    return;
+  }
+  // Si ya hay bombo, gira directamente para el día seleccionado (o el siguiente libre)
+  spin();
 }
 
 $('btn-random').addEventListener('click', pickRandom);
