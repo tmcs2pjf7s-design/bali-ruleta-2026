@@ -2282,9 +2282,7 @@ function goHome(){
     currentCase=null; selectedSusp=null;
     revealedClues={escena:[],testigos:[],pruebas:[]};
     window.scrollTo(0,0);
-    setTimeout(()=>{ DetectiveRank.updateBadge();
-updateScoreboard();
-setLang(currentLang); // apply saved language updateScoreboard(); }, 600);
+    setTimeout(()=>{ DetectiveRank.updateBadge(); updateScoreboard(); setLang(currentLang); }, 600);
   });
 }
 
