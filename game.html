@@ -1182,6 +1182,36 @@ body.loading{overflow:hidden}
   font-size:.7rem;color:var(--dim);
 }
 
+
+/* ════════════════════════════════════════════════
+   SELECTOR DE IDIOMA
+════════════════════════════════════════════════ */
+#lang-picker{
+  position:fixed;top:18px;right:18px;z-index:9400;
+  display:flex;gap:4px;align-items:center;
+  background:rgba(6,6,8,.85);
+  border:1px solid var(--border);
+  padding:5px 8px;border-radius:3px;
+  backdrop-filter:blur(12px);
+}
+.lang-btn{
+  background:none;border:none;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);cursor:none;
+  padding:4px 7px;border-radius:2px;
+  transition:color .2s,background .2s,opacity .2s;
+  opacity:.55;font-family:'DM Sans',sans-serif;font-weight:600;
+  white-space:nowrap;
+}
+.lang-btn:hover{opacity:.85;color:var(--cream)}
+.lang-btn.active{
+  opacity:1;color:var(--gold);
+  background:rgba(200,160,48,.08);
+  border:1px solid rgba(200,160,48,.25);
+}
+.lang-btn .lang-flag{font-size:1rem;line-height:1}
+.lang-sep{color:var(--dimmer);font-size:.6rem}
+
 </style>
 </head>
 <body>
@@ -1416,7 +1446,7 @@ body.loading{overflow:hidden}
     <div class="verdict-accused" id="vd-accused"></div>
     <div class="verdict-explanation" id="vd-explanation"></div>
     <div class="verdict-score">
-      Pistas descubiertas: <span class="score-num" id="vd-score"></span>
+      <span id="vd-score-label">Pistas descubiertas:</span> <span class="score-num" id="vd-score"></span>
     </div>
     <div class="verdict-actions">
       <button class="btn-verdict-home" onclick="goHome()">← Casos</button>
@@ -1426,6 +1456,261 @@ body.loading{overflow:hidden}
 </div>
 
 <script>
+
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE IDIOMAS — tr(key)
+════════════════════════════════════════════════ */
+let currentLang = localStorage.getItem('crims_lang') || 'es';
+
+const T = {
+  es:{
+    eyebrow:         'Casos criminales',
+    title_sub:       'detective',
+    home_sub:        'Me dolía todo el cuerpo, me aburría demasiado… así que hice una web de crímenes.<br>Hay 10 casos: algunos son reales, otros… sinceramente ni idea.<br>Resuélvelos, acusa al culpable y gana premios si tu cerebro funciona mejor que el mío.',
+    badge_open:      'Abierto',
+    back:            '← Casos',
+    restart:         '↺ Reiniciar',
+    restart_confirm: '¿Reiniciar la investigación? Se borrarán todas las pistas descubiertas.',
+    tab_escena:      '🔬 Escena',
+    tab_testigos:    '👤 Testigos',
+    tab_sosp:        '🕵️ Sospechosos',
+    tab_pruebas:     '🧪 Pruebas',
+    clue_examine:    'Examinar →',
+    clue_analyzed:   '✓ Analizado',
+    clue_note:       '◆ Pista registrada en el expediente',
+    progress_clues:  'pistas',
+    suspect_intro:   'Haz clic en un sospechoso para revisar su móvil documentado. Selecciona al culpable cuando hayas reunido suficientes pruebas.',
+    accuse_title:    '⚖️ Acusación formal',
+    accuse_ph:       'Selecciona un sospechoso antes de presentar la acusación.',
+    suspect_sel:     'Sospechoso seleccionado: {n}. ¿Presentas la acusación formal?',
+    btn_accuse:      'Presentar acusación formal',
+    verdict_ok:      'Caso resuelto',
+    verdict_fail:    'Acusación incorrecta',
+    accused_ok:      'Has acusado a: {n}',
+    accused_fail:    'Has acusado a: {n} · El culpable era {k}',
+    score_label:     'Pistas descubiertas:',
+    btn_home:        '← Casos',
+    btn_next:        'Siguiente caso →',
+    btn_final:       'Volver al inicio',
+    load_stamp:      'EXPEDIENTE CLASIFICADO',
+    load_sub:        'Acceso restringido · Solo detectives autorizados',
+    loading:         'Cargando caso…',
+    pm_label:        'Identificación de detective',
+    pm_q:            '¿Quién investiga',
+    pm_q2:           'este caso',
+    pm_vs:           'vs',
+    ep_title:        '📋 Tablón de evidencias',
+    ep_btn:          '📋 Tablón',
+    classified:      'CLASIFICADO',
+    close_room:      'Cerrar sala',
+    accuse_formal:   '⚖️ Acusar formalmente',
+    audio_on:        '🔊 Ambiente',
+    audio_off:       '🔇 Silencio',
+    rank_0:  'Detective Novato',  rank_0f: 'Detective Novata',
+    rank_1:  'Inspector',         rank_1f: 'Inspectora',
+    rank_2:  'Investigador Senior',rank_2f:'Investigadora Senior',
+    rank_3:  'Fiscal Especial',   rank_3f: 'Fiscal Especial',
+    rank_4:  'Juez de Instrucción',rank_4f:'Jueza de Instrucción',
+    rank_5:  'Maestro Detective', rank_5f: 'Maestra Detective',
+    lang_label: 'Anabel tu Bandera 🇪🇸',
+  },
+  ca:{
+    eyebrow:         'Casos criminals',
+    title_sub:       'detectiu',
+    home_sub:        'Em dolía tot el cos, m\'avorria massa… així que vaig fer una web de crims.<br>Hi ha 10 casos: alguns són reals, d\'altres… sincerament ni idea.<br>Resol-los, acusa el culpable i guanya premis si el teu cervell funciona millor que el meu.',
+    badge_open:      'Obert',
+    back:            '← Casos',
+    restart:         '↺ Reiniciar',
+    restart_confirm: 'Vols reiniciar la investigació? S\'esborraran totes les pistes descobertes.',
+    tab_escena:      '🔬 Escena',
+    tab_testigos:    '👤 Testimonis',
+    tab_sosp:        '🕵️ Sospitosos',
+    tab_pruebas:     '🧪 Proves',
+    clue_examine:    'Examinar →',
+    clue_analyzed:   '✓ Analitzat',
+    clue_note:       '◆ Pista registrada a l\'expedient',
+    progress_clues:  'pistes',
+    suspect_intro:   'Fes clic en un sospitós per revisar el seu mòbil documentat. Selecciona el culpable quan hagis reunit prou proves.',
+    accuse_title:    '⚖️ Acusació formal',
+    accuse_ph:       'Selecciona un sospitós abans de presentar l\'acusació.',
+    suspect_sel:     'Sospitós seleccionat: {n}. Presentes l\'acusació formal?',
+    btn_accuse:      'Presentar acusació formal',
+    verdict_ok:      'Cas resolt',
+    verdict_fail:    'Acusació incorrecta',
+    accused_ok:      'Has acusat a: {n}',
+    accused_fail:    'Has acusat a: {n} · El culpable era {k}',
+    score_label:     'Pistes descobertes:',
+    btn_home:        '← Casos',
+    btn_next:        'Cas següent →',
+    btn_final:       'Tornar a l\'inici',
+    load_stamp:      'EXPEDIENT CLASSIFICAT',
+    load_sub:        'Accés restringit · Només detectives autoritzats',
+    loading:         'Carregant cas…',
+    pm_label:        'Identificació de detectiu',
+    pm_q:            'Qui investiga',
+    pm_q2:           'aquest cas',
+    pm_vs:           'vs',
+    ep_title:        '📋 Tauler d\'evidències',
+    ep_btn:          '📋 Tauler',
+    classified:      'CLASSIFICAT',
+    close_room:      'Tancar sala',
+    accuse_formal:   '⚖️ Acusar formalment',
+    audio_on:        '🔊 Ambient',
+    audio_off:       '🔇 Silenci',
+    rank_0:  'Detective Novell',    rank_0f: 'Detective Novella',
+    rank_1:  'Inspector',           rank_1f: 'Inspectora',
+    rank_2:  'Investigador Sènior', rank_2f: 'Investigadora Sènior',
+    rank_3:  'Fiscal Especial',     rank_3f: 'Fiscal Especial',
+    rank_4:  'Jutge d\'Instrucció', rank_4f: 'Jutgessa d\'Instrucció',
+    rank_5:  'Mestre Detective',    rank_5f: 'Mestra Detective',
+    lang_label: 'Català 🏴󠁥󠁳󠁣󠁴󠁿',
+  },
+  en:{
+    eyebrow:         'Criminal Cases',
+    title_sub:       'detective',
+    home_sub:        'My whole body hurt, I was bored to death… so I made a true crime website.<br>There are 10 cases: some are real, others… honestly no idea.<br>Solve them, accuse the culprit and win prizes if your brain works better than mine.',
+    badge_open:      'Open',
+    back:            '← Cases',
+    restart:         '↺ Restart',
+    restart_confirm: 'Restart the investigation? All discovered clues will be lost.',
+    tab_escena:      '🔬 Scene',
+    tab_testigos:    '👤 Witnesses',
+    tab_sosp:        '🕵️ Suspects',
+    tab_pruebas:     '🧪 Evidence',
+    clue_examine:    'Examine →',
+    clue_analyzed:   '✓ Analyzed',
+    clue_note:       '◆ Clue logged in the case file',
+    progress_clues:  'clues',
+    suspect_intro:   'Click on a suspect to review their documented motive. Select the culprit once you\'ve gathered enough evidence.',
+    accuse_title:    '⚖️ Formal accusation',
+    accuse_ph:       'Select a suspect before submitting the accusation.',
+    suspect_sel:     'Suspect selected: {n}. Do you submit the formal accusation?',
+    btn_accuse:      'Submit formal accusation',
+    verdict_ok:      'Case solved',
+    verdict_fail:    'Wrong accusation',
+    accused_ok:      'You accused: {n}',
+    accused_fail:    'You accused: {n} · The culprit was {k}',
+    score_label:     'Clues discovered:',
+    btn_home:        '← Cases',
+    btn_next:        'Next case →',
+    btn_final:       'Back to start',
+    load_stamp:      'CLASSIFIED FILE',
+    load_sub:        'Restricted access · Authorized detectives only',
+    loading:         'Loading case…',
+    pm_label:        'Detective identification',
+    pm_q:            'Who investigates',
+    pm_q2:           'this case',
+    pm_vs:           'vs',
+    ep_title:        '📋 Evidence board',
+    ep_btn:          '📋 Board',
+    classified:      'CLASSIFIED',
+    close_room:      'Close room',
+    accuse_formal:   '⚖️ Formally accuse',
+    audio_on:        '🔊 Ambient',
+    audio_off:       '🔇 Silent',
+    rank_0:  'Rookie Detective',      rank_0f: 'Rookie Detective',
+    rank_1:  'Inspector',             rank_1f: 'Inspector',
+    rank_2:  'Senior Investigator',   rank_2f: 'Senior Investigator',
+    rank_3:  'Special Prosecutor',    rank_3f: 'Special Prosecutor',
+    rank_4:  'Chief Justice',         rank_4f: 'Chief Justice',
+    rank_5:  'Master Detective',      rank_5f: 'Master Detective',
+    lang_label: 'English 🇬🇧',
+  },
+};
+
+function tr(key){ return T[currentLang]?.[key] ?? T.es[key] ?? key; }
+
+const TAB_KEYS = ['tab_escena','tab_testigos','tab_sosp','tab_pruebas'];
+
+function setLang(code){
+  currentLang = code;
+  localStorage.setItem('crims_lang', code);
+  // Update picker buttons
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang===code);
+  });
+  applyLang();
+}
+
+function applyLang(){
+  const el = id => document.getElementById(id);
+  const qa = sel => document.querySelectorAll(sel);
+
+  // Home
+  if(el('home-eyebrow'))   el('home-eyebrow').textContent  = tr('eyebrow');
+  if(el('home-title-sub')) el('home-title-sub').textContent= tr('title_sub');
+  if(el('home-sub'))       el('home-sub').innerHTML        = tr('home_sub');
+
+  // Case badges
+  qa('.badge-open').forEach(b=>{
+    b.innerHTML = `<span class="badge-dot"></span>${tr('badge_open')}`;
+  });
+
+  // Game nav
+  qa('.btn-back').forEach(b=>  b.textContent = tr('back'));
+  qa('.btn-restart').forEach(b=>b.textContent = tr('restart'));
+
+  // Tabs (if game is open)
+  qa('.inv-tab').forEach((b,i)=>{ if(TAB_KEYS[i]) b.textContent = tr(TAB_KEYS[i]); });
+
+  // Clue examine buttons (unrevealed)
+  qa('.clue-status.pending').forEach(b=> b.textContent = tr('clue_examine'));
+  qa('.clue-status.done').forEach(b=>    b.textContent = tr('clue_analyzed'));
+  qa('.clue-note').forEach(n=>           n.textContent = tr('clue_note'));
+
+  // Suspect section
+  qa('.suspect-intro').forEach(d=> d.textContent = tr('suspect_intro'));
+
+  // Accuse section
+  qa('.accuse-title').forEach(d=> d.textContent = tr('accuse_title'));
+  if(el('btn-accuse'))  el('btn-accuse').textContent  = tr('btn_accuse');
+  if(el('accuse-sub') && el('accuse-sub').textContent===tr('accuse_ph') ||
+     el('accuse-sub')?.textContent?.startsWith('Selecciona') ||
+     el('accuse-sub')?.textContent?.startsWith('Select') ||
+     el('accuse-sub')?.textContent?.startsWith('Selecciona un sosp') ||
+     el('accuse-sub')?.textContent?.startsWith('Fes clic')){
+    if(el('accuse-sub') && !el('btn-accuse')?.disabled===false)
+      el('accuse-sub').textContent = tr('accuse_ph');
+  }
+  if(el('accuse-sub') && el('btn-accuse')?.disabled)
+    el('accuse-sub').textContent = tr('accuse_ph');
+
+  // Verdict buttons
+  qa('.btn-verdict-home').forEach(b=> b.textContent = tr('btn_home'));
+  if(el('vd-score-label')) el('vd-score-label').textContent = tr('score_label');
+  const btnNext = el('btn-next-case');
+  if(btnNext && typeof currentCase==='number')
+    btnNext.textContent = currentCase < CASES.length-1 ? tr('btn_next') : tr('btn_final');
+
+  // Loading screen
+  qa('.load-stamp').forEach(d=>     d.textContent = tr('load_stamp'));
+  qa('.load-classif-sub').forEach(d=>d.textContent= tr('load_sub'));
+
+  // Player modal
+  qa('.pm-label').forEach(d=> d.textContent = tr('pm_label'));
+  qa('.pm-title').forEach(d=> d.innerHTML =
+    `${tr('pm_q')} <span>${tr('pm_q2')}</span>?`);
+  qa('.pm-divider').forEach(d=> d.textContent = tr('pm_vs'));
+
+  // Evidence panel
+  qa('.ep-title').forEach(d=>         d.textContent = tr('ep_title'));
+  if(el('evidence-board-btn'))  el('evidence-board-btn').textContent = tr('ep_btn');
+
+  // Interrogation close button
+  qa('.intg-btn.close-btn').forEach(b=> b.textContent = tr('close_room'));
+  if(el('intg-accuse-btn')) el('intg-accuse-btn').textContent = tr('accuse_formal');
+
+  // Clue stamps (classified)
+  qa('.clue-stamp').forEach(s=> s.textContent = tr('classified'));
+
+  // Audio button state
+  const ab = el('audio-btn');
+  if(ab) ab.textContent = ab.classList.contains('on') ? tr('audio_on') : tr('audio_off');
+
+  // Scoreboard rank titles
+  updateScoreboard?.();
+}
 
 /* ════════════════════════════════════════════════
    SUPABASE — cliente y capa de datos
@@ -1998,7 +2283,8 @@ function goHome(){
     revealedClues={escena:[],testigos:[],pruebas:[]};
     window.scrollTo(0,0);
     setTimeout(()=>{ DetectiveRank.updateBadge();
-updateScoreboard(); updateScoreboard(); }, 600);
+updateScoreboard();
+setLang(currentLang); // apply saved language updateScoreboard(); }, 600);
   });
 }
 
@@ -2036,7 +2322,7 @@ function switchTab(panelId, btn){
 }
 
 function restartCase(){
-  if(!confirm('¿Reiniciar la investigación? Se borrarán todas las pistas descubiertas.')) return;
+  if(!confirm(tr('restart_confirm'))) return;
   startCase(currentCase);
 }
 
@@ -2059,9 +2345,9 @@ function renderClues(type,clues){
       <div class="clue-header">
         <span class="clue-icon">${cl.icon}</span>
         <span class="clue-q">${cl.q}</span>
-        <span class="clue-status pending" id="cs-${type}-${i}">Examinar →</span>
+        <span class="clue-status pending" id="cs-${type}-${i}">${tr('clue_examine')}</span>
       </div>
-      <div class="clue-answer">${cl.a}<br><span class="clue-note">◆ Pista registrada en el expediente</span></div>`;
+      <div class="clue-answer">${cl.a}<br><span class="clue-note">${tr('clue_note')}</span></div>`;
     div.onclick=()=>revealClue(type,i,div,cl);
     container.appendChild(div);
   });
@@ -2078,7 +2364,7 @@ function revealClue(type,i,div,cl){
     .to(flashEl,{opacity:0,duration:.25,ease:'power2.out'});
 
   div.classList.add('revealed');
-  div.querySelector('.clue-status').textContent='✓ Analizado';
+  div.querySelector('.clue-status').textContent=tr('clue_analyzed');
   // Remove classified stamp
   const _stamp=div.querySelector('.clue-stamp');
   if(_stamp) gsap.to(_stamp,{opacity:0,scale:1.1,duration:.3,onComplete:()=>_stamp.remove()});
@@ -2098,7 +2384,7 @@ function revealClue(type,i,div,cl){
 function updateProgress(type){
   const total=CASES[currentCase][type].length;
   const done=revealedClues[type].length;
-  document.getElementById(`prog-${type}-txt`).textContent=`${done} / ${total} pistas`;
+  document.getElementById(`prog-${type}-txt`).textContent=`${done} / ${total} ${tr('progress_clues')}`;
   document.getElementById(`prog-${type}-fill`).style.width=(total?done/total*100:0)+'%';
 }
 
@@ -2145,7 +2431,7 @@ function selectSuspect(i,name,card){
   });
 
   document.getElementById('btn-accuse').disabled=false;
-  document.getElementById('accuse-sub').textContent=`Sospechoso seleccionado: ${name}. ¿Presentas la acusación formal?`;
+  document.getElementById('accuse-sub').textContent=tr('suspect_sel').replace('{n}',name);
 
   // Interrogation modal
   const _c=CASES[currentCase];
@@ -2175,15 +2461,15 @@ function makeAccusation(){
       ? 'rgba(74,154,90,.15)' : 'rgba(154,48,48,.15)';
     document.getElementById('vd-icon-wrap').style.borderColor = correct
       ? 'rgba(74,154,90,.3)' : 'rgba(154,48,48,.3)';
-    document.getElementById('vd-result').textContent     = correct?'Caso resuelto':'Acusación incorrecta';
+    document.getElementById('vd-result').textContent     = correct?tr('verdict_ok'):tr('verdict_fail');
     document.getElementById('vd-result').className       = 'verdict-result '+(correct?'correct':'wrong');
-    document.getElementById('vd-accused').textContent    = `Has acusado a: ${selectedSusp}`+(correct?'':` · El culpable era ${c.killer}`);
+    document.getElementById('vd-accused').textContent    = correct ? tr('accused_ok').replace('{n}',selectedSusp) : tr('accused_fail').replace('{n}',selectedSusp).replace('{k}',c.killer);
     document.getElementById('vd-explanation').innerHTML  = c.explanation;
     document.getElementById('vd-score').textContent      = score;
 
     const btnNext=document.getElementById('btn-next-case');
     btnNext.disabled=false;
-    btnNext.textContent=currentCase<CASES.length-1?'Siguiente caso →':'Volver al inicio';
+    btnNext.textContent=currentCase<CASES.length-1?tr('btn_next'):tr('btn_final');
 
     // Animación de entrada del veredicto
     setTimeout(()=>animateVerdict(correct),100);
@@ -2756,14 +3042,7 @@ let currentPlayer = null; // 'Ruslan' | 'Anabel'
 
 const PLAYERS = ['Ruslan','Anabel'];
 
-const RANKS_FEMALE = [
-  {min:0,    icon:'🔍', title:'Detective Novata'},
-  {min:5,    icon:'📋', title:'Inspectora'},
-  {min:15,   icon:'🗂️', title:'Investigadora Senior'},
-  {min:30,   icon:'⚖️', title:'Fiscal Especial'},
-  {min:50,   icon:'🏛️', title:'Jueza de Instrucción'},
-  {min:80,   icon:'🎖️', title:'Maestra Detective'},
-];
+/* RANKS_FEMALE reemplazado por tr() */
 
 function getPlayerPts(name){
   return DB.pts(name);
@@ -2775,19 +3054,19 @@ function addPlayerPts(name, pts){
   if(DB._data[name]) DB._data[name].total_pts = cur+pts;
   return cur+pts;
 }
+const RANK_THRESHOLDS = [
+  {min:0, key:'rank_0'},{min:5, key:'rank_1'},{min:15, key:'rank_2'},
+  {min:30,key:'rank_3'},{min:50,key:'rank_4'},{min:80, key:'rank_5'},
+];
+const RANK_ICONS = ['🔍','📋','🗂️','⚖️','🏛️','🎖️'];
+
 function getPlayerRank(name){
   const pts = getPlayerPts(name);
-  const RANKS_LIST = name==='Anabel' ? RANKS_FEMALE : [
-    {min:0,    icon:'🔍', title:'Detective Novato'},
-    {min:5,    icon:'📋', title:'Inspector'},
-    {min:15,   icon:'🗂️', title:'Investigador Senior'},
-    {min:30,   icon:'⚖️', title:'Fiscal Especial'},
-    {min:50,   icon:'🏛️', title:'Juez de Instrucción'},
-    {min:80,   icon:'🎖️', title:'Maestro Detective'},
-  ];
-  let r = RANKS_LIST[0];
-  for(const rank of RANKS_LIST){ if(pts>=rank.min) r=rank; }
-  return r;
+  const female = name==='Anabel';
+  let idx=0;
+  RANK_THRESHOLDS.forEach((r,i)=>{ if(pts>=r.min) idx=i; });
+  const key = RANK_THRESHOLDS[idx].key + (female?'f':'');
+  return { title: tr(key), icon: RANK_ICONS[idx] };
 }
 
 function updateScoreboard(){
@@ -2856,10 +3135,10 @@ function selectPlayer(name, emoji){
         const tabs   = document.getElementById('inv-tabs');
         const tabIds = ['escena','testigos','sospechosos','pruebas'];
         tabs.innerHTML='';
-        ci.tabs.forEach((t,i)=>{
+        ci.tabs.forEach((_tl,i)=>{
           const b=document.createElement('button');
           b.className='inv-tab'+(i===0?' active':'');
-          b.textContent=t;b.onclick=()=>switchTab(tabIds[i],b);
+          b.textContent=tr(TAB_KEYS[i]);b.onclick=()=>switchTab(tabIds[i],b);
           tabs.appendChild(b);
         });
 
@@ -2964,6 +3243,22 @@ function selectPlayer(name, emoji){
       <span class="pm-player-pts" id="pm-pts-Anabel">0 pts</span>
     </button>
   </div>
+</div>
+
+
+<!-- ════ SELECTOR IDIOMA ════ -->
+<div id="lang-picker">
+  <button class="lang-btn active" data-lang="es" onclick="setLang('es')">
+    <span class="lang-flag">🇪🇸</span> ES
+  </button>
+  <span class="lang-sep">·</span>
+  <button class="lang-btn" data-lang="ca" onclick="setLang('ca')">
+    <span class="lang-flag">🏴󠁥󠁳󠁣󠁴󠁿</span> CA
+  </button>
+  <span class="lang-sep">·</span>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">
+    <span class="lang-flag">🇬🇧</span> EN
+  </button>
 </div>
 
 </body>
