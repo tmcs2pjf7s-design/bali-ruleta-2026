@@ -3522,60 +3522,39 @@ const rushflix = (()=>{
   }
 
   /* ── lanzar plataforma ── */
-  function launch(name, url, _c1, _c2){
-    _currentUrl  = url;
-    _currentName = name;
-    const viewer = _el('rfx-viewer');
-    const iframe  = _el('rfx-viewer-iframe');
-    const blocked = _el('rfx-blocked');
-    const title   = _el('rfx-viewer-title');
+  function launch(name, url){
+    // Las plataformas bloquean iframes — abrimos directamente
+    window.open(url, '_blank', 'noopener');
+    // Feedback visual en la card
+    _showLaunchToast(name);
+  }
 
-    viewer.classList.add('active');
-    blocked.classList.remove('show');
-    title.textContent = name;
-    iframe.src = '';
-
-    // pequeña animación de carga
+  function _showLaunchToast(name){
+    const existing = document.getElementById('rfx-launch-toast');
+    if(existing) existing.remove();
+    const t = document.createElement('div');
+    t.id = 'rfx-launch-toast';
+    t.style.cssText = `
+      position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:rgba(20,20,28,.95);border:1px solid rgba(255,255,255,.12);
+      color:#fff;padding:12px 24px;border-radius:50px;font-size:.78rem;
+      letter-spacing:.06em;z-index:99999;opacity:0;transition:all .3s;
+      pointer-events:none;backdrop-filter:blur(12px);white-space:nowrap;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+    `;
+    t.innerHTML = `▶ Abriendo <strong>${name}</strong> en nueva pestaña…`;
+    document.body.appendChild(t);
+    requestAnimationFrame(()=>{
+      t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+    });
     setTimeout(()=>{
-      iframe.src = url;
-    }, 150);
-
-    // detectar si el iframe fue bloqueado (load sin contenido real)
-    const onLoad = ()=>{
-      iframe.removeEventListener('load', onLoad);
-      try {
-        // si podemos acceder al href es que cargó en mismo origen (poco probable)
-        const loc = iframe.contentWindow?.location?.href;
-        if(!loc || loc==='about:blank') blocked.classList.add('show');
-      } catch(e){
-        // cross-origin → el iframe cargó pero no podemos acceder = probablemente OK
-        // Si falló X-Frame-Options el browser habrá vaciado el src
-        setTimeout(()=>{
-          try{
-            if(iframe.contentDocument?.body?.innerHTML==='' || !iframe.src)
-              blocked.classList.add('show');
-          }catch(_){
-            // cross-origin cargado correctamente — no hacer nada
-          }
-        }, 2000);
-      }
-    };
-    iframe.addEventListener('load', onLoad);
+      t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)';
+      setTimeout(()=>t.remove(), 350);
+    }, 2500);
   }
 
-  /* ── cerrar viewer ── */
-  function closeViewer(){
-    const viewer = _el('rfx-viewer');
-    const iframe  = _el('rfx-viewer-iframe');
-    viewer.classList.remove('active');
-    iframe.src = '';
-    _el('rfx-blocked').classList.remove('show');
-  }
-
-  /* ── abrir en nueva pestaña ── */
-  function openTab(){
-    if(_currentUrl) window.open(_currentUrl, '_blank', 'noopener');
-  }
+  function closeViewer(){} // no-op, kept for compatibility
+  function openTab(){}
 
   /* ── Mi lista custom ── */
   function loadCustom(){
@@ -3677,24 +3656,6 @@ const rushflix = (()=>{
 ══════════════════════════════════════ -->
 <div id="rushflix-overlay">
 
-  <!-- Viewer de iframe -->
-  <div id="rfx-viewer">
-    <div id="rfx-viewer-bar">
-      <span id="rfx-viewer-title">Cargando…</span>
-      <button class="rfx-viewer-btn" onclick="rushflix.openTab()">↗ Nueva pestaña</button>
-      <button class="rfx-viewer-btn danger" onclick="rushflix.closeViewer()">✕ Cerrar</button>
-    </div>
-    <iframe id="rfx-viewer-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation" allowfullscreen></iframe>
-    <div id="rfx-blocked">
-      <div class="rfx-blocked-icon">🔒</div>
-      <div class="rfx-blocked-title">Esta plataforma bloquea la carga integrada</div>
-      <div class="rfx-blocked-sub">Netflix, HBO Max y otras plataformas impiden que se muestren dentro de otras webs por razones de seguridad. Ábrela en una pestaña nueva.</div>
-      <div class="rfx-blocked-actions">
-        <button class="rfx-viewer-btn" onclick="rushflix.openTab()">↗ Abrir en nueva pestaña</button>
-        <button class="rfx-viewer-btn danger" onclick="rushflix.closeViewer()">Volver a Rushflix</button>
-      </div>
-    </div>
-  </div>
 
   <!-- Hub principal -->
   <div class="rfx-header">
