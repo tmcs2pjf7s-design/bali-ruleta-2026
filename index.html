@@ -1546,6 +1546,41 @@ h1 em{
 }
 .rfx-btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
 
+/* Geo banner */
+.rfx-geo-banner{
+  display:flex;align-items:flex-start;gap:16px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-left:3px solid #e8202a;
+  border-radius:8px;padding:18px 20px;margin-bottom:20px;
+}
+.rfx-geo-flag{font-size:2rem;flex-shrink:0;line-height:1;margin-top:2px}
+.rfx-geo-title{font-size:.88rem;font-weight:600;color:#fff;margin-bottom:6px}
+.rfx-geo-sub{font-size:.76rem;color:rgba(255,255,255,.45);line-height:1.6}
+
+.rfx-grid-4{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+
+/* VPN steps */
+.rfx-vpn-steps{
+  display:flex;gap:0;margin-bottom:36px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;overflow:hidden;flex-wrap:wrap;
+}
+.rfx-vpn-step{
+  flex:1;min-width:180px;
+  display:flex;align-items:center;gap:14px;
+  padding:16px 20px;
+  border-right:1px solid rgba(255,255,255,.06);
+  font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.4;
+}
+.rfx-vpn-step:last-child{border-right:none}
+.rfx-vpn-step strong{color:rgba(255,255,255,.75)}
+.rfx-vpn-num{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#c0152a,#e8202a);
+  color:#fff;font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+
 @media(max-width:600px){
   .rfx-header{padding:16px 20px}
   .rfx-body{padding:0 16px 32px}
@@ -3768,6 +3803,97 @@ const rushflix = (()=>{
         </div>
       </div>
 
+    </div>
+
+    <!-- Desde el extranjero -->
+    <div class="rfx-section-title">🌏 Desde Australia · Necesitas VPN española</div>
+    <div class="rfx-geo-banner">
+      <div class="rfx-geo-flag">🇪🇸</div>
+      <div class="rfx-geo-info">
+        <div class="rfx-geo-title">Estás fuera de España — tu IP es australiana</div>
+        <div class="rfx-geo-sub">Movistar+, Atresplayer, Mitele y RTVE detectan tu ubicación y bloquean el acceso. La solución: activar una VPN con servidor en España antes de abrir la plataforma.</div>
+      </div>
+    </div>
+    <div class="rfx-grid rfx-grid-4">
+
+      <div class="rfx-card" onclick="rushflix.launch('NordVPN','https://nordvpn.com/es/servers/spain/')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0a0e2a,#1a2060)">
+          <div class="rfx-card-logo" style="font-size:1.1rem;color:#4b86ff;letter-spacing:.04em;font-weight:900">NORD<span style="color:#fff">VPN</span></div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">→</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">NordVPN</div>
+          <div class="rfx-card-type">Servidores España · Rápido</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Surfshark','https://surfshark.com/servers/spain')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0a1e2a,#0e3a4a)">
+          <div class="rfx-card-logo" style="font-size:1rem;color:#1be8c8;letter-spacing:.04em;font-weight:700">SURFSHARK</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">→</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Surfshark</div>
+          <div class="rfx-card-type">Barato · Multidispositivo</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('RTVE Play','https://www.rtve.es/play/')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#1a0000,#3a0a0a)">
+          <div class="rfx-card-logo" style="font-size:1.4rem;color:#e8202a;letter-spacing:.02em;font-weight:900">RTVE</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">RTVE Play</div>
+          <div class="rfx-card-type">Gratis · Con VPN España</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Atresplayer','https://www.atresplayer.com')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0e0e1a,#1a1a3a)">
+          <div class="rfx-card-logo" style="font-size:.85rem;color:#fff;letter-spacing:.06em;font-weight:700">ATRESPLAYER</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Atresplayer</div>
+          <div class="rfx-card-type">A3 · LaSexta · Con VPN</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Mitele','https://www.mitele.es')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#1a0a00,#2a1000)">
+          <div class="rfx-card-logo" style="font-size:1.6rem;color:#ff6600;letter-spacing:-.02em;font-weight:900">mitele</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Mitele</div>
+          <div class="rfx-card-type">Telecinco · Cuatro · Con VPN</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('TVE Internacional','https://www.rtve.es/play/television/canal-24h/')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0a1a0a,#1a3a1a)">
+          <div class="rfx-card-logo" style="font-size:1rem;color:#4caf50;letter-spacing:.05em;font-weight:700">TVE INTL</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Canal 24H</div>
+          <div class="rfx-card-type">Noticias · A veces sin VPN</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="rfx-vpn-steps">
+      <div class="rfx-vpn-step"><span class="rfx-vpn-num">1</span><span>Instala NordVPN o Surfshark en tu dispositivo</span></div>
+      <div class="rfx-vpn-step"><span class="rfx-vpn-num">2</span><span>Conecta a un servidor de <strong>España</strong></span></div>
+      <div class="rfx-vpn-step"><span class="rfx-vpn-num">3</span><span>Abre la plataforma desde aquí — tu IP ya será española</span></div>
     </div>
 
     <!-- Mi lista (personalizadas, guardadas en localStorage) -->
