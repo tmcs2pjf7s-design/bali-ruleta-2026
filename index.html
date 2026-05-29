@@ -1323,7 +1323,236 @@ h1 em{
 .btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(184,64,16,.5),0 0 0 1px rgba(232,186,42,.3)}
 .btn-login:active{transform:scale(.98)}
 .login-hint{margin-top:14px;font-size:.7rem;color:var(--t3);opacity:.55;letter-spacing:.04em}
-  </style>
+  
+/* ══════════════════════════════════════════════════════
+   RUSHFLIX — botón
+══════════════════════════════════════════════════════ */
+.btn-rushflix{
+  position:fixed;bottom:68px;right:20px;
+  background:linear-gradient(135deg,#8b0000,#c0152a);
+  border:1px solid rgba(255,80,80,.25);
+  border-radius:50px;padding:9px 18px;
+  color:#fff;font-size:.72rem;font-weight:700;cursor:pointer;
+  backdrop-filter:blur(14px);z-index:990;transition:all .28s;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+  box-shadow:0 4px 24px rgba(160,10,30,.45);
+  text-decoration:none;letter-spacing:.04em;
+}
+.btn-rushflix:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(192,21,42,.55);
+  border-color:rgba(255,100,100,.5);
+}
+.btn-rushflix-ico{font-size:1rem}
+
+/* ══════════════════════════════════════════════════════
+   RUSHFLIX — overlay principal
+══════════════════════════════════════════════════════ */
+#rushflix-overlay{
+  position:fixed;inset:0;z-index:9800;
+  background:#0a0a0f;
+  display:none;flex-direction:column;
+  font-family:'DM Sans',sans-serif;
+  overflow:hidden;
+}
+#rushflix-overlay.open{display:flex}
+
+/* Header */
+.rfx-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 40px;
+  background:linear-gradient(180deg,rgba(10,10,15,1) 0%,transparent 100%);
+  position:relative;z-index:2;flex-shrink:0;
+}
+.rfx-logo{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,4vw,2.4rem);
+  font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#e8202a 0%,#ff6040 60%,#ffb020 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  text-shadow:none;
+}
+.rfx-logo span{
+  font-style:italic;
+  background:linear-gradient(135deg,#ff6040,#ffb020);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.rfx-tagline{
+  font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-top:2px;
+}
+.rfx-close{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer;
+  padding:8px 16px;border-radius:4px;transition:all .2s;
+  display:flex;align-items:center;gap:6px;font-size:.75rem;letter-spacing:.1em;
+}
+.rfx-close:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* Main content (hub or iframe mode) */
+.rfx-body{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:0 40px 40px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
+}
+
+/* Section title */
+.rfx-section-title{
+  font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:20px;padding-top:32px;
+}
+
+/* Platform grid */
+.rfx-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;
+  margin-bottom:40px;
+}
+
+.rfx-card{
+  position:relative;border-radius:10px;overflow:hidden;
+  cursor:pointer;transition:transform .25s,box-shadow .25s;
+  aspect-ratio:16/9;
+  border:1px solid rgba(255,255,255,.06);
+}
+.rfx-card:hover{
+  transform:scale(1.04) translateY(-3px);
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  border-color:rgba(255,255,255,.18);
+  z-index:2;
+}
+.rfx-card-bg{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.rfx-card-logo{
+  font-family:'Playfair Display',serif;
+  font-weight:900;letter-spacing:-.02em;
+  text-align:center;line-height:1;
+  position:relative;z-index:1;
+  text-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+.rfx-card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.7) 100%);
+}
+.rfx-card-footer{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:12px 14px 14px;z-index:2;
+}
+.rfx-card-name{
+  font-size:.78rem;font-weight:600;color:#fff;
+  margin-bottom:2px;letter-spacing:.03em;
+}
+.rfx-card-type{
+  font-size:.6rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;
+}
+.rfx-card-play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+  background:rgba(255,255,255,.9);color:#000;
+  border-radius:50%;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;z-index:3;
+  transition:transform .2s,opacity .2s;
+  padding-left:4px;
+}
+.rfx-card:hover .rfx-card-play{transform:translate(-50%,-50%) scale(1)}
+
+/* Iframe viewer mode */
+#rfx-viewer{
+  display:none;position:absolute;inset:0;z-index:10;
+  flex-direction:column;background:#000;
+}
+#rfx-viewer.active{display:flex}
+#rfx-viewer-bar{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 20px;background:rgba(0,0,0,.9);flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+#rfx-viewer-title{
+  font-size:.8rem;font-weight:600;color:#fff;flex:1;
+}
+#rfx-viewer-iframe{
+  flex:1;border:none;width:100%;height:100%;background:#000;
+}
+.rfx-viewer-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.7);font-size:.7rem;letter-spacing:.1em;
+  padding:6px 14px;border-radius:3px;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.rfx-viewer-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+.rfx-viewer-btn.danger{border-color:rgba(200,30,30,.4);color:rgba(255,80,80,.8)}
+.rfx-viewer-btn.danger:hover{background:rgba(180,20,20,.2)}
+
+/* Blocked notice */
+#rfx-blocked{
+  display:none;position:absolute;inset:0;z-index:11;
+  background:rgba(10,10,15,.97);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;text-align:center;padding:40px;
+}
+#rfx-blocked.show{display:flex}
+.rfx-blocked-icon{font-size:3rem;opacity:.4}
+.rfx-blocked-title{font-size:1.1rem;color:#fff;font-weight:600}
+.rfx-blocked-sub{font-size:.8rem;color:rgba(255,255,255,.4);max-width:400px;line-height:1.6}
+.rfx-blocked-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+
+/* Custom platform add */
+.rfx-add-card{
+  border:2px dashed rgba(255,255,255,.1);border-radius:10px;
+  aspect-ratio:16/9;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;transition:border-color .2s,background .2s;
+  color:rgba(255,255,255,.25);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+}
+.rfx-add-card:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.03);color:rgba(255,255,255,.5)}
+.rfx-add-icon{font-size:1.6rem;opacity:.4}
+
+/* Add platform modal */
+#rfx-add-modal{
+  display:none;position:absolute;inset:0;z-index:20;
+  background:rgba(0,0,0,.85);align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);
+}
+#rfx-add-modal.open{display:flex}
+.rfx-modal-box{
+  background:#13131a;border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:32px;width:100%;max-width:440px;
+}
+.rfx-modal-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:20px}
+.rfx-input{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:#fff;padding:10px 14px;border-radius:6px;font-size:.85rem;
+  outline:none;margin-bottom:12px;transition:border-color .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.rfx-input:focus{border-color:rgba(255,80,80,.5)}
+.rfx-input::placeholder{color:rgba(255,255,255,.25)}
+.rfx-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.rfx-btn-primary{
+  background:linear-gradient(135deg,#c0152a,#e8202a);
+  border:none;color:#fff;padding:9px 20px;border-radius:6px;
+  font-size:.78rem;font-weight:600;cursor:pointer;transition:opacity .2s;letter-spacing:.05em;
+}
+.rfx-btn-primary:hover{opacity:.85}
+.rfx-btn-ghost{
+  background:none;border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.5);padding:9px 20px;border-radius:6px;
+  font-size:.78rem;cursor:pointer;transition:all .2s;
+}
+.rfx-btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
+
+@media(max-width:600px){
+  .rfx-header{padding:16px 20px}
+  .rfx-body{padding:0 16px 32px}
+  .rfx-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+}
+
+</style>
 </head>
 <body>
 
@@ -3267,6 +3496,341 @@ $('btn-map-result').addEventListener('click', ()=>{
   /* ── Init ── */
   loadMessages();
 })();
+
+/* ══════════════════════════════════════════════════════
+   RUSHFLIX
+══════════════════════════════════════════════════════ */
+const rushflix = (()=>{
+  const STORAGE_KEY = 'rushflix_custom_v1';
+  let _currentUrl = '';
+  let _currentName = '';
+
+  function _el(id){ return document.getElementById(id); }
+
+  /* ── abrir hub ── */
+  function open(){
+    _el('rushflix-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    renderCustom();
+  }
+
+  /* ── cerrar hub ── */
+  function close(){
+    _el('rushflix-overlay').classList.remove('open');
+    document.body.style.overflow='';
+    closeViewer();
+  }
+
+  /* ── lanzar plataforma ── */
+  function launch(name, url, _c1, _c2){
+    _currentUrl  = url;
+    _currentName = name;
+    const viewer = _el('rfx-viewer');
+    const iframe  = _el('rfx-viewer-iframe');
+    const blocked = _el('rfx-blocked');
+    const title   = _el('rfx-viewer-title');
+
+    viewer.classList.add('active');
+    blocked.classList.remove('show');
+    title.textContent = name;
+    iframe.src = '';
+
+    // pequeña animación de carga
+    setTimeout(()=>{
+      iframe.src = url;
+    }, 150);
+
+    // detectar si el iframe fue bloqueado (load sin contenido real)
+    const onLoad = ()=>{
+      iframe.removeEventListener('load', onLoad);
+      try {
+        // si podemos acceder al href es que cargó en mismo origen (poco probable)
+        const loc = iframe.contentWindow?.location?.href;
+        if(!loc || loc==='about:blank') blocked.classList.add('show');
+      } catch(e){
+        // cross-origin → el iframe cargó pero no podemos acceder = probablemente OK
+        // Si falló X-Frame-Options el browser habrá vaciado el src
+        setTimeout(()=>{
+          try{
+            if(iframe.contentDocument?.body?.innerHTML==='' || !iframe.src)
+              blocked.classList.add('show');
+          }catch(_){
+            // cross-origin cargado correctamente — no hacer nada
+          }
+        }, 2000);
+      }
+    };
+    iframe.addEventListener('load', onLoad);
+  }
+
+  /* ── cerrar viewer ── */
+  function closeViewer(){
+    const viewer = _el('rfx-viewer');
+    const iframe  = _el('rfx-viewer-iframe');
+    viewer.classList.remove('active');
+    iframe.src = '';
+    _el('rfx-blocked').classList.remove('show');
+  }
+
+  /* ── abrir en nueva pestaña ── */
+  function openTab(){
+    if(_currentUrl) window.open(_currentUrl, '_blank', 'noopener');
+  }
+
+  /* ── Mi lista custom ── */
+  function loadCustom(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
+    catch{ return []; }
+  }
+  function saveToStorage(list){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+  function renderCustom(){
+    const list = loadCustom();
+    const grid = _el('rfx-custom-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+
+    list.forEach((item, i)=>{
+      const card = document.createElement('div');
+      card.className = 'rfx-card';
+      card.style.cssText = `background:linear-gradient(135deg,#111,#1e1e2a)`;
+      card.innerHTML = `
+        <div class="rfx-card-bg" style="background:#0e0e18">
+          <div class="rfx-card-logo" style="font-size:2.2rem">${item.emoji||'🔗'}</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">${item.name}</div>
+          <div class="rfx-card-type">${new URL(item.url).hostname}</div>
+        </div>
+        <button onclick="event.stopPropagation();rushflix.removeCustom(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:none;color:rgba(255,255,255,.5);border-radius:50%;width:24px;height:24px;font-size:.7rem;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;transition:background .2s" onmouseover="this.style.background='rgba(180,20,20,.7)'" onmouseout="this.style.background='rgba(0,0,0,.6)'">✕</button>`;
+      card.addEventListener('click', ()=> launch(item.name, item.url));
+      grid.appendChild(card);
+    });
+
+    // botón añadir
+    const addCard = document.createElement('div');
+    addCard.className = 'rfx-add-card';
+    addCard.onclick = openAddModal;
+    addCard.innerHTML = `<span class="rfx-add-icon">+</span><span>Añadir plataforma</span>`;
+    grid.appendChild(addCard);
+  }
+
+  function removeCustom(i){
+    const list = loadCustom();
+    list.splice(i, 1);
+    saveToStorage(list);
+    renderCustom();
+  }
+
+  function openAddModal(){
+    _el('rfx-add-modal').classList.add('open');
+    setTimeout(()=>_el('rfx-add-name').focus(), 100);
+  }
+  function closeAddModal(){
+    _el('rfx-add-modal').classList.remove('open');
+    _el('rfx-add-name').value='';
+    _el('rfx-add-url').value='';
+    _el('rfx-add-emoji').value='';
+  }
+  function saveCustom(){
+    const name  = _el('rfx-add-name').value.trim();
+    const url   = _el('rfx-add-url').value.trim();
+    const emoji = _el('rfx-add-emoji').value.trim()||'🔗';
+    if(!name||!url) return;
+    let fullUrl = url;
+    if(!/^https?:\/\//i.test(fullUrl)) fullUrl = 'https://'+fullUrl;
+    try{ new URL(fullUrl); } catch{ alert('URL no válida'); return; }
+    const list = loadCustom();
+    list.push({name, url:fullUrl, emoji});
+    saveToStorage(list);
+    closeAddModal();
+    renderCustom();
+  }
+
+  // cerrar con Escape
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){
+      if(_el('rfx-add-modal').classList.contains('open')){ closeAddModal(); return; }
+      if(_el('rfx-viewer').classList.contains('active')){ closeViewer(); return; }
+      if(_el('rushflix-overlay').classList.contains('open')){ close(); }
+    }
+  });
+
+  return {open, close, launch, closeViewer, openTab, saveCustom, closeAddModal,
+          openAddModal, removeCustom, renderCustom};
+})();
+
 </script>
+
+<!-- ══════════════════════════════════════
+     RUSHFLIX — botón
+══════════════════════════════════════ -->
+<button class="btn-rushflix" onclick="rushflix.open()">
+  <span class="btn-rushflix-ico">🎬</span> Rushflix
+</button>
+
+<!-- ══════════════════════════════════════
+     RUSHFLIX — overlay
+══════════════════════════════════════ -->
+<div id="rushflix-overlay">
+
+  <!-- Viewer de iframe -->
+  <div id="rfx-viewer">
+    <div id="rfx-viewer-bar">
+      <span id="rfx-viewer-title">Cargando…</span>
+      <button class="rfx-viewer-btn" onclick="rushflix.openTab()">↗ Nueva pestaña</button>
+      <button class="rfx-viewer-btn danger" onclick="rushflix.closeViewer()">✕ Cerrar</button>
+    </div>
+    <iframe id="rfx-viewer-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation" allowfullscreen></iframe>
+    <div id="rfx-blocked">
+      <div class="rfx-blocked-icon">🔒</div>
+      <div class="rfx-blocked-title">Esta plataforma bloquea la carga integrada</div>
+      <div class="rfx-blocked-sub">Netflix, HBO Max y otras plataformas impiden que se muestren dentro de otras webs por razones de seguridad. Ábrela en una pestaña nueva.</div>
+      <div class="rfx-blocked-actions">
+        <button class="rfx-viewer-btn" onclick="rushflix.openTab()">↗ Abrir en nueva pestaña</button>
+        <button class="rfx-viewer-btn danger" onclick="rushflix.closeViewer()">Volver a Rushflix</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hub principal -->
+  <div class="rfx-header">
+    <div>
+      <div class="rfx-logo">Rush<span>flix</span></div>
+      <div class="rfx-tagline">Tu cine · Tu serie · Tu mundo</div>
+    </div>
+    <button class="rfx-close" onclick="rushflix.close()">✕ Salir</button>
+  </div>
+
+  <div class="rfx-body" id="rfx-body">
+
+    <!-- Plataformas predefinidas -->
+    <div class="rfx-section-title">Plataformas</div>
+    <div class="rfx-grid" id="rfx-platforms-grid">
+
+      <div class="rfx-card" onclick="rushflix.launch('Max','https://play.max.com','#6b2fa0','#9b59b6')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0f0720,#2a0e52)">
+          <div class="rfx-card-logo" style="font-size:2.6rem;color:#fff;letter-spacing:-.05em">max</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Max</div>
+          <div class="rfx-card-type">HBO · Warner · DC</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Netflix','https://www.netflix.com','#e50914','#b20710')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#141414,#1a0000)">
+          <div class="rfx-card-logo" style="font-size:2rem;color:#e50914;letter-spacing:-.04em;font-family:'Playfair Display',serif">NETFLIX</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Netflix</div>
+          <div class="rfx-card-type">Series · Películas · Docs</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Disney+','https://www.disneyplus.com','#113ccf','#1f54f0')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#011328,#0a2a6e)">
+          <div class="rfx-card-logo" style="font-size:1.5rem;color:#fff;letter-spacing:.02em">DISNEY+</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Disney+</div>
+          <div class="rfx-card-type">Marvel · Star Wars · Pixar</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Prime Video','https://www.primevideo.com','#00a8e1','#0094c6')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#05141f,#0a2a3a)">
+          <div class="rfx-card-logo" style="font-size:1.1rem;color:#00a8e1;letter-spacing:.05em;font-weight:700">prime video</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Prime Video</div>
+          <div class="rfx-card-type">Amazon Originals</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Apple TV+','https://tv.apple.com','#a3a3a3','#888')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#000,#1a1a1a)">
+          <div class="rfx-card-logo" style="font-size:1.8rem;color:#fff"> TV+</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Apple TV+</div>
+          <div class="rfx-card-type">Apple Originals</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Movistar+','https://ver.movistarplus.es','#009edb','#007ab8')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#001a2e,#003d6e)">
+          <div class="rfx-card-logo" style="font-size:1rem;color:#fff;letter-spacing:.04em;font-weight:700">movistar+</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Movistar+</div>
+          <div class="rfx-card-type">Deportes · Canales · Series</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Filmin','https://www.filmin.es','#e8642c','#c85020')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#1a0800,#3d1500)">
+          <div class="rfx-card-logo" style="font-size:2rem;color:#e8642c;letter-spacing:-.02em">filmin</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Filmin</div>
+          <div class="rfx-card-type">Cine independiente · Docs</div>
+        </div>
+      </div>
+
+      <div class="rfx-card" onclick="rushflix.launch('Crunchyroll','https://www.crunchyroll.com','#f47521','#d45f10')">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#1a0a00,#3a1500)">
+          <div class="rfx-card-logo" style="font-size:1rem;color:#f47521;letter-spacing:.05em;font-weight:700">CRUNCHYROLL</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Crunchyroll</div>
+          <div class="rfx-card-type">Anime · Manga</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Mi lista (personalizadas, guardadas en localStorage) -->
+    <div class="rfx-section-title">Mi lista</div>
+    <div class="rfx-grid" id="rfx-custom-grid">
+      <!-- Se carga desde localStorage -->
+    </div>
+
+    <!-- Add platform modal -->
+    <div id="rfx-add-modal">
+      <div class="rfx-modal-box">
+        <div class="rfx-modal-title">➕ Añadir plataforma</div>
+        <input class="rfx-input" id="rfx-add-name" placeholder="Nombre (ej: RTVE Play)" maxlength="30">
+        <input class="rfx-input" id="rfx-add-url" placeholder="URL (https://...)" type="url">
+        <input class="rfx-input" id="rfx-add-emoji" placeholder="Emoji o icono (opcional)" maxlength="4">
+        <div class="rfx-modal-actions">
+          <button class="rfx-btn-ghost" onclick="rushflix.closeAddModal()">Cancelar</button>
+          <button class="rfx-btn-primary" onclick="rushflix.saveCustom()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
