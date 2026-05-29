@@ -1622,6 +1622,34 @@ h1 em{
 }
 .rfx-vpn-ok-msg strong{color:#2ecc71}
 
+/* Proxy panel */
+.rfx-proxy-box{
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;overflow:hidden;margin-bottom:4px;
+}
+.rfx-proxy-status{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);
+  font-size:.75rem;color:rgba(255,255,255,.5);
+}
+.rfx-proxy-info{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.rfx-proxy-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rfx-proxy-label{
+  font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);width:80px;flex-shrink:0;
+}
+.rfx-proxy-val{
+  flex:1;font-size:.75rem;color:#7ec8e3;
+  background:rgba(255,255,255,.04);padding:5px 10px;border-radius:4px;
+  word-break:break-all;min-width:0;
+}
+.rfx-copy-btn{
+  flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);font-size:.65rem;letter-spacing:.1em;
+  padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.rfx-copy-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+
 /* Geo banner */
 .rfx-geo-banner{
   display:flex;align-items:flex-start;gap:16px;
@@ -3633,6 +3661,7 @@ const rushflix = (()=>{
     }
     // Comprobar IP / VPN
     checkVPN();
+    testProxy();
   }
 
   /* ── detección de país via IP ── */
@@ -3695,7 +3724,73 @@ const rushflix = (()=>{
     }
   }
 
-  /* ── abrir extensiones VPN ── */
+  /* ══ CONFIGURACIÓN PROXY RUSHFLIX ══
+     Cuando tengas el VPS en Vultr Madrid:
+     1. Reemplaza PROXY_HOST con tu IP del servidor
+     2. Reemplaza PROXY_USER y PROXY_PASS con tus credenciales de 3proxy
+  */
+  const PROXY_CFG = {
+    host: 'PENDIENTE',        // ← tu IP de Vultr Madrid aquí
+    port: 8080,
+    user: 'ruslan',           // ← usuario 3proxy
+    pass: 'PENDIENTE',        // ← contraseña 3proxy (NO la de HBO)
+    pac:  'PENDIENTE',        // ← http://TU_IP/rushflix.pac
+  };
+
+  function _proxyReady(){ return PROXY_CFG.host !== 'PENDIENTE'; }
+
+  function _renderProxyUI(){
+    const pacEl    = document.getElementById('rfx-pac-url');
+    const proxyEl  = document.getElementById('rfx-proxy-addr');
+    const credsEl  = document.getElementById('rfx-proxy-creds');
+    if(_proxyReady()){
+      if(pacEl)   pacEl.textContent   = PROXY_CFG.pac;
+      if(proxyEl) proxyEl.textContent = `${PROXY_CFG.host}:${PROXY_CFG.port}`;
+      if(credsEl) credsEl.innerHTML   =
+        `Usuario: <strong style="color:#fff">${PROXY_CFG.user}</strong> &nbsp;·&nbsp; Contraseña: <strong style="color:#fff">${PROXY_CFG.pass}</strong>`;
+    }
+  }
+
+  async function testProxy(){
+    if(!_proxyReady()){
+      const dot = document.getElementById('rfx-proxy-dot');
+      const txt = document.getElementById('rfx-proxy-ping-txt');
+      if(dot){ dot.className='rfx-vpn-dot fail'; }
+      if(txt) txt.textContent = '⚠️ Servidor no configurado todavía — sigue la guía de setup';
+      return;
+    }
+    const dot = document.getElementById('rfx-proxy-dot');
+    const txt = document.getElementById('rfx-proxy-ping-txt');
+    if(dot) dot.className='rfx-vpn-dot checking';
+    if(txt) txt.textContent = 'Comprobando servidor…';
+    try{
+      const t0 = Date.now();
+      await fetch(`http://${PROXY_CFG.host}/rushflix.pac`,
+        {signal: AbortSignal.timeout(4000), mode:'no-cors'});
+      const ms = Date.now()-t0;
+      if(dot){ dot.className='rfx-vpn-dot ok'; }
+      if(txt) txt.textContent = `Servidor activo · ${ms}ms de latencia`;
+    } catch(e){
+      if(dot){ dot.className='rfx-vpn-dot fail'; }
+      if(txt) txt.textContent = 'Servidor no alcanzable — comprueba que está encendido';
+    }
+  }
+
+  function copyPAC(){
+    const val = _proxyReady() ? PROXY_CFG.pac : '(servidor pendiente de configurar)';
+    navigator.clipboard?.writeText(val).then(()=>_showLaunchToast('PAC URL copiada'));
+  }
+  function copyProxy(){
+    const val = _proxyReady() ? `${PROXY_CFG.host}:${PROXY_CFG.port}` : '(servidor pendiente)';
+    navigator.clipboard?.writeText(val).then(()=>_showLaunchToast('Proxy copiado'));
+  }
+  function openChromeProxy(){
+    // macOS: abre System Preferences → Network → Proxy
+    window.open('x-apple.systempreferences:com.apple.preference.network','_self');
+    setTimeout(()=>_showLaunchToast('Ve a Red → Proxy → URL automática'),300);
+  }
+
+  /* ── abrir extensiones VPN (fallback) ── */
   const VPN_LINKS = {
     nordvpn:  'https://chrome.google.com/webstore/detail/nordvpn/fjoaledfpmneenckfbpdfhkmimnjocfa',
     surfshark:'https://chrome.google.com/webstore/detail/surfshark/ailoabdmgclmfmhdagmlohpjlbpffblp',
@@ -3830,8 +3925,12 @@ const rushflix = (()=>{
     }
   });
 
+  // Init proxy UI
+  _renderProxyUI();
+
   return {open, close, launch, launchHBO, openExt, closeViewer, openTab,
-          saveCustom, closeAddModal, openAddModal, removeCustom, renderCustom};
+          saveCustom, closeAddModal, openAddModal, removeCustom, renderCustom,
+          testProxy, copyPAC, copyProxy, openChromeProxy};
 })();
 
 </script>
@@ -3889,22 +3988,41 @@ const rushflix = (()=>{
         </div>
       </div>
 
-      <!-- Pasos de configuración (solo si no hay VPN) -->
+      <!-- Proxy Rushflix España -->
       <div id="rfx-setup-steps">
-        <div class="rfx-step-title">Cómo ver HBO España desde Australia</div>
+        <div class="rfx-step-title">Proxy Rushflix · España · Configuración única</div>
+
+        <div class="rfx-proxy-box">
+          <div class="rfx-proxy-status" id="rfx-proxy-ping">
+            <div class="rfx-vpn-dot checking" id="rfx-proxy-dot"></div>
+            <span id="rfx-proxy-ping-txt">Comprobando servidor proxy…</span>
+            <button class="rfx-step-btn" style="margin-left:auto" onclick="rushflix.testProxy()">↺ Recomprobar</button>
+          </div>
+
+          <div class="rfx-proxy-info">
+            <div class="rfx-proxy-row">
+              <span class="rfx-proxy-label">PAC URL</span>
+              <code class="rfx-proxy-val" id="rfx-pac-url">⏳ Pendiente de configurar servidor</code>
+              <button class="rfx-copy-btn" onclick="rushflix.copyPAC()" id="rfx-copy-pac">Copiar</button>
+            </div>
+            <div class="rfx-proxy-row">
+              <span class="rfx-proxy-label">Proxy directo</span>
+              <code class="rfx-proxy-val" id="rfx-proxy-addr">⏳ Pendiente de configurar servidor</code>
+              <button class="rfx-copy-btn" onclick="rushflix.copyProxy()" id="rfx-copy-proxy">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rfx-step-title" style="margin-top:20px">Cómo conectarse (una sola vez)</div>
 
         <div class="rfx-step">
           <div class="rfx-step-num">1</div>
           <div class="rfx-step-body">
-            <div class="rfx-step-name">Instala una extensión VPN en tu navegador</div>
-            <div class="rfx-step-desc">La extensión enruta solo HBO por España — el resto de tu conexión va normal.</div>
+            <div class="rfx-step-name">Chrome — Configurar proxy automático (PAC)</div>
+            <div class="rfx-step-desc">Chrome → Configuración → Sistema → Configuración del proxy → Automático → pega la PAC URL de arriba. Solo HBO irá por España, el resto de tu conexión es normal.</div>
             <div class="rfx-step-btns">
-              <button class="rfx-step-btn" onclick="rushflix.openExt('nordvpn')">
-                <span>🔵</span> NordVPN para Chrome
-              </button>
-              <button class="rfx-step-btn" onclick="rushflix.openExt('surfshark')">
-                <span>🟢</span> Surfshark para Chrome
-              </button>
+              <button class="rfx-step-btn" onclick="rushflix.openChromeProxy()">⚙️ Abrir ajustes de proxy</button>
+              <button class="rfx-step-btn" onclick="rushflix.copyPAC()">📋 Copiar PAC URL</button>
             </div>
           </div>
         </div>
@@ -3912,30 +4030,29 @@ const rushflix = (()=>{
         <div class="rfx-step">
           <div class="rfx-step-num">2</div>
           <div class="rfx-step-body">
-            <div class="rfx-step-name">Conéctate a un servidor de España</div>
-            <div class="rfx-step-desc">Abre la extensión → busca "Spain" o "España" → conectar.</div>
+            <div class="rfx-step-name">Firefox — Proxy manual</div>
+            <div class="rfx-step-desc">Firefox → Preferencias → Red → Configuración de proxy → URL de configuración automática → pega la PAC URL.</div>
           </div>
         </div>
 
         <div class="rfx-step">
           <div class="rfx-step-num">3</div>
           <div class="rfx-step-body">
-            <div class="rfx-step-name">Pulsa el botón Max de arriba</div>
-            <div class="rfx-step-desc">HBO detectará tu IP española y te dará acceso completo.</div>
+            <div class="rfx-step-name">Móvil iOS / Android</div>
+            <div class="rfx-step-desc">WiFi → Configurar proxy → Automático → pega la PAC URL. Solo funciona en esa red WiFi.</div>
           </div>
         </div>
 
         <div class="rfx-step rfx-step-alt">
-          <div class="rfx-step-num">💡</div>
+          <div class="rfx-step-num">🔑</div>
           <div class="rfx-step-body">
-            <div class="rfx-step-name">Alternativa: App VPN en tu router</div>
-            <div class="rfx-step-desc">Si configuras NordVPN en tu router, todos los dispositivos de tu casa verán una IP española sin instalar nada.</div>
-            <button class="rfx-step-btn" onclick="rushflix.openExt('router')">Ver guía de router →</button>
+            <div class="rfx-step-name">Credenciales del proxy (si las pide)</div>
+            <div class="rfx-step-desc" id="rfx-proxy-creds">El servidor pedirá usuario y contraseña al conectar.</div>
           </div>
         </div>
       </div>
 
-      <!-- Estado OK (VPN activa en España) -->
+      <!-- Estado OK -->
       <div id="rfx-vpn-ok" style="display:none">
         <div class="rfx-vpn-ok-msg">
           Tu IP es española 🇪🇸 — pulsa <strong>Max</strong> arriba para empezar.
