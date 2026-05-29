@@ -1565,6 +1565,63 @@ h1 em{
 }
 .rfx-btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
 
+/* VPN status tag on card */
+.rfx-vpn-status{transition:color .4s}
+.rfx-card-hbo{cursor:pointer}
+
+/* VPN panel */
+.rfx-vpn-panel{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:24px;margin-top:20px;
+}
+.rfx-vpn-panel-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:24px;
+}
+.rfx-vpn-dot{
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  background:#555;transition:background .5s;
+  box-shadow:0 0 0 0 transparent;
+}
+.rfx-vpn-dot.checking{background:#888;animation:vpnPulse 1.2s infinite}
+.rfx-vpn-dot.ok{background:#2ecc71;box-shadow:0 0 12px rgba(46,204,113,.6)}
+.rfx-vpn-dot.fail{background:#e74c3c;box-shadow:0 0 12px rgba(231,76,60,.4)}
+@keyframes vpnPulse{0%,100%{opacity:.4}50%{opacity:1}}
+.rfx-vpn-panel-title{font-size:.9rem;font-weight:600;color:#fff}
+.rfx-vpn-panel-sub{font-size:.72rem;color:rgba(255,255,255,.4);margin-top:3px}
+
+.rfx-step-title{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:16px;
+}
+.rfx-step{
+  display:flex;gap:16px;padding:16px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.rfx-step:last-child{border-bottom:none}
+.rfx-step-alt{background:rgba(255,200,50,.03);border-radius:8px;padding:14px;border:1px solid rgba(255,200,50,.08)!important;margin-top:8px}
+.rfx-step-num{
+  flex-shrink:0;width:30px;height:30px;border-radius:50%;
+  background:rgba(229,9,20,.15);border:1px solid rgba(229,9,20,.3);
+  color:#e50914;font-size:.8rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
+.rfx-step-name{font-size:.85rem;font-weight:600;color:#fff;margin-bottom:5px}
+.rfx-step-desc{font-size:.74rem;color:rgba(255,255,255,.4);line-height:1.55;margin-bottom:10px}
+.rfx-step-btns{display:flex;gap:8px;flex-wrap:wrap}
+.rfx-step-btn{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.7);font-size:.72rem;padding:7px 14px;
+  border-radius:6px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.rfx-step-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+.rfx-vpn-ok-msg{
+  text-align:center;padding:20px;
+  font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.6;
+}
+.rfx-vpn-ok-msg strong{color:#2ecc71}
+
 /* Geo banner */
 .rfx-geo-banner{
   display:flex;align-items:flex-start;gap:16px;
@@ -3566,16 +3623,87 @@ const rushflix = (()=>{
     _el('rushflix-overlay').classList.add('open');
     document.body.style.overflow='hidden';
     renderCustom();
-    // Re-dispara animación del logo cada vez que se abre
+    // Re-dispara animación del logo
     const logo = document.querySelector('.rfx-logo');
     if(logo){
-      logo.style.animation='none';
-      logo.style.textShadow='none';
+      logo.style.animation='none';logo.style.textShadow='none';
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        logo.style.animation='';
-        logo.style.textShadow='';
+        logo.style.animation='';logo.style.textShadow='';
       }));
     }
+    // Comprobar IP / VPN
+    checkVPN();
+  }
+
+  /* ── detección de país via IP ── */
+  async function checkVPN(){
+    const dot   = _el('rfx-vpn-dot');
+    const title = _el('rfx-vpn-panel-title');
+    const sub   = _el('rfx-vpn-panel-sub');
+    const tag   = _el('rfx-vpn-status-tag');
+    const steps = _el('rfx-setup-steps');
+    const okMsg = _el('rfx-vpn-ok');
+    if(!dot) return;
+
+    dot.className='rfx-vpn-dot checking';
+    title.textContent='Comprobando tu ubicación…';
+    sub.textContent='Detectando IP y país…';
+    if(tag) tag.textContent='⚡ Comprobando…';
+
+    try{
+      const res  = await fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(5000)});
+      const data = await res.json();
+      const country = data.country_code; // 'ES', 'AU', etc.
+      const city    = data.city || '';
+      const ip      = data.ip  || '';
+
+      if(country==='ES'){
+        // VPN activa o usuario en España
+        dot.className='rfx-vpn-dot ok';
+        title.textContent='✅ IP española detectada — listo para ver HBO';
+        sub.textContent=`${city}, España · ${ip}`;
+        if(tag){ tag.textContent='🇪🇸 VPN España activa'; tag.style.color='#2ecc71'; }
+        if(steps) steps.style.display='none';
+        if(okMsg) okMsg.style.display='block';
+      } else {
+        // Fuera de España
+        dot.className='rfx-vpn-dot fail';
+        title.textContent=`❌ IP de ${data.country_name||country} — HBO bloqueará el acceso`;
+        sub.textContent=`Tu IP actual: ${ip} · Sigue los pasos de abajo para conectar a España`;
+        if(tag){ tag.textContent='🔒 Necesitas VPN España'; tag.style.color='#e74c3c'; }
+        if(steps) steps.style.display='block';
+        if(okMsg) okMsg.style.display='none';
+      }
+    } catch(e){
+      dot.className='rfx-vpn-dot fail';
+      title.textContent='No se pudo comprobar la IP';
+      sub.textContent='Activa la VPN manualmente y abre HBO';
+      if(tag) tag.textContent='⚠️ Sin verificar';
+    }
+  }
+
+  /* ── lanzar HBO con aviso si no hay VPN ── */
+  function launchHBO(){
+    const dot = _el('rfx-vpn-dot');
+    const isSpain = dot?.classList.contains('ok');
+    if(!isSpain){
+      // Avisar pero dejar pasar igual
+      _showLaunchToast('Max (activa la VPN España primero)');
+      setTimeout(()=>{ window.open('https://play.max.com','_blank','noopener'); }, 800);
+    } else {
+      launch('Max · HBO España','https://play.max.com');
+    }
+  }
+
+  /* ── abrir extensiones VPN ── */
+  const VPN_LINKS = {
+    nordvpn:  'https://chrome.google.com/webstore/detail/nordvpn/fjoaledfpmneenckfbpdfhkmimnjocfa',
+    surfshark:'https://chrome.google.com/webstore/detail/surfshark/ailoabdmgclmfmhdagmlohpjlbpffblp',
+    router:   'https://support.nordvpn.com/hc/es-es/articles/20310734619537',
+  };
+  function openExt(key){
+    const url = VPN_LINKS[key];
+    if(url) window.open(url,'_blank','noopener');
   }
 
   /* ── cerrar hub ── */
@@ -3702,8 +3830,8 @@ const rushflix = (()=>{
     }
   });
 
-  return {open, close, launch, closeViewer, openTab, saveCustom, closeAddModal,
-          openAddModal, removeCustom, renderCustom};
+  return {open, close, launch, launchHBO, openExt, closeViewer, openTab,
+          saveCustom, closeAddModal, openAddModal, removeCustom, renderCustom};
 })();
 
 </script>
@@ -3736,21 +3864,85 @@ const rushflix = (()=>{
     <div class="rfx-section-title">Plataformas</div>
     <div class="rfx-grid" id="rfx-platforms-grid">
 
-      <div class="rfx-card" onclick="rushflix.launch('Max','https://play.max.com','#6b2fa0','#9b59b6')">
+      <div class="rfx-card rfx-card-hbo" onclick="rushflix.launchHBO()">
         <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0f0720,#2a0e52)">
           <div class="rfx-card-logo" style="font-size:2.6rem;color:#fff;letter-spacing:-.05em">max</div>
         </div>
         <div class="rfx-card-overlay"></div>
         <div class="rfx-card-play">▶</div>
         <div class="rfx-card-footer">
-          <div class="rfx-card-name">Max</div>
-          <div class="rfx-card-type">HBO · Warner · DC</div>
+          <div class="rfx-card-name">Max · HBO España</div>
+          <div class="rfx-card-type rfx-vpn-status" id="rfx-vpn-status-tag">⚡ Comprobando VPN…</div>
         </div>
       </div>
 
-
     </div>
 
+    <!-- Panel VPN España -->
+    <div class="rfx-vpn-panel" id="rfx-vpn-panel">
+
+      <div class="rfx-vpn-panel-header">
+        <div class="rfx-vpn-dot" id="rfx-vpn-dot"></div>
+        <div>
+          <div class="rfx-vpn-panel-title" id="rfx-vpn-panel-title">Verificando tu ubicación…</div>
+          <div class="rfx-vpn-panel-sub" id="rfx-vpn-panel-sub"></div>
+        </div>
+      </div>
+
+      <!-- Pasos de configuración (solo si no hay VPN) -->
+      <div id="rfx-setup-steps">
+        <div class="rfx-step-title">Cómo ver HBO España desde Australia</div>
+
+        <div class="rfx-step">
+          <div class="rfx-step-num">1</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Instala una extensión VPN en tu navegador</div>
+            <div class="rfx-step-desc">La extensión enruta solo HBO por España — el resto de tu conexión va normal.</div>
+            <div class="rfx-step-btns">
+              <button class="rfx-step-btn" onclick="rushflix.openExt('nordvpn')">
+                <span>🔵</span> NordVPN para Chrome
+              </button>
+              <button class="rfx-step-btn" onclick="rushflix.openExt('surfshark')">
+                <span>🟢</span> Surfshark para Chrome
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rfx-step">
+          <div class="rfx-step-num">2</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Conéctate a un servidor de España</div>
+            <div class="rfx-step-desc">Abre la extensión → busca "Spain" o "España" → conectar.</div>
+          </div>
+        </div>
+
+        <div class="rfx-step">
+          <div class="rfx-step-num">3</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Pulsa el botón Max de arriba</div>
+            <div class="rfx-step-desc">HBO detectará tu IP española y te dará acceso completo.</div>
+          </div>
+        </div>
+
+        <div class="rfx-step rfx-step-alt">
+          <div class="rfx-step-num">💡</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Alternativa: App VPN en tu router</div>
+            <div class="rfx-step-desc">Si configuras NordVPN en tu router, todos los dispositivos de tu casa verán una IP española sin instalar nada.</div>
+            <button class="rfx-step-btn" onclick="rushflix.openExt('router')">Ver guía de router →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado OK (VPN activa en España) -->
+      <div id="rfx-vpn-ok" style="display:none">
+        <div class="rfx-vpn-ok-msg">
+          Tu IP es española 🇪🇸 — pulsa <strong>Max</strong> arriba para empezar.
+        </div>
+      </div>
+
+    </div>
 
   </div>
 </div>
