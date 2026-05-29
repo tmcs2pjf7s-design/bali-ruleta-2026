@@ -1365,24 +1365,39 @@ h1 em{
   position:relative;z-index:2;flex-shrink:0;
 }
 .rfx-logo{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(1.6rem,4vw,2.4rem);
-  font-weight:900;letter-spacing:-.02em;
-  background:linear-gradient(135deg,#e8202a 0%,#ff6040 60%,#ffb020 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  text-shadow:none;
+  font-family:'DM Sans',sans-serif;
+  font-size:clamp(2.4rem,7vw,5rem);
+  font-weight:900;letter-spacing:-.04em;
+  color:#e50914;
+  position:relative;
+  display:inline-block;
+  animation:rfxReveal 1.2s cubic-bezier(.16,1,.3,1) both;
+  text-shadow:0 0 60px rgba(229,9,20,.7),0 0 20px rgba(229,9,20,.4);
 }
-.rfx-logo span{
-  font-style:italic;
-  background:linear-gradient(135deg,#ff6040,#ffb020);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
+.rfx-logo::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,
+    transparent 20%,
+    rgba(255,255,255,.55) 48%,
+    rgba(255,255,255,.15) 52%,
+    transparent 70%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:rfxShine 1.8s cubic-bezier(.4,0,.2,1) .4s both;
+  pointer-events:none;
 }
-.rfx-tagline{
-  font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;
-  color:rgba(255,255,255,.3);margin-top:2px;
+@keyframes rfxReveal{
+  0%  {opacity:0;letter-spacing:.25em;filter:blur(8px) brightness(3);transform:scaleX(1.08)}
+  60% {opacity:1;filter:blur(0) brightness(1.4)}
+  100%{opacity:1;letter-spacing:-.04em;filter:blur(0) brightness(1);transform:scaleX(1)}
 }
+@keyframes rfxShine{
+  0%  {background-position:120% 0}
+  100%{background-position:-60% 0}
+}
+.rfx-logo span{all:unset}
 .rfx-cafe{
   font-size:.68rem;color:rgba(255,180,60,.55);
   margin-top:5px;letter-spacing:.08em;font-style:italic;
@@ -3551,6 +3566,16 @@ const rushflix = (()=>{
     _el('rushflix-overlay').classList.add('open');
     document.body.style.overflow='hidden';
     renderCustom();
+    // Re-dispara animación del logo cada vez que se abre
+    const logo = document.querySelector('.rfx-logo');
+    if(logo){
+      logo.style.animation='none';
+      logo.style.textShadow='none';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        logo.style.animation='';
+        logo.style.textShadow='';
+      }));
+    }
   }
 
   /* ── cerrar hub ── */
@@ -3699,8 +3724,7 @@ const rushflix = (()=>{
   <!-- Hub principal -->
   <div class="rfx-header">
     <div>
-      <div class="rfx-logo">Rush<span>flix</span></div>
-      <div class="rfx-tagline">Tu cine · Tu serie · Tu mundo</div>
+      <div class="rfx-logo" data-text="Rushflix">Rushflix</div>
       <div class="rfx-cafe">Con un buen café todo es posible!!</div>
     </div>
     <button class="rfx-close" onclick="rushflix.close()">✕ Salir</button>
