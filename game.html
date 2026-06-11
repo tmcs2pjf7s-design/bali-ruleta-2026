@@ -1212,6 +1212,132 @@ body.loading{overflow:hidden}
 .lang-btn .lang-flag{font-size:1rem;line-height:1}
 .lang-sep{color:var(--dimmer);font-size:.6rem}
 
+/* ════════════════════════════════════════════════
+   INTRO CINEMATOGRÁFICA — por caso
+════════════════════════════════════════════════ */
+#case-intro-overlay{
+  position:fixed;inset:0;z-index:9900;
+  background:#000;
+  display:none;flex-direction:column;
+  font-family:'DM Sans',sans-serif;
+  overflow:hidden;
+}
+#case-intro-overlay.active{display:flex}
+
+#intro-canvas{
+  position:absolute;inset:0;
+  pointer-events:none;z-index:0;
+}
+
+.intro-police-light{
+  position:absolute;top:0;left:0;right:0;height:3px;
+  z-index:5;pointer-events:none;
+  background:linear-gradient(90deg,#0030ff,#ff0000);
+  animation:policeLights 0.6s steps(1) infinite;
+  display:none;
+}
+@keyframes policeLights{
+  0%  {background:linear-gradient(90deg,#0030ff 50%,#ff0000 50%);opacity:1}
+  25% {background:linear-gradient(90deg,#0030ff 50%,#ff0000 50%);opacity:0}
+  50% {background:linear-gradient(90deg,#ff0000 50%,#0030ff 50%);opacity:1}
+  75% {background:linear-gradient(90deg,#ff0000 50%,#0030ff 50%);opacity:0}
+}
+
+.intro-color-overlay{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
+
+.intro-content{
+  position:relative;z-index:2;
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px;text-align:center;
+  gap:0;
+}
+
+.intro-stamp{
+  font-size:clamp(.9rem,3vw,1.4rem);
+  font-weight:900;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--intro-color,#d44020);
+  border:2px solid var(--intro-color,#d44020);
+  padding:10px 24px;
+  opacity:0;transform:scale(1.6) rotate(-4deg);
+  animation:introStamp .55s cubic-bezier(.15,1.4,.35,1) forwards;
+}
+@keyframes introStamp{
+  to{opacity:1;transform:scale(1) rotate(-3deg)}
+}
+
+.intro-line{
+  opacity:0;transform:translateY(18px);
+  animation:introReveal .5s ease forwards;
+}
+@keyframes introReveal{
+  to{opacity:1;transform:translateY(0)}
+}
+
+.intro-line.type-location{
+  font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);margin-top:28px;
+}
+.intro-line.type-victim{
+  font-size:clamp(1.6rem,5vw,3rem);
+  font-family:'Playfair Display',serif;
+  font-weight:700;color:#fff;margin-top:10px;line-height:1.1;
+}
+.intro-line.type-fact{
+  font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-top:8px;
+}
+.intro-line.type-evidence{
+  font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--intro-color,#d44020);margin-top:14px;
+  padding:6px 16px;border:1px solid var(--intro-color,#d44020);
+  opacity:0;animation:introReveal .5s ease forwards;
+}
+.intro-line.type-tagline{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(.9rem,2.5vw,1.3rem);font-style:italic;
+  color:rgba(255,255,255,.65);margin-top:22px;
+}
+
+/* Barra de progreso */
+.intro-progress{
+  position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:rgba(255,255,255,.08);z-index:6;
+}
+.intro-progress-fill{
+  height:100%;width:0%;
+  background:var(--intro-color,#d44020);
+}
+
+/* Botón Skip */
+.intro-skip{
+  position:absolute;bottom:20px;right:20px;z-index:7;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.4);
+  font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:8px 18px;border-radius:2px;cursor:pointer;
+  transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.intro-skip:hover{
+  background:rgba(255,255,255,.12);
+  color:rgba(255,255,255,.8);
+}
+
+/* Número de caso en fondo */
+.intro-bg-num{
+  position:absolute;
+  font-family:'Playfair Display',serif;
+  font-size:clamp(20vw,35vw,40vw);font-weight:900;
+  color:rgba(255,255,255,.018);
+  pointer-events:none;z-index:1;
+  line-height:1;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  user-select:none;
+}
+
 </style>
 </head>
 <body>
@@ -2288,9 +2414,359 @@ function goHome(){
 
 let _pendingCaseIdx = null;
 
+/* ══════════════════════════════════════════════════════
+   CASE INTRO — intro cinematográfica por caso
+══════════════════════════════════════════════════════ */
+const CaseIntro = (() => {
+
+  const DURATION = 10000; // ms total
+
+  const DATA = [
+    // 0 — Doce Minutos (Sevilla, urban crime)
+    { color:'#d44020', effect:'rain', police:true,
+      narration:'Sevilla. Un repartidor entra a un edificio. Doce minutos después cae al vacío. Hay un vídeo en su móvil. Alguien quiere que desaparezca.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🛵  SEVILLA  ·  15 MAYO 2023  ·  23:47'},
+        {at:3000, t:'victim',   txt:'Javier Mora'},
+        {at:4000, t:'fact',     txt:'RIDER · 34 AÑOS · CUARTO PISO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: VÍDEO EN EL MÓVIL'},
+        {at:7000, t:'tagline',  txt:'"Nadie debería tardar doce minutos"'},
+      ]},
+    // 1 — Asunta (Santiago, heavy rain)
+    { color:'#4a7ab5', effect:'heavy_rain', police:false,
+      narration:'Santiago de Compostela. Una niña de doce años. Encontrada muerta en un camino de tierra. Sus padres dieron la alarma. Sus padres la llevaron allí.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🏡  SANTIAGO DE COMPOSTELA  ·  SEPTIEMBRE 2013'},
+        {at:3000, t:'victim',   txt:'Asunta Basterra Porto'},
+        {at:4000, t:'fact',     txt:'12 AÑOS · ADOPTADA · ENVUELTA EN UNA MANTA'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: LORAZEPAM EN SANGRE'},
+        {at:7000, t:'tagline',  txt:'"Sus padres dieron la alarma"'},
+      ]},
+    // 2 — Balmaseda (Salamanca, dust/candlelight)
+    { color:'#b8860b', effect:'dust', police:false,
+      narration:'Salamanca. Un millonario muere la noche después de cambiar su testamento. Tres herederos. Un médico con secretos. El veneno estaba en su medicación.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🏛️  SALAMANCA  ·  3 NOV 2021  ·  03:12'},
+        {at:3000, t:'victim',   txt:'Rodrigo Balmaseda'},
+        {at:4000, t:'fact',     txt:'MAGNATE · 78 AÑOS · NUEVO TESTAMENTO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: VENENO EN LA MEDICACIÓN'},
+        {at:7000, t:'tagline',  txt:'"Tres herederos. Uno de ellos mintió."'},
+      ]},
+    // 3 — Diana Quer (costa Galicia, rain+police)
+    { color:'#1a8a7a', effect:'rain', police:true,
+      narration:'A Pobra do Caramiñal. Dieciocho años. Sale de madrugada y no vuelve. Su cuerpo no aparecerá hasta dieciséis meses después, en el interior de un pozo.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌊  A POBRA DO CARAMIÑAL  ·  22 AGO 2016  ·  04:30'},
+        {at:3000, t:'victim',   txt:'Diana Quer López-Pinel'},
+        {at:4000, t:'fact',     txt:'18 AÑOS · DESAPARECIDA DE MADRUGADA'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: CHIP SIM LOCALIZADO EN EL POZO'},
+        {at:7000, t:'tagline',  txt:'"Dieciséis meses. Dos metros de agua."'},
+      ]},
+    // 4 — La Profesora (Cuenca, dust/monastero)
+    { color:'#8b7014', effect:'dust', police:false,
+      narration:'Cuenca. Una historiadora cae desde el campanario de un monasterio. En sus notas, una palabra subrayada tres veces. Plagio. Su colega estaba en el edificio esa noche.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'⛪  CUENCA  ·  17 OCT 2020  ·  22:58'},
+        {at:3000, t:'victim',   txt:'Dra. Carmen Vidal'},
+        {at:4000, t:'fact',     txt:'HISTORIADORA · CAMPANARIO · CAÍDA MORTAL'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: "PLAGIO" SUBRAYADO 3 VECES'},
+        {at:7000, t:'tagline',  txt:'"El conocimiento puede ser mortal"'},
+      ]},
+    // 5 — Marta del Castillo (Sevilla, searchlight/void)
+    { color:'#7a3aaa', effect:'sparks', police:true,
+      narration:'Sevilla. Diecisiete años. El asesino confesó todo. Nunca dijo dónde está el cuerpo. Sus padres siguen buscando más de quince años después.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌆  SEVILLA  ·  24 ENERO 2009  ·  NOCHE'},
+        {at:3000, t:'victim',   txt:'Marta del Castillo Carrasco'},
+        {at:4000, t:'fact',     txt:'17 AÑOS · EL CUERPO NUNCA APARECIÓ'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: CONFESIÓN SIN LOCALIZACIÓN'},
+        {at:7000, t:'tagline',  txt:'"Confesó todo. Menos lo único que importa."'},
+      ]},
+    // 6 — Violinista (Barcelona, sparks/concert amber)
+    { color:'#d4820a', effect:'sparks', police:false,
+      narration:'Barcelona. Un violinista de fama nacional muere en su apartamento. Aparente infarto. Pero hay una marca de punción que nadie vio a tiempo.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🎻  BARCELONA  ·  8 MAR 2019  ·  02:44'},
+        {at:3000, t:'victim',   txt:'Marc Esteve Puig'},
+        {at:4000, t:'fact',     txt:'VIOLINISTA DE FAMA NACIONAL · SUPUESTO INFARTO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: MARCA DE PUNCIÓN OCULTA'},
+        {at:7000, t:'tagline',  txt:'"La música no fue lo último que escuchó"'},
+      ]},
+    // 7 — Bretón (Córdoba, fire embers)
+    { color:'#cc3010', effect:'embers', police:true,
+      narration:'Córdoba. Ruth, seis años. José, dos años. Desaparecen con su padre en un parque. Las cámaras registran que nunca salieron.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌳  CÓRDOBA  ·  8 OCT 2011  ·  TARDE'},
+        {at:3000, t:'victim',   txt:'Ruth y José Bretón'},
+        {at:4000, t:'fact',     txt:'6 Y 2 AÑOS · PARQUE FINCA VISTA ALEGRE'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: NUNCA SALIERON DEL PARQUE'},
+        {at:7000, t:'tagline',  txt:'"El padre dio la alarma. El padre los vio por última vez."'},
+      ]},
+    // 8 — Wanninkhof (Mijas, stars/night)
+    { color:'#2a9a4a', effect:'stars', police:false,
+      narration:'Mijas. Diecinueve años. Una inocente pasa diecisiete meses en prisión. El verdadero asesino mata de nuevo antes de que lo identifiquen.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌊  MIJAS, MÁLAGA  ·  SEPTIEMBRE 1999  ·  NOCHE'},
+        {at:3000, t:'victim',   txt:'Rocío Wanninkhof'},
+        {at:4000, t:'fact',     txt:'19 AÑOS · SISTEMA JUDICIAL FALLÓ'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: ADN — SOSPECHOSO ERRÓNEO'},
+        {at:7000, t:'tagline',  txt:'"La justicia llegó tarde. Demasiado tarde."'},
+      ]},
+    // 9 — Fotógrafo del Puerto (Valencia, fog/harbour)
+    { color:'#3a6aaa', effect:'fog', police:false,
+      narration:'Valencia. Una fotógrafa documentalista tenía la foto definitiva. Horas después estaba muerta en un almacén del puerto. La tarjeta de memoria había desaparecido.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🚢  VALENCIA  ·  12 JUN 2018  ·  03:20'},
+        {at:3000, t:'victim',   txt:'Laia Ferrer Montoya'},
+        {at:4000, t:'fact',     txt:'FOTÓGRAFA DOCUMENTALISTA · ALMACÉN DEL PUERTO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: TARJETA DE MEMORIA ROBADA'},
+        {at:7000, t:'tagline',  txt:'"Tenía la foto. Por eso murió."'},
+      ]},
+  ];
+
+  let _cb=null, _idx=null, _afId=null, _timers=[], _particles=[];
+  let _ctx=null, _cvs=null, _aCtx=null, _gain=null;
+
+  function _el(id){ return document.getElementById(id); }
+
+  // ── Hex → RGB ──
+  function hexRgb(h){
+    const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);
+    return r?{r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)}:{r:200,g:100,b:0};
+  }
+
+  // ── Canvas ──
+  function initCvs(){
+    _cvs=_el('intro-canvas');
+    _ctx=_cvs.getContext('2d');
+    _cvs.width=innerWidth; _cvs.height=innerHeight;
+  }
+
+  function buildParticles(effect){
+    _particles=[];
+    const W=innerWidth,H=innerHeight;
+    if(effect==='rain'||effect==='heavy_rain'){
+      const n=effect==='heavy_rain'?220:130;
+      for(let i=0;i<n;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H-H,
+        sp:7+Math.random()*9+(effect==='heavy_rain'?6:0),
+        len:12+Math.random()*22,
+        op:.08+Math.random()*.2, t:'rain'
+      });
+    } else if(effect==='embers'){
+      for(let i=0;i<90;i++) _particles.push({
+        x:Math.random()*W, y:H+Math.random()*100,
+        vx:(Math.random()-.5)*1.4, vy:-.6-Math.random()*2.4,
+        sz:1+Math.random()*3, op:.6+Math.random()*.4,
+        life:Math.random(), t:'ember'
+      });
+    } else if(effect==='sparks'){
+      for(let i=0;i<70;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*1.5, vy:(Math.random()-.5)*1.5,
+        sz:.8+Math.random()*2.5, op:Math.random(),
+        life:Math.random(), t:'spark'
+      });
+    } else if(effect==='dust'){
+      for(let i=0;i<55;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*.4, vy:-.1-Math.random()*.35,
+        sz:.8+Math.random()*2.5, op:.04+Math.random()*.14, t:'dust'
+      });
+    } else if(effect==='fog'){
+      for(let i=0;i<10;i++) _particles.push({
+        x:Math.random()*W, y:H*.35+Math.random()*H*.65,
+        vx:.25+Math.random()*.4, sz:140+Math.random()*220,
+        op:.02+Math.random()*.06, t:'fog'
+      });
+    } else if(effect==='stars'){
+      for(let i=0;i<130;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H,
+        sz:.4+Math.random()*1.8, op:Math.random(),
+        tw:Math.random()*Math.PI*2, t:'star'
+      });
+    }
+  }
+
+  function tick(effect, color){
+    if(!_ctx) return;
+    const W=_cvs.width,H=_cvs.height;
+    _ctx.clearRect(0,0,W,H);
+    const now=Date.now();
+    for(const p of _particles){
+      _ctx.save();
+      if(p.t==='rain'){
+        p.y+=p.sp; p.x+=p.sp*.12;
+        if(p.y>H){p.y=-p.len;p.x=Math.random()*W;}
+        _ctx.strokeStyle=`rgba(180,210,255,${p.op})`;
+        _ctx.lineWidth=.7;
+        _ctx.beginPath();_ctx.moveTo(p.x,p.y);_ctx.lineTo(p.x+p.len*.12,p.y+p.len);_ctx.stroke();
+      } else if(p.t==='ember'){
+        p.x+=p.vx+Math.sin(now*.001+p.life*10)*.3; p.y+=p.vy; p.life+=.004;
+        if(p.y<-10||p.life>1){p.y=H+10;p.x=Math.random()*W;p.life=0;p.op=.5+Math.random()*.5;}
+        const eo=p.op*(1-p.life);
+        _ctx.fillStyle=`rgba(255,${60+Math.floor(p.life*140)},0,${eo})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz*(1-p.life*.5),0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='spark'){
+        p.x+=p.vx; p.y+=p.vy; p.life+=.008;
+        if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=Math.random()*H;}
+        const so=p.op*Math.sin(p.life*Math.PI);
+        _ctx.fillStyle=`rgba(255,${160+Math.floor(p.life*80)},40,${so*.8})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='dust'){
+        p.x+=p.vx+Math.sin(now*.0004+p.op*80)*.18; p.y+=p.vy;
+        if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
+        _ctx.fillStyle=`rgba(210,190,130,${p.op})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='fog'){
+        p.x+=p.vx; if(p.x>W+p.sz) p.x=-p.sz;
+        const fg=_ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.sz);
+        fg.addColorStop(0,`rgba(200,215,255,${p.op})`);fg.addColorStop(1,'rgba(0,0,0,0)');
+        _ctx.fillStyle=fg;_ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='star'){
+        p.tw+=.018;
+        const so=Math.max(0,(Math.sin(p.tw)*.5+.5)*p.op);
+        _ctx.fillStyle=`rgba(255,255,255,${so})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      }
+      _ctx.restore();
+    }
+    _afId=requestAnimationFrame(()=>tick(effect,color));
+  }
+
+  // ── Ambient audio ──
+  function startAudio(){
+    try{
+      _aCtx=new(window.AudioContext||window.webkitAudioContext)();
+      _gain=_aCtx.createGain();
+      _gain.gain.setValueAtTime(0,_aCtx.currentTime);
+      _gain.gain.linearRampToValueAtTime(.07,_aCtx.currentTime+2.5);
+      _gain.connect(_aCtx.destination);
+      const mk=(f,t)=>{const o=_aCtx.createOscillator();o.type=t;o.frequency.value=f;o.connect(_gain);o.start();return o;};
+      mk(44,'sine'); mk(66,'sine'); mk(110,'sine');
+      // Tremolo
+      const tOsc=_aCtx.createOscillator(); tOsc.frequency.value=.35;
+      const tG=_aCtx.createGain(); tG.gain.value=.025;
+      tOsc.connect(tG); tG.connect(_gain.gain); tOsc.start();
+    } catch(e){}
+  }
+
+  function stopAudio(){
+    if(!_aCtx) return;
+    try{ _gain.gain.linearRampToValueAtTime(0,_aCtx.currentTime+.6); }catch(e){}
+    setTimeout(()=>{ try{_aCtx.close();}catch(e){} _aCtx=null; },800);
+  }
+
+  // ── Web Speech ──
+  function speak(text){
+    if(!window.speechSynthesis) return;
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-ES'; u.rate=.82; u.pitch=.78; u.volume=.9;
+    const vs=speechSynthesis.getVoices();
+    const v=vs.find(x=>x.lang.startsWith('es')&&/male/i.test(x.name))
+           ||vs.find(x=>x.lang.startsWith('es'));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }
+
+  // ── Sequence ──
+  function runSeq(d){
+    const c=_el('intro-content');
+    c.innerHTML='';
+    const rgb=hexRgb(d.color);
+    const ov=_el('case-intro-overlay');
+    ov.style.setProperty('--intro-color',d.color);
+    // Police light
+    const pl=_el('intro-police-light');
+    if(pl) pl.style.display=d.police?'block':'none';
+    // Color vignette
+    const co=_el('intro-color-overlay');
+    if(co) co.style.background=`radial-gradient(ellipse at 50% 100%,rgba(${rgb.r},${rgb.g},${rgb.b},.15),transparent 70%)`;
+    // Bg number
+    const bn=_el('intro-bg-num');
+    if(bn) bn.textContent=String(_idx+1).padStart(2,'0');
+
+    for(const s of d.seq){
+      const id=setTimeout(()=>{
+        if(!_el('case-intro-overlay')?.classList.contains('active')) return;
+        const el=document.createElement('div');
+        el.className=s.t==='stamp'?'intro-stamp':'intro-line type-'+s.t;
+        el.textContent=s.txt;
+        c.appendChild(el);
+      },s.at);
+      _timers.push(id);
+    }
+
+    // Narración a los 2s
+    _timers.push(setTimeout(()=>speak(d.narration),2000));
+
+    // Progress bar
+    const fill=_el('intro-progress-fill');
+    if(fill){
+      fill.style.transition='none'; fill.style.width='0%';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        fill.style.transition=`width ${DURATION}ms linear`;
+        fill.style.width='100%';
+      }));
+    }
+
+    // Auto-finish
+    _timers.push(setTimeout(()=>_finish(),DURATION));
+  }
+
+  // ── finish ──
+  function _finish(){
+    const ov=_el('case-intro-overlay');
+    if(ov) ov.classList.remove('active');
+    document.body.style.overflow='';
+    _timers.forEach(clearTimeout); _timers=[];
+    cancelAnimationFrame(_afId);
+    if(window.speechSynthesis) speechSynthesis.cancel();
+    stopAudio();
+    if(_ctx) _ctx.clearRect(0,0,_cvs?.width||0,_cvs?.height||0);
+    const fill=_el('intro-progress-fill');
+    if(fill){fill.style.transition='none';fill.style.width='0%';}
+    if(_idx!==null) localStorage.setItem('crims_intro_'+_idx,'1');
+    const cb=_cb; _cb=null; cb?.();
+  }
+
+  // ── Public ──
+  function play(idx,callback){
+    _cb=callback; _idx=idx;
+    const d=DATA[idx];
+    if(!d){ callback?.(); return; }
+    _el('case-intro-overlay').classList.add('active');
+    document.body.style.overflow='hidden';
+    initCvs();
+    buildParticles(d.effect);
+    tick(d.effect,d.color);
+    startAudio();
+    runSeq(d);
+  }
+
+  function skip(){ _finish(); }
+
+  return {play,skip};
+})();
+
 function startCase(idx){
   _pendingCaseIdx = idx;
-  showPlayerModal(idx);
+  const seen = localStorage.getItem('crims_intro_' + idx);
+  if(seen){
+    showPlayerModal(idx);
+  } else {
+    CaseIntro.play(idx, () => showPlayerModal(idx));
+  }
 }
 
 function animateGameEntry(){
@@ -3243,6 +3719,21 @@ function selectPlayer(name, emoji){
   </div>
 </div>
 
+
+<!-- ════════════════════════════════════════════════
+     INTRO CINEMATOGRÁFICA — overlay
+════════════════════════════════════════════════ -->
+<div id="case-intro-overlay">
+  <canvas id="intro-canvas"></canvas>
+  <div class="intro-police-light" id="intro-police-light"></div>
+  <div class="intro-color-overlay" id="intro-color-overlay"></div>
+  <div class="intro-bg-num" id="intro-bg-num"></div>
+  <div class="intro-content" id="intro-content"></div>
+  <div class="intro-progress">
+    <div class="intro-progress-fill" id="intro-progress-fill"></div>
+  </div>
+  <button class="intro-skip" onclick="CaseIntro.skip()">Saltar ›</button>
+</div>
 
 <!-- ════ SELECTOR IDIOMA ════ -->
 <div id="lang-picker">
