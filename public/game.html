@@ -1,0 +1,3754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Investigacion RSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet"/>
+
+  <!-- GSAP + ScrollTrigger (animaciones cinematográficas) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+/* ════════════════════════════════════════════════
+   RESET & TOKENS
+════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;cursor:none}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#060608;
+  color:#d4c9a8;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+:root{
+  --gold:    #c8a030;
+  --red:     #8b1a1a;
+  --red-l:   #c03030;
+  --cream:   #e8dcc0;
+  --dim:     rgba(212,201,168,0.55);
+  --dimmer:  rgba(212,201,168,0.3);
+  --surface: rgba(255,255,255,0.025);
+  --border:  rgba(200,160,48,0.15);
+  --border-h:rgba(200,160,48,0.5);
+}
+
+/* ── Cursor personalizado estilo detective ── */
+#cursor{
+  position:fixed;width:16px;height:16px;
+  border:2px solid var(--gold);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:width .18s,height .18s,border-color .18s,background .18s;
+  mix-blend-mode:difference;
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;
+  border:1px solid rgba(200,160,48,0.35);border-radius:50%;
+  pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);
+  transition:width .35s cubic-bezier(.25,.1,.25,1),height .35s cubic-bezier(.25,.1,.25,1);
+}
+#cursor-crosshair{
+  position:fixed;pointer-events:none;z-index:99997;
+  transform:translate(-50%,-50%);
+  opacity:0.4;
+}
+#cursor-crosshair::before,#cursor-crosshair::after{
+  content:'';position:absolute;background:var(--gold);
+}
+#cursor-crosshair::before{width:1px;height:12px;left:0;top:-6px;}
+#cursor-crosshair::after{width:12px;height:1px;left:-6px;top:0;}
+body:hover #cursor{opacity:1}
+a,button,.case-card,.clue-item,.suspect-card{cursor:none}
+a:hover ~ #cursor,
+button:hover ~ #cursor,
+.clickable:hover ~ #cursor{
+  width:24px;height:24px;background:rgba(200,160,48,.15);
+}
+
+/* ── Grain overlay cinemático ── */
+#grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9000;
+  opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:128px 128px;
+  animation:grainShift 0.15s steps(1) infinite;
+}
+@keyframes grainShift{
+  0%  {background-position:0 0}
+  25% {background-position:-20px 10px}
+  50% {background-position:15px -8px}
+  75% {background-position:-5px 18px}
+  100%{background-position:10px -15px}
+}
+
+/* ── Vignette ── */
+#vignette{
+  position:fixed;inset:0;pointer-events:none;z-index:8999;
+  background:radial-gradient(ellipse 85% 85% at 50% 50%,
+    transparent 55%,
+    rgba(0,0,0,.55) 85%,
+    rgba(0,0,0,.85) 100%);
+}
+
+/* ── Flash de transición ── */
+#flash{
+  position:fixed;inset:0;z-index:99990;
+  background:#000;
+  opacity:0;pointer-events:none;
+}
+
+/* ── Scanlines ── */
+#scanlines{
+  position:fixed;inset:0;pointer-events:none;z-index:8998;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,transparent 2px,
+    rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px
+  );
+}
+
+/* ════════════════════════════════════════════════
+   TIPOGRAFÍA
+════════════════════════════════════════════════ */
+h1,h2,h3{font-family:'Playfair Display',serif}
+.typeface{font-family:'Special Elite',serif}
+
+/* ── Glitch effect ── */
+.glitch{
+  position:relative;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+  overflow:hidden;
+}
+.glitch::before{
+  color:#c8a030;
+  animation:glitchTop 4s infinite linear;
+  clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
+  transform:translateX(-2px);
+}
+.glitch::after{
+  color:#8b1a1a;
+  animation:glitchBot 4s infinite linear;
+  clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
+  transform:translateX(2px);
+}
+@keyframes glitchTop{
+  0%,90%,100%{transform:translateX(-2px);opacity:0}
+  92%{transform:translateX(4px);opacity:.8}
+  94%{transform:translateX(-1px);opacity:.6}
+  96%{transform:translateX(2px);opacity:.9}
+  98%{transform:translateX(0);opacity:0}
+}
+@keyframes glitchBot{
+  0%,90%,100%{transform:translateX(2px);opacity:0}
+  91%{transform:translateX(-4px);opacity:.7}
+  93%{transform:translateX(1px);opacity:.5}
+  95%{transform:translateX(-2px);opacity:.8}
+  97%{transform:translateX(0);opacity:0}
+}
+
+/* ── Typewriter ── */
+.typewriter{
+  overflow:hidden;
+  white-space:nowrap;
+  border-right:2px solid var(--gold);
+  animation:typeCaret .6s step-end infinite;
+}
+.typewriter.done{border-color:transparent}
+@keyframes typeCaret{0%,100%{border-color:transparent}50%{border-color:var(--gold)}}
+
+/* ════════════════════════════════════════════════
+   PANTALLA HOME
+════════════════════════════════════════════════ */
+#screen-home{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;
+  /* Fondo noir */
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 40%,rgba(140,90,10,.08) 0%,transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,rgba(139,26,26,.06) 0%,transparent 60%);
+}
+
+/* Línea roja de apertura */
+.home-redline{
+  width:1px;height:60px;background:var(--red-l);
+  margin:0 auto 32px;
+  box-shadow:0 0 12px var(--red-l);
+  transform-origin:top;
+}
+
+.home-eyebrow{
+  font-size:.65rem;font-weight:700;letter-spacing:.25em;
+  text-transform:uppercase;color:var(--red-l);
+  margin-bottom:20px;opacity:.8;
+}
+
+.home-title{
+  font-size:clamp(4rem,10vw,8rem);font-weight:900;
+  letter-spacing:-.04em;line-height:.9;
+  color:var(--cream);
+  text-shadow:0 0 80px rgba(200,130,30,.12);
+  margin-bottom:6px;
+}
+.home-title-sub{
+  font-family:'Special Elite',serif;
+  font-size:clamp(.9rem,2.5vw,1.4rem);
+  color:rgba(200,160,48,.6);letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:48px;
+}
+
+.home-divider{
+  display:flex;align-items:center;gap:16px;margin-bottom:48px;
+  width:100%;max-width:480px;
+}
+.home-divider-line{
+  flex:1;height:1px;
+  background:linear-gradient(to right,transparent,rgba(200,160,48,.3),transparent);
+}
+.home-divider-dot{color:var(--gold);font-size:.6rem;}
+
+.home-sub{
+  font-size:.85rem;color:var(--dimmer);letter-spacing:.06em;
+  font-style:italic;margin-bottom:56px;line-height:1.8;
+}
+
+/* Grid de casos */
+.case-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;max-width:1100px;width:100%;
+}
+
+/* Tarjeta de caso */
+.case-card{
+  background:rgba(255,255,255,.018);
+  border:1px solid var(--border);
+  border-radius:4px;padding:26px 22px;
+  cursor:none;text-align:left;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+}
+/* Borde izquierdo animado */
+.case-card::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(to bottom,transparent,var(--red-l),transparent);
+  transform:scaleY(0);transform-origin:center;
+  transition:transform .4s cubic-bezier(.25,.1,.25,1);
+}
+/* Overlay hover */
+.case-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,26,26,.06),transparent);
+  opacity:0;transition:opacity .35s;
+}
+.case-card:hover{
+  border-color:rgba(200,160,48,.35);
+  box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px rgba(200,160,48,.08);
+}
+.case-card:hover::before{transform:scaleY(1)}
+.case-card:hover::after{opacity:1}
+/* Luz de esquina */
+.case-card-glow{
+  position:absolute;top:-40px;right:-40px;
+  width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,160,48,.08),transparent 70%);
+  opacity:0;transition:opacity .4s;pointer-events:none;
+}
+.case-card:hover .case-card-glow{opacity:1}
+
+.case-num{
+  font-size:.6rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--red-l);opacity:.8;
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.case-num::before{
+  content:'';width:18px;height:1px;background:var(--red-l);opacity:.6;
+}
+.case-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;
+  color:var(--cream);margin-bottom:8px;line-height:1.2;
+}
+.case-location{
+  font-size:.72rem;color:var(--dimmer);margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;letter-spacing:.04em;
+}
+.case-desc{font-size:.8rem;color:rgba(212,201,168,.55);line-height:1.7;}
+.case-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:18px;padding:4px 12px;border-radius:2px;
+  font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+}
+.badge-open{
+  background:rgba(139,26,26,.12);border:1px solid rgba(139,26,26,.35);color:#c05050;
+}
+.badge-dot{
+  width:5px;height:5px;border-radius:50%;background:currentColor;
+  animation:badgePulse 1.5s ease-in-out infinite;
+}
+@keyframes badgePulse{
+  0%,100%{opacity:.4;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.4)}
+}
+
+.home-footer{
+  margin-top:60px;font-size:.6rem;color:rgba(212,201,168,.18);
+  letter-spacing:.06em;line-height:2;text-align:center;
+}
+
+/* ════════════════════════════════════════════════
+   PANTALLA JUEGO
+════════════════════════════════════════════════ */
+#screen-game{display:none;position:relative;z-index:1;min-height:100vh}
+
+/* Header sticky */
+.game-header{
+  position:sticky;top:0;z-index:500;
+  background:rgba(6,6,8,.88);backdrop-filter:blur(20px) saturate(1.2);
+  border-bottom:1px solid rgba(200,160,48,.08);
+  padding:12px 24px;
+  display:flex;align-items:center;gap:14px;
+}
+.btn-back{
+  background:none;border:1px solid rgba(200,160,48,.18);border-radius:3px;
+  color:rgba(212,201,168,.4);font-family:'DM Sans',sans-serif;
+  font-size:.72rem;font-weight:600;padding:6px 14px;cursor:none;
+  transition:all .25s;letter-spacing:.06em;
+}
+.btn-back:hover{border-color:rgba(200,160,48,.5);color:var(--gold);}
+.game-case-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;color:var(--cream);flex:1;
+}
+.game-header-right{display:flex;gap:8px;align-items:center}
+.game-clues-badge{
+  background:rgba(200,160,48,.08);border:1px solid rgba(200,160,48,.2);
+  border-radius:2px;padding:4px 12px;font-size:.68rem;font-weight:700;
+  color:var(--gold);letter-spacing:.06em;font-family:'Special Elite',serif;
+}
+.btn-restart{
+  background:none;border:1px solid rgba(200,160,48,.12);border-radius:3px;
+  color:rgba(212,201,168,.3);font-family:'DM Sans',sans-serif;
+  font-size:.68rem;font-weight:600;padding:5px 10px;cursor:none;transition:all .2s;
+}
+.btn-restart:hover{border-color:rgba(139,26,26,.5);color:#c05030;}
+
+/* Cuerpo del juego */
+.game-body{max-width:920px;margin:0 auto;padding:40px 20px 100px;}
+
+/* Briefing cinematográfico */
+.briefing-wrap{
+  position:relative;margin-bottom:48px;
+  padding:36px;
+  border:1px solid rgba(200,160,48,.12);border-radius:4px;
+  background:rgba(255,255,255,.015);
+  overflow:hidden;
+}
+/* Línea superior decorativa */
+.briefing-wrap::before{
+  content:'';position:absolute;top:0;left:40px;right:40px;height:1px;
+  background:linear-gradient(to right,transparent,rgba(200,160,48,.4),transparent);
+}
+/* Número de caso grande de fondo */
+.briefing-bg-num{
+  position:absolute;right:-10px;top:-20px;
+  font-family:'Playfair Display',serif;
+  font-size:14rem;font-weight:900;
+  color:rgba(200,160,48,.03);line-height:1;
+  pointer-events:none;user-select:none;
+  font-style:italic;
+}
+.briefing-kicker{
+  font-size:.6rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--red-l);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.briefing-kicker::before{
+  content:'';width:24px;height:1px;background:var(--red-l);
+}
+.briefing-headline{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;
+  color:var(--cream);line-height:1.15;margin-bottom:22px;
+}
+.briefing-body{
+  font-size:.88rem;line-height:1.9;color:rgba(212,201,168,.7);
+}
+.briefing-meta{
+  display:flex;flex-wrap:wrap;gap:20px;
+  margin-top:24px;padding-top:24px;
+  border-top:1px solid rgba(200,160,48,.08);
+}
+.meta-item{display:flex;flex-direction:column;gap:3px;}
+.meta-label{
+  font-size:.58rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(200,160,48,.4);
+}
+.meta-val{
+  font-family:'Special Elite',serif;font-size:.82rem;color:var(--cream);
+}
+
+/* Pestañas */
+.inv-tabs{
+  display:flex;gap:1px;margin-bottom:28px;
+  border:1px solid rgba(200,160,48,.1);border-radius:3px;overflow:hidden;
+  background:rgba(200,160,48,.04);
+}
+.inv-tab{
+  flex:1;padding:11px 8px;border:none;
+  background:none;
+  color:rgba(212,201,168,.35);font-family:'DM Sans',sans-serif;
+  font-size:.75rem;font-weight:600;cursor:none;transition:all .25s;
+  letter-spacing:.04em;text-align:center;position:relative;
+  border-right:1px solid rgba(200,160,48,.08);
+}
+.inv-tab:last-child{border-right:none}
+.inv-tab.active{
+  background:rgba(200,160,48,.1);color:var(--gold);
+}
+.inv-tab.active::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:var(--gold);
+}
+.inv-tab:hover:not(.active){color:rgba(212,201,168,.65);}
+
+.inv-panel{display:none}
+.inv-panel.active{display:block}
+
+/* Progreso */
+.clue-progress{
+  display:flex;align-items:center;gap:12px;margin-bottom:18px;
+}
+.clue-progress-label{
+  font-size:.65rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(200,160,48,.4);
+  white-space:nowrap;font-family:'Special Elite',serif;
+}
+.clue-progress-bar{
+  flex:1;height:1px;background:rgba(200,160,48,.1);
+  position:relative;overflow:visible;
+}
+.clue-progress-fill{
+  position:absolute;top:0;left:0;height:100%;
+  background:linear-gradient(to right,rgba(139,26,26,.6),var(--gold));
+  transition:width .6s cubic-bezier(.25,.1,.25,1);
+  box-shadow:0 0 8px rgba(200,160,48,.4);
+}
+
+/* Clues */
+.clue-grid{display:flex;flex-direction:column;gap:8px;}
+.clue-item{
+  background:rgba(255,255,255,.018);
+  border:1px solid rgba(200,160,48,.08);
+  border-radius:3px;padding:16px 18px;
+  cursor:none;transition:border-color .25s,background .25s;
+  position:relative;overflow:hidden;
+}
+.clue-item::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--gold);transform:scaleY(0);transform-origin:bottom;
+  transition:transform .35s cubic-bezier(.25,.1,.25,1);
+}
+.clue-item:hover:not(.revealed){
+  border-color:rgba(200,160,48,.25);background:rgba(200,160,48,.03);
+}
+.clue-item:hover:not(.revealed)::before{transform:scaleY(1)}
+.clue-item.revealed{
+  border-color:rgba(200,160,48,.2);cursor:default;
+}
+.clue-item.revealed::before{transform:scaleY(1);background:var(--red-l)}
+
+/* Flash de revelado */
+.clue-flash{
+  position:absolute;inset:0;background:#fff;
+  opacity:0;pointer-events:none;border-radius:3px;
+}
+
+.clue-header{display:flex;align-items:center;gap:12px;}
+.clue-icon{font-size:1rem;width:26px;text-align:center;flex-shrink:0;opacity:.7}
+.clue-item.revealed .clue-icon{opacity:1}
+.clue-q{font-size:.83rem;font-weight:600;color:rgba(212,201,168,.8);flex:1;}
+.clue-item.revealed .clue-q{color:var(--cream)}
+.clue-status{
+  font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;white-space:nowrap;
+  font-family:'Special Elite',serif;
+}
+.clue-status.pending{color:rgba(200,160,48,.3);}
+.clue-status.done{color:var(--gold);}
+
+.clue-answer{
+  margin-top:14px;padding-top:14px;
+  border-top:1px solid rgba(200,160,48,.08);
+  font-size:.82rem;line-height:1.8;color:rgba(212,201,168,.65);
+  display:none;overflow:hidden;
+}
+.clue-item.revealed .clue-answer{display:block}
+.clue-highlight{color:var(--gold);font-weight:700;}
+.clue-note{
+  display:inline-flex;align-items:center;gap:5px;margin-top:10px;
+  font-size:.62rem;color:rgba(200,160,48,.4);font-style:italic;
+  font-family:'Special Elite',serif;
+}
+
+/* Sospechosos */
+.suspect-intro{
+  font-size:.78rem;color:var(--dimmer);margin-bottom:18px;line-height:1.6;
+  padding:12px 16px;
+  border-left:2px solid rgba(200,160,48,.2);
+  background:rgba(200,160,48,.03);
+}
+.suspect-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;
+}
+.suspect-card{
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(200,160,48,.08);
+  border-radius:3px;padding:18px 16px;
+  text-align:center;cursor:none;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.suspect-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,26,26,.08),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.suspect-card:hover{
+  border-color:rgba(200,160,48,.3);transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.suspect-card:hover::before{opacity:1}
+.suspect-card.selected{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(200,160,48,.15),0 12px 40px rgba(0,0,0,.5);
+}
+.suspect-card.selected::after{
+  content:'◉';position:absolute;top:10px;right:12px;
+  color:var(--gold);font-size:.75rem;
+}
+.suspect-emoji{font-size:1.8rem;margin-bottom:10px;display:block}
+.suspect-name{
+  font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700;
+  color:var(--cream);margin-bottom:3px;
+}
+.suspect-role{font-size:.68rem;color:var(--dimmer);}
+.suspect-motive{
+  font-size:.72rem;color:rgba(200,160,48,.6);margin-top:10px;
+  padding-top:10px;border-top:1px solid rgba(200,160,48,.08);
+  text-align:left;line-height:1.65;display:none;
+}
+.suspect-card.revealed .suspect-motive{display:block}
+
+/* Acusación */
+.accuse-section{
+  margin-top:40px;
+  padding:28px;
+  border:1px solid rgba(139,26,26,.2);border-radius:4px;
+  background:rgba(139,26,26,.04);
+  position:relative;overflow:hidden;
+}
+.accuse-section::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,rgba(139,26,26,.4),transparent);
+}
+.accuse-title{
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;
+  color:var(--cream);margin-bottom:6px;
+}
+.accuse-sub{
+  font-size:.78rem;color:var(--dimmer);margin-bottom:20px;line-height:1.6;
+}
+.btn-accuse{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,rgba(100,20,20,.8),rgba(160,30,30,.6));
+  border:1px solid rgba(139,26,26,.5);border-radius:3px;
+  color:rgba(220,180,180,.7);
+  font-family:'Special Elite',serif;font-size:.95rem;
+  cursor:none;transition:all .25s;letter-spacing:.04em;
+  position:relative;overflow:hidden;
+}
+.btn-accuse::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(200,50,50,.15),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.btn-accuse:hover:not(:disabled){
+  border-color:rgba(192,48,48,.8);color:#e8c0c0;
+  box-shadow:0 0 30px rgba(139,26,26,.3);
+}
+.btn-accuse:hover:not(:disabled)::before{opacity:1}
+.btn-accuse:disabled{opacity:.3;cursor:not-allowed}
+
+/* ════════════════════════════════════════════════
+   PANTALLA VEREDICTO
+════════════════════════════════════════════════ */
+#screen-verdict{
+  display:none;position:relative;z-index:1;
+  min-height:100vh;
+  align-items:center;justify-content:center;
+  padding:40px 20px;
+}
+
+.verdict-card{
+  max-width:600px;width:100%;
+  background:rgba(6,6,8,.97);
+  border:1px solid rgba(200,160,48,.15);
+  border-radius:4px;padding:48px 36px;
+  text-align:center;
+  box-shadow:0 50px 120px rgba(0,0,0,.9);
+}
+.verdict-icon-wrap{
+  width:80px;height:80px;border-radius:50%;
+  margin:0 auto 24px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;position:relative;
+}
+.verdict-icon-wrap::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:1px solid rgba(200,160,48,.2);
+  animation:verdictRing 2s ease-in-out infinite;
+}
+@keyframes verdictRing{
+  0%,100%{transform:scale(1);opacity:.5}
+  50%{transform:scale(1.08);opacity:1}
+}
+.verdict-result{
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;font-weight:900;margin-bottom:10px;line-height:1;
+}
+.verdict-result.correct{color:#4a9a5a}
+.verdict-result.wrong{color:#9a3030}
+.verdict-accused{
+  font-size:.82rem;color:var(--dimmer);margin-bottom:24px;
+  letter-spacing:.04em;
+}
+.verdict-explanation{
+  font-size:.84rem;line-height:1.9;color:rgba(212,201,168,.68);
+  background:rgba(255,255,255,.018);
+  border:1px solid rgba(200,160,48,.08);
+  border-radius:3px;padding:20px;margin-bottom:24px;text-align:left;
+}
+.verdict-score{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:.78rem;color:var(--dimmer);margin-bottom:32px;
+  font-family:'Special Elite',serif;letter-spacing:.06em;
+}
+.score-num{
+  font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--gold);
+}
+.verdict-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-verdict-home{
+  background:none;border:1px solid rgba(200,160,48,.25);border-radius:3px;
+  color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:12px 24px;cursor:none;transition:all .2s;letter-spacing:.04em;
+}
+.btn-verdict-home:hover{background:rgba(200,160,48,.08);}
+.btn-verdict-next{
+  background:linear-gradient(135deg,rgba(100,20,20,.8),rgba(160,30,30,.6));
+  border:1px solid rgba(139,26,26,.5);border-radius:3px;
+  color:rgba(220,180,180,.8);font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:600;padding:12px 24px;cursor:none;transition:all .2s;
+}
+.btn-verdict-next:hover{border-color:rgba(192,48,48,.7);color:#e8c0c0}
+.btn-verdict-next:disabled{opacity:.3;cursor:not-allowed}
+
+/* ════════════════════════════════════════════════
+   PARTÍCULAS DE VEREDICTO
+════════════════════════════════════════════════ */
+.verdict-particle{
+  position:fixed;width:4px;height:4px;border-radius:50%;
+  pointer-events:none;z-index:99995;
+}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════ */
+@media(max-width:680px){
+  .game-body{padding:24px 14px 80px}
+  .briefing-wrap{padding:24px 18px}
+  .briefing-bg-num{font-size:8rem}
+  .inv-tab{font-size:.65rem;padding:9px 4px}
+  .suspect-grid{grid-template-columns:repeat(2,1fr)}
+  .verdict-card{padding:32px 20px}
+}
+
+/* ════════════════════════════════════════════════
+   TEMAS POR CASO — body[data-t="N"]
+════════════════════════════════════════════════ */
+:root{--ca:#c8a030}                      /* fallback gold */
+
+body[data-t="0"]{--ca:#d44020}          /* Doce Minutos – urban red-orange */
+body[data-t="1"]{--ca:#4a7ab5}          /* Asunta – cold institutional blue */
+body[data-t="2"]{--ca:#b8860b}          /* Balmaseda – aristocrat gold */
+body[data-t="3"]{--ca:#1a8a7a}          /* Diana Quer – coastal teal */
+body[data-t="4"]{--ca:#8b7014}          /* La Profesora – monastery ochre */
+body[data-t="5"]{--ca:#7a3aaa}          /* Marta – void purple */
+body[data-t="6"]{--ca:#d4820a}          /* Violinista – concert amber */
+body[data-t="7"]{--ca:#cc3010}          /* Bretón – fire crimson */
+body[data-t="8"]{--ca:#2a9a4a}          /* Wanninkhof – mediterranean green */
+body[data-t="9"]{--ca:#3a6aaa}          /* Fotógrafo – harbour blue */
+
+body[data-t]{--gold:var(--ca);--border:rgba(var(--ca-r,200,160,48),.15)}
+
+/* Smooth theme transition */
+body{transition:--ca .6s ease}
+
+/* ════════════════════════════════════════════════
+   LOADING SCREEN — EXPEDIENTE CLASIFICADO
+════════════════════════════════════════════════ */
+#screen-loading{
+  display:none;
+  position:fixed;inset:0;z-index:89000;
+  background:#060608;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:28px;
+}
+#screen-loading.active{display:flex}
+
+.load-stamp{
+  font-family:'Special Elite',serif;
+  font-size:clamp(1.8rem,5vw,3.2rem);
+  letter-spacing:.18em;
+  color:var(--red-l);
+  border:3px solid var(--red-l);
+  padding:12px 32px;
+  opacity:0;
+  transform:rotate(-4deg) scale(1.3);
+  text-shadow:0 0 24px rgba(192,48,48,.5);
+  box-shadow:0 0 0 0 rgba(192,48,48,0),inset 0 0 0 0 rgba(192,48,48,0);
+  animation:stampDrop .55s cubic-bezier(.2,1.5,.4,1) .2s forwards;
+}
+@keyframes stampDrop{
+  to{opacity:1;transform:rotate(-3deg) scale(1)}
+}
+
+.load-case-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1rem,3vw,1.6rem);
+  color:var(--cream);
+  letter-spacing:.06em;
+  opacity:0;
+  animation:fadeUp .5s ease .75s forwards;
+}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}from{transform:translateY(10px)}}
+
+.load-bar-wrap{
+  width:clamp(200px,40vw,400px);
+  height:2px;
+  background:rgba(200,160,48,.15);
+  position:relative;overflow:hidden;
+}
+.load-bar{
+  height:100%;background:var(--ca,var(--gold));
+  width:0%;transition:width .05s linear;
+  box-shadow:0 0 8px var(--ca,var(--gold));
+}
+
+.load-classif-sub{
+  font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--dim);opacity:0;
+  animation:fadeUp .4s ease 1s forwards;
+}
+
+/* ════════════════════════════════════════════════
+   AUDIO BUTTON (fixed bottom-left)
+════════════════════════════════════════════════ */
+#audio-btn{
+  position:fixed;bottom:24px;left:24px;z-index:9100;
+  background:rgba(6,6,8,.8);border:1px solid var(--border);
+  color:var(--dim);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;
+  padding:8px 14px;border-radius:3px;cursor:none;
+  transition:border-color .25s,color .25s,opacity .25s;
+  opacity:.6;
+  backdrop-filter:blur(8px);
+}
+#audio-btn:hover{border-color:var(--gold);color:var(--gold);opacity:1}
+#audio-btn.on{color:var(--gold);border-color:var(--gold);opacity:.85}
+
+/* ════════════════════════════════════════════════
+   DETECTIVE RANK BADGE (home)
+════════════════════════════════════════════════ */
+#rank-badge{
+  margin-top:12px;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:7px 18px;
+  border:1px solid rgba(200,160,48,.25);
+  font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dim);
+  opacity:0;
+  transition:opacity .5s ease 2.5s;
+}
+#rank-badge.visible{opacity:1}
+#rank-badge .rank-icon{font-size:1.1em}
+#rank-badge .rank-label{color:var(--gold)}
+
+/* ════════════════════════════════════════════════
+   EVIDENCE BOARD BUTTON (fixed bottom-right in game)
+════════════════════════════════════════════════ */
+#evidence-board-btn{
+  position:fixed;bottom:24px;right:24px;z-index:9100;
+  background:rgba(6,6,8,.85);border:1px solid var(--border);
+  color:var(--dim);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;
+  padding:8px 14px;border-radius:3px;cursor:none;
+  transition:border-color .25s,color .25s,opacity .3s;
+  opacity:0;pointer-events:none;
+  backdrop-filter:blur(8px);
+}
+#evidence-board-btn.active{opacity:.7;pointer-events:auto}
+#evidence-board-btn:hover{border-color:var(--gold);color:var(--gold);opacity:1}
+
+/* ════════════════════════════════════════════════
+   EVIDENCE PANEL (sliding side panel)
+════════════════════════════════════════════════ */
+#evidence-panel{
+  position:fixed;top:0;right:-420px;width:420px;height:100vh;z-index:9200;
+  background:rgba(8,8,10,.97);
+  border-left:1px solid var(--border);
+  transition:right .45s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;padding:32px 28px;
+  backdrop-filter:blur(20px);
+}
+#evidence-panel.open{right:0}
+
+.ep-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;
+}
+.ep-title{
+  font-family:'Playfair Display',serif;font-size:1.1rem;
+  color:var(--cream);letter-spacing:.06em;
+}
+.ep-close{
+  background:none;border:none;color:var(--dim);
+  font-size:1.4rem;cursor:none;line-height:1;
+  transition:color .2s;
+}
+.ep-close:hover{color:var(--red-l)}
+
+.ep-section{margin-bottom:20px}
+.ep-section-label{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;opacity:.8;
+}
+.ep-item{
+  padding:10px 14px;margin-bottom:8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:2px;
+  font-size:.82rem;line-height:1.55;color:var(--dim);
+  position:relative;overflow:hidden;
+}
+.ep-item.locked{
+  filter:blur(4px);pointer-events:none;
+  user-select:none;
+}
+.ep-item.locked::after{
+  content:'CLASIFICADO';
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Special Elite',serif;font-size:.7rem;letter-spacing:.3em;
+  color:var(--red-l);background:rgba(6,6,8,.6);filter:none;
+}
+.ep-item.unlocked{
+  border-color:rgba(200,160,48,.3);
+}
+
+/* ════════════════════════════════════════════════
+   INTERROGATION MODAL
+════════════════════════════════════════════════ */
+#interrogation-modal{
+  display:none;position:fixed;inset:0;z-index:9500;
+  background:rgba(4,4,6,.95);
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(12px);
+}
+#interrogation-modal.active{display:flex}
+
+.intg-room{
+  width:100%;max-width:680px;
+  border:1px solid var(--border);
+  background:rgba(10,10,14,.9);
+  position:relative;overflow:hidden;
+}
+.intg-room::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--ca,var(--gold)),transparent);
+}
+
+.intg-header{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+.intg-emoji{font-size:2rem;line-height:1}
+.intg-name-wrap{}
+.intg-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.25rem;color:var(--cream);line-height:1.1;
+}
+.intg-role{font-size:.72rem;color:var(--dim);letter-spacing:.1em;margin-top:4px}
+
+.intg-body{padding:24px;min-height:180px}
+.intg-label{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;opacity:.8;
+}
+.intg-motive-text{
+  font-size:.9rem;line-height:1.7;color:var(--dim);
+  font-style:italic;
+}
+
+.intg-lamp{
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:2px;height:80px;background:rgba(200,160,48,.4);
+  box-shadow:0 0 20px rgba(200,160,48,.3);
+}
+.intg-lamp::after{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-top:20px solid rgba(200,160,48,.15);
+  filter:drop-shadow(0 0 8px rgba(200,160,48,.3));
+}
+
+.intg-actions{
+  padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;gap:10px;flex-wrap:wrap;
+}
+.intg-btn{
+  padding:9px 18px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--border);background:none;color:var(--dim);
+  cursor:none;transition:all .2s;border-radius:2px;
+}
+.intg-btn:hover{border-color:var(--gold);color:var(--gold)}
+.intg-btn.danger{border-color:rgba(192,48,48,.4);color:var(--red-l)}
+.intg-btn.danger:hover{border-color:var(--red-l);background:rgba(139,26,26,.15)}
+.intg-btn.close-btn{margin-left:auto}
+
+/* ════════════════════════════════════════════════
+   TIMELINE STRIP
+════════════════════════════════════════════════ */
+#timeline-strip{
+  position:fixed;bottom:0;left:0;right:0;z-index:400;
+  height:0;overflow:hidden;
+  transition:height .4s cubic-bezier(.4,0,.2,1);
+  background:rgba(6,6,8,.95);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(16px);
+  display:none;
+}
+#timeline-strip.open{height:80px;display:block}
+
+.timeline-inner{
+  display:flex;align-items:center;gap:0;
+  height:100%;padding:0 24px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.timeline-inner::-webkit-scrollbar{display:none}
+
+.tl-node{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:100px;cursor:none;
+  position:relative;
+}
+.tl-node::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:100%;height:1px;background:rgba(200,160,48,.2);
+  transform:translateY(-12px) translateX(0);
+  z-index:-1;
+}
+.tl-node:last-child::after{display:none}
+.tl-dot{
+  width:10px;height:10px;border-radius:50%;
+  border:2px solid var(--gold);background:#060608;
+  margin-bottom:6px;
+  transition:transform .2s,background .2s;
+}
+.tl-node:hover .tl-dot{background:var(--gold);transform:scale(1.4)}
+.tl-date{font-size:.55rem;color:var(--dim);letter-spacing:.1em}
+.tl-ev{font-size:.6rem;color:var(--cream);text-align:center;max-width:90px;line-height:1.3}
+
+/* ════════════════════════════════════════════════
+   CLASSIFIED STAMP on locked clues
+════════════════════════════════════════════════ */
+.clue-item .clue-stamp{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:2;opacity:.55;
+  font-family:'Special Elite',serif;
+  font-size:.7rem;letter-spacing:.35em;
+  color:var(--red-l);
+  border:2px solid var(--red-l);
+  padding:4px 10px;
+  transform:rotate(-8deg) scale(.9);
+  width:fit-content;height:fit-content;
+  margin:auto;
+  transition:opacity .2s;
+}
+.clue-item:not(.unlocked) .clue-stamp{opacity:.55}
+.clue-item.unlocked .clue-stamp{display:none}
+.clue-item{position:relative;overflow:hidden}
+
+/* ════════════════════════════════════════════════
+   PARANOIA OVERLAY (idle mode)
+════════════════════════════════════════════════ */
+#paranoia-overlay{
+  display:none;position:fixed;inset:0;z-index:8500;
+  pointer-events:none;
+}
+#paranoia-overlay.active{display:block}
+
+.para-vline{
+  position:absolute;top:0;bottom:0;width:1px;
+  background:rgba(192,48,48,.12);
+  animation:paraFlicker 3s infinite linear;
+}
+@keyframes paraFlicker{
+  0%,100%{opacity:0}
+  48%{opacity:0}
+  50%{opacity:1}
+  52%{opacity:0}
+  80%{opacity:0}
+  82%{opacity:.7}
+  84%{opacity:0}
+}
+.para-text{
+  position:absolute;font-family:'Special Elite',serif;
+  font-size:.6rem;letter-spacing:.2em;color:rgba(192,48,48,.3);
+  animation:paraTextFlicker 8s infinite;
+  user-select:none;
+}
+@keyframes paraTextFlicker{
+  0%,100%{opacity:0}
+  50%{opacity:1}
+  51%{opacity:0}
+  52%{opacity:.8}
+  70%{opacity:.5}
+  95%{opacity:0}
+}
+
+/* ════════════════════════════════════════════════
+   CASE ACCENT OVERRIDES — use --ca everywhere
+════════════════════════════════════════════════ */
+body[data-t] .home-redline,
+body[data-t] .briefing-bg-num{color:var(--ca);opacity:.06}
+body[data-t] .btn-back{border-color:rgba(var(--ca),0.3)}
+body[data-t] .clue-progress-fill{background:var(--ca)}
+body[data-t] .badge-open .badge-dot{background:var(--ca)}
+body[data-t] .verdict-score .score-num{color:var(--ca)}
+body[data-t] #cursor{border-color:var(--ca)}
+body[data-t] .home-redline{background:var(--ca);box-shadow:0 0 12px var(--ca)}
+body[data-t] .clue-highlight{color:var(--ca)}
+body[data-t] .inv-tab.active{color:var(--ca);border-bottom-color:var(--ca)}
+body[data-t] .clue-item:hover{border-color:var(--ca)}
+body[data-t] .btn-accuse:not(:disabled){
+  background:var(--ca);
+  box-shadow:0 0 24px rgba(var(--ca),0.4);
+}
+
+/* ════════════════════════════════════════════════
+   SUSPECT CARD HOVER ENHANCEMENT
+════════════════════════════════════════════════ */
+.suspect-card{
+  transition:border-color .25s,transform .2s,box-shadow .25s;
+}
+.suspect-card:hover{
+  border-color:var(--ca,var(--gold));
+  transform:translateY(-3px);
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+
+/* ════════════════════════════════════════════════
+   LOADING – prevent scroll during load
+════════════════════════════════════════════════ */
+body.loading{overflow:hidden}
+
+
+/* ════════════════════════════════════════════════
+   SELECCIÓN DE JUGADOR
+════════════════════════════════════════════════ */
+#player-modal{
+  display:none;
+  position:fixed;inset:0;z-index:88000;
+  background:rgba(4,4,6,.97);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:36px;
+  backdrop-filter:blur(16px);
+}
+#player-modal.active{display:flex}
+
+.pm-label{
+  font-size:.6rem;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--dim);
+}
+.pm-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.4rem,4vw,2.2rem);
+  color:var(--cream);letter-spacing:.04em;
+  text-align:center;
+}
+.pm-title span{color:var(--gold);font-style:italic}
+
+.pm-players{
+  display:flex;gap:20px;flex-wrap:wrap;justify-content:center;
+}
+.pm-player-btn{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:32px 44px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  cursor:none;
+  transition:border-color .25s,background .25s,transform .2s,box-shadow .25s;
+  position:relative;overflow:hidden;
+  min-width:160px;
+}
+.pm-player-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(200,160,48,.04));
+  opacity:0;transition:opacity .25s;
+}
+.pm-player-btn:hover{
+  border-color:var(--gold);
+  background:rgba(200,160,48,.06);
+  transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.pm-player-btn:hover::before{opacity:1}
+
+.pm-player-emoji{font-size:2.8rem;line-height:1}
+.pm-player-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;color:var(--cream);letter-spacing:.04em;
+}
+.pm-player-rank{
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);
+}
+.pm-player-pts{
+  font-size:.75rem;color:var(--gold);font-weight:600;
+}
+.pm-divider{
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dimmer);align-self:center;
+  padding:8px 0;
+}
+
+/* Active player indicator in game header */
+#game-player-tag{
+  font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);border:1px solid rgba(200,160,48,.25);
+  padding:4px 10px;border-radius:2px;
+  opacity:.85;
+}
+
+/* ════════════════════════════════════════════════
+   SCOREBOARD — HOME SCREEN
+════════════════════════════════════════════════ */
+#scoreboard{
+  display:flex;gap:24px;margin-top:16px;
+  flex-wrap:wrap;justify-content:center;
+}
+.sb-player{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:14px 24px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  min-width:130px;
+  transition:border-color .25s;
+}
+.sb-player:hover{border-color:rgba(200,160,48,.35)}
+.sb-player-emoji{font-size:1.6rem}
+.sb-player-name{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;color:var(--cream);
+}
+.sb-player-rank-txt{
+  font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);
+}
+.sb-player-pts-txt{
+  font-size:.7rem;color:var(--dim);
+}
+
+
+/* ════════════════════════════════════════════════
+   SELECTOR DE IDIOMA
+════════════════════════════════════════════════ */
+#lang-picker{
+  position:fixed;top:18px;right:18px;z-index:9400;
+  display:flex;gap:4px;align-items:center;
+  background:rgba(6,6,8,.85);
+  border:1px solid var(--border);
+  padding:5px 8px;border-radius:3px;
+  backdrop-filter:blur(12px);
+}
+.lang-btn{
+  background:none;border:none;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);cursor:none;
+  padding:4px 7px;border-radius:2px;
+  transition:color .2s,background .2s,opacity .2s;
+  opacity:.55;font-family:'DM Sans',sans-serif;font-weight:600;
+  white-space:nowrap;
+}
+.lang-btn:hover{opacity:.85;color:var(--cream)}
+.lang-btn.active{
+  opacity:1;color:var(--gold);
+  background:rgba(200,160,48,.08);
+  border:1px solid rgba(200,160,48,.25);
+}
+.lang-btn .lang-flag{font-size:1rem;line-height:1}
+.lang-sep{color:var(--dimmer);font-size:.6rem}
+
+/* ════════════════════════════════════════════════
+   INTRO CINEMATOGRÁFICA — por caso
+════════════════════════════════════════════════ */
+#case-intro-overlay{
+  position:fixed;inset:0;z-index:9900;
+  background:#000;
+  display:none;flex-direction:column;
+  font-family:'DM Sans',sans-serif;
+  overflow:hidden;
+}
+#case-intro-overlay.active{display:flex}
+
+#intro-canvas{
+  position:absolute;inset:0;
+  pointer-events:none;z-index:0;
+}
+
+.intro-police-light{
+  position:absolute;top:0;left:0;right:0;height:3px;
+  z-index:5;pointer-events:none;
+  background:linear-gradient(90deg,#0030ff,#ff0000);
+  animation:policeLights 0.6s steps(1) infinite;
+  display:none;
+}
+@keyframes policeLights{
+  0%  {background:linear-gradient(90deg,#0030ff 50%,#ff0000 50%);opacity:1}
+  25% {background:linear-gradient(90deg,#0030ff 50%,#ff0000 50%);opacity:0}
+  50% {background:linear-gradient(90deg,#ff0000 50%,#0030ff 50%);opacity:1}
+  75% {background:linear-gradient(90deg,#ff0000 50%,#0030ff 50%);opacity:0}
+}
+
+.intro-color-overlay{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
+
+.intro-content{
+  position:relative;z-index:2;
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px;text-align:center;
+  gap:0;
+}
+
+.intro-stamp{
+  font-size:clamp(.9rem,3vw,1.4rem);
+  font-weight:900;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--intro-color,#d44020);
+  border:2px solid var(--intro-color,#d44020);
+  padding:10px 24px;
+  opacity:0;transform:scale(1.6) rotate(-4deg);
+  animation:introStamp .55s cubic-bezier(.15,1.4,.35,1) forwards;
+}
+@keyframes introStamp{
+  to{opacity:1;transform:scale(1) rotate(-3deg)}
+}
+
+.intro-line{
+  opacity:0;transform:translateY(18px);
+  animation:introReveal .5s ease forwards;
+}
+@keyframes introReveal{
+  to{opacity:1;transform:translateY(0)}
+}
+
+.intro-line.type-location{
+  font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);margin-top:28px;
+}
+.intro-line.type-victim{
+  font-size:clamp(1.6rem,5vw,3rem);
+  font-family:'Playfair Display',serif;
+  font-weight:700;color:#fff;margin-top:10px;line-height:1.1;
+}
+.intro-line.type-fact{
+  font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-top:8px;
+}
+.intro-line.type-evidence{
+  font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--intro-color,#d44020);margin-top:14px;
+  padding:6px 16px;border:1px solid var(--intro-color,#d44020);
+  opacity:0;animation:introReveal .5s ease forwards;
+}
+.intro-line.type-tagline{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(.9rem,2.5vw,1.3rem);font-style:italic;
+  color:rgba(255,255,255,.65);margin-top:22px;
+}
+
+/* Barra de progreso */
+.intro-progress{
+  position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:rgba(255,255,255,.08);z-index:6;
+}
+.intro-progress-fill{
+  height:100%;width:0%;
+  background:var(--intro-color,#d44020);
+}
+
+/* Botón Skip */
+.intro-skip{
+  position:absolute;bottom:20px;right:20px;z-index:7;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.4);
+  font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:8px 18px;border-radius:2px;cursor:pointer;
+  transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.intro-skip:hover{
+  background:rgba(255,255,255,.12);
+  color:rgba(255,255,255,.8);
+}
+
+/* Número de caso en fondo */
+.intro-bg-num{
+  position:absolute;
+  font-family:'Playfair Display',serif;
+  font-size:clamp(20vw,35vw,40vw);font-weight:900;
+  color:rgba(255,255,255,.018);
+  pointer-events:none;z-index:1;
+  line-height:1;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  user-select:none;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── Efectos de capa ── -->
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="scanlines"></div>
+<div id="flash"></div>
+
+<!-- ── Cursor detective ── -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-crosshair"></div>
+
+<!-- ════════════════════════════════════════════════
+     PANTALLA INICIO
+════════════════════════════════════════════════ -->
+<div id="screen-home">
+  <div class="home-redline" id="home-redline"></div>
+  <div class="home-eyebrow" id="home-eyebrow">Casos criminales</div>
+
+  <h1 class="home-title glitch" data-text="CRIMS" id="home-title">CRIMS</h1>
+  <p class="home-title-sub" id="home-title-sub">detective</p>
+  <div id="rank-badge">
+    <span class="rank-icon" id="rank-icon">🔍</span>
+    <span class="rank-label" id="rank-label">Detective Novato</span>
+    <span class="rank-pts" id="rank-pts">· 0 pts</span>
+  </div>
+  <div id="scoreboard">
+    <div class="sb-player">
+      <span class="sb-player-emoji">🐒</span>
+      <span class="sb-player-name">Ruslan</span>
+      <span class="sb-player-rank-txt" id="sb-rank-Ruslan">Novato</span>
+      <span class="sb-player-pts-txt" id="sb-pts-Ruslan">0 pts</span>
+    </div>
+    <div class="sb-player">
+      <span class="sb-player-emoji">💅</span>
+      <span class="sb-player-name">Anabel</span>
+      <span class="sb-player-rank-txt" id="sb-rank-Anabel">Novata</span>
+      <span class="sb-player-pts-txt" id="sb-pts-Anabel">0 pts</span>
+    </div>
+  </div>
+
+  <div class="home-divider" id="home-divider">
+    <div class="home-divider-line"></div>
+    <span class="home-divider-dot">◆</span>
+    <div class="home-divider-line"></div>
+  </div>
+
+  <p class="home-sub" id="home-sub">
+    Me dolía todo el cuerpo, me aburría demasiado… así que hice una web de crímenes.<br>
+    Hay 10 casos: algunos son reales, otros… sinceramente ni idea.<br>
+    Resuélvelos, acusa al culpable y gana premios si tu cerebro funciona mejor que el mío.
+  </p>
+
+  <div class="case-grid" id="case-grid">
+
+    <div class="case-card" onclick="startCase(0)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 01</div>
+      <div class="case-title">Doce Minutos</div>
+      <div class="case-location">🛵 Sevilla · 2023</div>
+      <div class="case-desc">Un rider de reparto tarda 12 minutos en subir al cuarto. Nadie debería tardar 12 minutos. Lo encontraron en el garaje. Había grabado algo con el móvil.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(1)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 02</div>
+      <div class="case-title">El Caso Asunta</div>
+      <div class="case-location">🏡 Santiago de Compostela · 2013</div>
+      <div class="case-desc">Asunta Basterra Porto, 12 años. Adoptada de China. Encontrada muerta envuelta en una manta. Sus padres dieron la alarma.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(2)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 03</div>
+      <div class="case-title">La Herencia de los Balmaseda</div>
+      <div class="case-location">🏛️ Salamanca · 2021</div>
+      <div class="case-desc">Un anciano millonario muere la noche después de firmar un nuevo testamento. Tres herederos. Un médico con secretos. Un veneno en su propia medicación.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(3)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 04</div>
+      <div class="case-title">Diana Quer</div>
+      <div class="case-location">🌊 A Pobra do Caramiñal · 2016</div>
+      <div class="case-desc">18 años. Desaparece de madrugada. Su cuerpo no aparecerá hasta 16 meses después en el interior de un pozo.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(4)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 05</div>
+      <div class="case-title">La Profesora de Cuenca</div>
+      <div class="case-location">⛪ Cuenca · 2020</div>
+      <div class="case-desc">Una historiadora cae desde el campanario de un monasterio. En sus notas, una palabra subrayada tres veces: PLAGIO. Su colega de investigación estaba en el edificio esa noche.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(5)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 06</div>
+      <div class="case-title">Marta del Castillo</div>
+      <div class="case-location">🌆 Sevilla · 2009</div>
+      <div class="case-desc">17 años. El asesino confesó. Nunca dijo dónde está el cuerpo. Sus padres siguen buscando más de 15 años después.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(6)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 07</div>
+      <div class="case-title">El Violinista de Gracia</div>
+      <div class="case-location">🎻 Barcelona · 2019</div>
+      <div class="case-desc">Un violinista de fama nacional muere en su apartamento. Aparente infarto. Pero hay una marca de punción que nadie vio venir.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(7)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 08</div>
+      <div class="case-title">El Caso Bretón</div>
+      <div class="case-location">🌳 Córdoba · 2011</div>
+      <div class="case-desc">Ruth, 6 años. José, 2 años. Desaparecen con su padre en un parque. Las cámaras registran que nunca salieron.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(8)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 09</div>
+      <div class="case-title">Rocío Wanninkhof</div>
+      <div class="case-location">🌊 Mijas, Málaga · 1999</div>
+      <div class="case-desc">19 años. Una inocente pasa 17 meses en prisión. El verdadero asesino mata de nuevo antes de ser identificado.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+    <div class="case-card" onclick="startCase(9)">
+      <div class="case-card-glow"></div>
+      <div class="case-num">Caso 10</div>
+      <div class="case-title">El Fotógrafo del Puerto</div>
+      <div class="case-location">🚢 Valencia · 2018</div>
+      <div class="case-desc">Una fotógrafa documentalista dijo tener «la foto definitiva». Horas después estaba muerta en un almacén del puerto. La tarjeta de memoria había desaparecido.</div>
+      <div class="case-badge badge-open"><span class="badge-dot"></span>Abierto</div>
+    </div>
+
+  </div>
+
+  <div class="home-footer">
+    © 2026 El Desconocido &nbsp;·&nbsp; Web creada con café, estrés y decisiones cuestionables de última hora.<br>
+    Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.<br>
+    <span style="opacity:.5">🌐 esto es página de web, para que lo sepan</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PANTALLA JUEGO
+════════════════════════════════════════════════ -->
+<div id="screen-game">
+  <div class="game-header">
+    <button class="btn-back" onclick="goHome()">← Casos</button>
+    <div class="game-case-title" id="gh-title"></div>
+    <div id="game-player-tag"></div>
+    <div class="game-header-right">
+      <div class="game-clues-badge" id="gh-clues">0 / 0</div>
+      <button class="btn-restart" onclick="restartCase()">↺ Reiniciar</button>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <!-- Briefing -->
+    <div class="briefing-wrap" id="briefing-wrap">
+      <div class="briefing-bg-num" id="br-bgnum"></div>
+      <div class="briefing-kicker" id="br-kicker"></div>
+      <div class="briefing-headline" id="br-headline"></div>
+      <div class="briefing-body" id="br-body"></div>
+      <div class="briefing-meta" id="br-meta"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="inv-tabs" id="inv-tabs"></div>
+
+    <!-- Paneles -->
+    <div id="inv-escena" class="inv-panel active">
+      <div class="clue-progress">
+        <span class="clue-progress-label" id="prog-escena-txt">0/0</span>
+        <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-escena-fill" style="width:0%"></div></div>
+      </div>
+      <div class="clue-grid" id="clues-escena"></div>
+    </div>
+    <div id="inv-testigos" class="inv-panel">
+      <div class="clue-progress">
+        <span class="clue-progress-label" id="prog-testigos-txt">0/0</span>
+        <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-testigos-fill" style="width:0%"></div></div>
+      </div>
+      <div class="clue-grid" id="clues-testigos"></div>
+    </div>
+    <div id="inv-sospechosos" class="inv-panel">
+      <div class="suspect-intro">Haz clic en un sospechoso para revisar su móvil documentado. Selecciona al culpable cuando hayas reunido suficientes pruebas.</div>
+      <div class="suspect-grid" id="suspect-grid"></div>
+    </div>
+    <div id="inv-pruebas" class="inv-panel">
+      <div class="clue-progress">
+        <span class="clue-progress-label" id="prog-pruebas-txt">0/0</span>
+        <div class="clue-progress-bar"><div class="clue-progress-fill" id="prog-pruebas-fill" style="width:0%"></div></div>
+      </div>
+      <div class="clue-grid" id="clues-pruebas"></div>
+    </div>
+
+    <!-- Acusación -->
+    <div class="accuse-section" id="accuse-section">
+      <div class="accuse-title">⚖️ Acusación formal</div>
+      <div class="accuse-sub" id="accuse-sub">Selecciona un sospechoso antes de presentar la acusación.</div>
+      <button class="btn-accuse" id="btn-accuse" disabled onclick="makeAccusation()">
+        Presentar acusación formal
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PANTALLA VEREDICTO
+════════════════════════════════════════════════ -->
+<div id="screen-verdict" style="display:none">
+  <div class="verdict-card" id="verdict-card">
+    <div class="verdict-icon-wrap" id="vd-icon-wrap">
+      <span id="vd-icon"></span>
+    </div>
+    <div class="verdict-result" id="vd-result"></div>
+    <div class="verdict-accused" id="vd-accused"></div>
+    <div class="verdict-explanation" id="vd-explanation"></div>
+    <div class="verdict-score">
+      <span id="vd-score-label">Pistas descubiertas:</span> <span class="score-num" id="vd-score"></span>
+    </div>
+    <div class="verdict-actions">
+      <button class="btn-verdict-home" onclick="goHome()">← Casos</button>
+      <button class="btn-verdict-next" id="btn-next-case" onclick="nextCase()">Siguiente caso →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE IDIOMAS — tr(key)
+════════════════════════════════════════════════ */
+let currentLang = localStorage.getItem('crims_lang') || 'es';
+
+const T = {
+  es:{
+    eyebrow:         'Casos criminales',
+    title_sub:       'detective',
+    home_sub:        'Me dolía todo el cuerpo, me aburría demasiado… así que hice una web de crímenes.<br>Hay 10 casos: algunos son reales, otros… sinceramente ni idea.<br>Resuélvelos, acusa al culpable y gana premios si tu cerebro funciona mejor que el mío.',
+    badge_open:      'Abierto',
+    back:            '← Casos',
+    restart:         '↺ Reiniciar',
+    restart_confirm: '¿Reiniciar la investigación? Se borrarán todas las pistas descubiertas.',
+    tab_escena:      '🔬 Escena',
+    tab_testigos:    '👤 Testigos',
+    tab_sosp:        '🕵️ Sospechosos',
+    tab_pruebas:     '🧪 Pruebas',
+    clue_examine:    'Examinar →',
+    clue_analyzed:   '✓ Analizado',
+    clue_note:       '◆ Pista registrada en el expediente',
+    progress_clues:  'pistas',
+    suspect_intro:   'Haz clic en un sospechoso para revisar su móvil documentado. Selecciona al culpable cuando hayas reunido suficientes pruebas.',
+    accuse_title:    '⚖️ Acusación formal',
+    accuse_ph:       'Selecciona un sospechoso antes de presentar la acusación.',
+    suspect_sel:     'Sospechoso seleccionado: {n}. ¿Presentas la acusación formal?',
+    btn_accuse:      'Presentar acusación formal',
+    verdict_ok:      'Caso resuelto',
+    verdict_fail:    'Acusación incorrecta',
+    accused_ok:      'Has acusado a: {n}',
+    accused_fail:    'Has acusado a: {n} · El culpable era {k}',
+    score_label:     'Pistas descubiertas:',
+    btn_home:        '← Casos',
+    btn_next:        'Siguiente caso →',
+    btn_final:       'Volver al inicio',
+    load_stamp:      'EXPEDIENTE CLASIFICADO',
+    load_sub:        'Acceso restringido · Solo detectives autorizados',
+    loading:         'Cargando caso…',
+    pm_label:        'Identificación de detective',
+    pm_q:            '¿Quién investiga',
+    pm_q2:           'este caso',
+    pm_vs:           'vs',
+    ep_title:        '📋 Tablón de evidencias',
+    ep_btn:          '📋 Tablón',
+    classified:      'CLASIFICADO',
+    close_room:      'Cerrar sala',
+    accuse_formal:   '⚖️ Acusar formalmente',
+    audio_on:        '🔊 Ambiente',
+    audio_off:       '🔇 Silencio',
+    rank_0:  'Detective Novato',  rank_0f: 'Detective Novata',
+    rank_1:  'Inspector',         rank_1f: 'Inspectora',
+    rank_2:  'Investigador Senior',rank_2f:'Investigadora Senior',
+    rank_3:  'Fiscal Especial',   rank_3f: 'Fiscal Especial',
+    rank_4:  'Juez de Instrucción',rank_4f:'Jueza de Instrucción',
+    rank_5:  'Maestro Detective', rank_5f: 'Maestra Detective',
+    lang_label: 'Anabel tu Bandera 🇪🇸',
+  },
+  ca:{
+    eyebrow:         'Casos criminals',
+    title_sub:       'detectiu',
+    home_sub:        'Em dolía tot el cos, m\'avorria massa… així que vaig fer una web de crims.<br>Hi ha 10 casos: alguns són reals, d\'altres… sincerament ni idea.<br>Resol-los, acusa el culpable i guanya premis si el teu cervell funciona millor que el meu.',
+    badge_open:      'Obert',
+    back:            '← Casos',
+    restart:         '↺ Reiniciar',
+    restart_confirm: 'Vols reiniciar la investigació? S\'esborraran totes les pistes descobertes.',
+    tab_escena:      '🔬 Escena',
+    tab_testigos:    '👤 Testimonis',
+    tab_sosp:        '🕵️ Sospitosos',
+    tab_pruebas:     '🧪 Proves',
+    clue_examine:    'Examinar →',
+    clue_analyzed:   '✓ Analitzat',
+    clue_note:       '◆ Pista registrada a l\'expedient',
+    progress_clues:  'pistes',
+    suspect_intro:   'Fes clic en un sospitós per revisar el seu mòbil documentat. Selecciona el culpable quan hagis reunit prou proves.',
+    accuse_title:    '⚖️ Acusació formal',
+    accuse_ph:       'Selecciona un sospitós abans de presentar l\'acusació.',
+    suspect_sel:     'Sospitós seleccionat: {n}. Presentes l\'acusació formal?',
+    btn_accuse:      'Presentar acusació formal',
+    verdict_ok:      'Cas resolt',
+    verdict_fail:    'Acusació incorrecta',
+    accused_ok:      'Has acusat a: {n}',
+    accused_fail:    'Has acusat a: {n} · El culpable era {k}',
+    score_label:     'Pistes descobertes:',
+    btn_home:        '← Casos',
+    btn_next:        'Cas següent →',
+    btn_final:       'Tornar a l\'inici',
+    load_stamp:      'EXPEDIENT CLASSIFICAT',
+    load_sub:        'Accés restringit · Només detectives autoritzats',
+    loading:         'Carregant cas…',
+    pm_label:        'Identificació de detectiu',
+    pm_q:            'Qui investiga',
+    pm_q2:           'aquest cas',
+    pm_vs:           'vs',
+    ep_title:        '📋 Tauler d\'evidències',
+    ep_btn:          '📋 Tauler',
+    classified:      'CLASSIFICAT',
+    close_room:      'Tancar sala',
+    accuse_formal:   '⚖️ Acusar formalment',
+    audio_on:        '🔊 Ambient',
+    audio_off:       '🔇 Silenci',
+    rank_0:  'Detective Novell',    rank_0f: 'Detective Novella',
+    rank_1:  'Inspector',           rank_1f: 'Inspectora',
+    rank_2:  'Investigador Sènior', rank_2f: 'Investigadora Sènior',
+    rank_3:  'Fiscal Especial',     rank_3f: 'Fiscal Especial',
+    rank_4:  'Jutge d\'Instrucció', rank_4f: 'Jutgessa d\'Instrucció',
+    rank_5:  'Mestre Detective',    rank_5f: 'Mestra Detective',
+    lang_label: 'Català 🏴󠁥󠁳󠁣󠁴󠁿',
+  },
+  en:{
+    eyebrow:         'Criminal Cases',
+    title_sub:       'detective',
+    home_sub:        'My whole body hurt, I was bored to death… so I made a true crime website.<br>There are 10 cases: some are real, others… honestly no idea.<br>Solve them, accuse the culprit and win prizes if your brain works better than mine.',
+    badge_open:      'Open',
+    back:            '← Cases',
+    restart:         '↺ Restart',
+    restart_confirm: 'Restart the investigation? All discovered clues will be lost.',
+    tab_escena:      '🔬 Scene',
+    tab_testigos:    '👤 Witnesses',
+    tab_sosp:        '🕵️ Suspects',
+    tab_pruebas:     '🧪 Evidence',
+    clue_examine:    'Examine →',
+    clue_analyzed:   '✓ Analyzed',
+    clue_note:       '◆ Clue logged in the case file',
+    progress_clues:  'clues',
+    suspect_intro:   'Click on a suspect to review their documented motive. Select the culprit once you\'ve gathered enough evidence.',
+    accuse_title:    '⚖️ Formal accusation',
+    accuse_ph:       'Select a suspect before submitting the accusation.',
+    suspect_sel:     'Suspect selected: {n}. Do you submit the formal accusation?',
+    btn_accuse:      'Submit formal accusation',
+    verdict_ok:      'Case solved',
+    verdict_fail:    'Wrong accusation',
+    accused_ok:      'You accused: {n}',
+    accused_fail:    'You accused: {n} · The culprit was {k}',
+    score_label:     'Clues discovered:',
+    btn_home:        '← Cases',
+    btn_next:        'Next case →',
+    btn_final:       'Back to start',
+    load_stamp:      'CLASSIFIED FILE',
+    load_sub:        'Restricted access · Authorized detectives only',
+    loading:         'Loading case…',
+    pm_label:        'Detective identification',
+    pm_q:            'Who investigates',
+    pm_q2:           'this case',
+    pm_vs:           'vs',
+    ep_title:        '📋 Evidence board',
+    ep_btn:          '📋 Board',
+    classified:      'CLASSIFIED',
+    close_room:      'Close room',
+    accuse_formal:   '⚖️ Formally accuse',
+    audio_on:        '🔊 Ambient',
+    audio_off:       '🔇 Silent',
+    rank_0:  'Rookie Detective',      rank_0f: 'Rookie Detective',
+    rank_1:  'Inspector',             rank_1f: 'Inspector',
+    rank_2:  'Senior Investigator',   rank_2f: 'Senior Investigator',
+    rank_3:  'Special Prosecutor',    rank_3f: 'Special Prosecutor',
+    rank_4:  'Chief Justice',         rank_4f: 'Chief Justice',
+    rank_5:  'Master Detective',      rank_5f: 'Master Detective',
+    lang_label: 'English 🇬🇧',
+  },
+};
+
+function tr(key){ return T[currentLang]?.[key] ?? T.es[key] ?? key; }
+
+const TAB_KEYS = ['tab_escena','tab_testigos','tab_sosp','tab_pruebas'];
+
+function setLang(code){
+  currentLang = code;
+  localStorage.setItem('crims_lang', code);
+  // Update picker buttons
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang===code);
+  });
+  applyLang();
+}
+
+function applyLang(){
+  const el = id => document.getElementById(id);
+  const qa = sel => document.querySelectorAll(sel);
+
+  // Home
+  if(el('home-eyebrow'))   el('home-eyebrow').textContent  = tr('eyebrow');
+  if(el('home-title-sub')) el('home-title-sub').textContent= tr('title_sub');
+  if(el('home-sub'))       el('home-sub').innerHTML        = tr('home_sub');
+
+  // Case badges
+  qa('.badge-open').forEach(b=>{
+    b.innerHTML = `<span class="badge-dot"></span>${tr('badge_open')}`;
+  });
+
+  // Game nav
+  qa('.btn-back').forEach(b=>  b.textContent = tr('back'));
+  qa('.btn-restart').forEach(b=>b.textContent = tr('restart'));
+
+  // Tabs (if game is open)
+  qa('.inv-tab').forEach((b,i)=>{ if(TAB_KEYS[i]) b.textContent = tr(TAB_KEYS[i]); });
+
+  // Clue examine buttons (unrevealed)
+  qa('.clue-status.pending').forEach(b=> b.textContent = tr('clue_examine'));
+  qa('.clue-status.done').forEach(b=>    b.textContent = tr('clue_analyzed'));
+  qa('.clue-note').forEach(n=>           n.textContent = tr('clue_note'));
+
+  // Suspect section
+  qa('.suspect-intro').forEach(d=> d.textContent = tr('suspect_intro'));
+
+  // Accuse section
+  qa('.accuse-title').forEach(d=> d.textContent = tr('accuse_title'));
+  if(el('btn-accuse'))  el('btn-accuse').textContent  = tr('btn_accuse');
+  if(el('accuse-sub') && el('accuse-sub').textContent===tr('accuse_ph') ||
+     el('accuse-sub')?.textContent?.startsWith('Selecciona') ||
+     el('accuse-sub')?.textContent?.startsWith('Select') ||
+     el('accuse-sub')?.textContent?.startsWith('Selecciona un sosp') ||
+     el('accuse-sub')?.textContent?.startsWith('Fes clic')){
+    if(el('accuse-sub') && !el('btn-accuse')?.disabled===false)
+      el('accuse-sub').textContent = tr('accuse_ph');
+  }
+  if(el('accuse-sub') && el('btn-accuse')?.disabled)
+    el('accuse-sub').textContent = tr('accuse_ph');
+
+  // Verdict buttons
+  qa('.btn-verdict-home').forEach(b=> b.textContent = tr('btn_home'));
+  if(el('vd-score-label')) el('vd-score-label').textContent = tr('score_label');
+  const btnNext = el('btn-next-case');
+  if(btnNext && typeof currentCase==='number')
+    btnNext.textContent = currentCase < CASES.length-1 ? tr('btn_next') : tr('btn_final');
+
+  // Loading screen
+  qa('.load-stamp').forEach(d=>     d.textContent = tr('load_stamp'));
+  qa('.load-classif-sub').forEach(d=>d.textContent= tr('load_sub'));
+
+  // Player modal
+  qa('.pm-label').forEach(d=> d.textContent = tr('pm_label'));
+  qa('.pm-title').forEach(d=> d.innerHTML =
+    `${tr('pm_q')} <span>${tr('pm_q2')}</span>?`);
+  qa('.pm-divider').forEach(d=> d.textContent = tr('pm_vs'));
+
+  // Evidence panel
+  qa('.ep-title').forEach(d=>         d.textContent = tr('ep_title'));
+  if(el('evidence-board-btn'))  el('evidence-board-btn').textContent = tr('ep_btn');
+
+  // Interrogation close button
+  qa('.intg-btn.close-btn').forEach(b=> b.textContent = tr('close_room'));
+  if(el('intg-accuse-btn')) el('intg-accuse-btn').textContent = tr('accuse_formal');
+
+  // Clue stamps (classified)
+  qa('.clue-stamp').forEach(s=> s.textContent = tr('classified'));
+
+  // Audio button state
+  const ab = el('audio-btn');
+  if(ab) ab.textContent = ab.classList.contains('on') ? tr('audio_on') : tr('audio_off');
+
+  // Scoreboard rank titles
+  updateScoreboard?.();
+}
+
+/* ════════════════════════════════════════════════
+   SUPABASE — cliente y capa de datos
+════════════════════════════════════════════════ */
+const SB_URL  = 'https://hzebrblezimptcwnpijm.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6ZWJyYmxlemltcHRjd25waWptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTM1MzIsImV4cCI6MjA5NTI4OTUzMn0.wC8U7uGFrLkQBy4AcJnIqflMpDFmdu1Jubn9JZ6UeBs';
+const sb = supabase.createClient(SB_URL, SB_ANON);
+
+const DB = {
+  /* ── cache local para operaciones síncronas ── */
+  _data: {
+    Ruslan: {total_pts:0, cases_solved:0, cases_attempted:0, rank_title:'Detective Novato'},
+    Anabel: {total_pts:0, cases_solved:0, cases_attempted:0, rank_title:'Detective Novata'},
+  },
+  _ready: false,
+
+  /* ── Carga los totales desde Supabase ── */
+  async load(){
+    try {
+      const {data, error} = await sb.from('crims_players').select('*');
+      if(error) throw error;
+      if(data && data.length){
+        data.forEach(row => {
+          this._data[row.player] = row;
+          // Sync localStorage
+          localStorage.setItem('crims_pts_'+row.player, String(row.total_pts));
+        });
+      }
+      this._ready = true;
+    } catch(e){
+      console.warn('[CRIMS] DB no disponible, usando localStorage:', e.message);
+      // Fallback: leer desde localStorage
+      ['Ruslan','Anabel'].forEach(p=>{
+        const pts = parseInt(localStorage.getItem('crims_pts_'+p)||'0');
+        this._data[p] = {...this._data[p], total_pts: pts};
+      });
+    }
+    return this._data;
+  },
+
+  /* ── Devuelve pts del cache (síncrono) ── */
+  pts(player){
+    return this._data[player]?.total_pts ?? parseInt(localStorage.getItem('crims_pts_'+player)||'0');
+  },
+
+  /* ── Guarda resultado de una partida ── */
+  async record({player, caseIdx, caseTitle, correct, cluesFound, ptsEarned, accused}){
+    const prev = this._data[player] || {total_pts:0, cases_solved:0, cases_attempted:0};
+    const updated = {
+      player,
+      total_pts:       prev.total_pts + ptsEarned,
+      cases_solved:    prev.cases_solved   + (correct ? 1 : 0),
+      cases_attempted: prev.cases_attempted + 1,
+      rank_title:      getPlayerRank(player).title,
+      updated_at:      new Date().toISOString(),
+    };
+
+    // Actualizar cache y localStorage inmediatamente
+    this._data[player] = updated;
+    localStorage.setItem('crims_pts_'+player, String(updated.total_pts));
+
+    // Escribir en BD de forma async (fire & forget con reintento)
+    try {
+      await sb.from('crims_scores').insert({
+        player, case_idx: caseIdx, case_title: caseTitle,
+        correct, clues_found: cluesFound, pts_earned: ptsEarned, accused,
+      });
+      await sb.from('crims_players').upsert(updated, {onConflict:'player'});
+    } catch(e){
+      console.warn('[CRIMS] Error al guardar en BD:', e.message);
+      // Reintento único en 5 segundos
+      setTimeout(async ()=>{
+        try {
+          await sb.from('crims_players').upsert(updated, {onConflict:'player'});
+        } catch(_){}
+      }, 5000);
+    }
+
+    return updated;
+  },
+};
+
+/* Arrancar carga de datos en background */
+DB.load().then(()=> updateScoreboard?.());
+
+/* ════════════════════════════════════════════════
+   CURSOR PERSONALIZADO
+════════════════════════════════════════════════ */
+(()=>{
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  const cursorCH   = document.getElementById('cursor-crosshair');
+  let mx=0,my=0,rx=0,ry=0;
+
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX;my=e.clientY;
+    cursor.style.left     = mx+'px';
+    cursor.style.top      = my+'px';
+    cursorCH.style.left   = mx+'px';
+    cursorCH.style.top    = my+'px';
+  });
+
+  // Ring con lag suave
+  (function ringLoop(){
+    rx += (mx-rx)*.12;
+    ry += (my-ry)*.12;
+    cursorRing.style.left = rx+'px';
+    cursorRing.style.top  = ry+'px';
+    requestAnimationFrame(ringLoop);
+  })();
+
+  // Expandir ring en hover de elementos interactivos
+  document.addEventListener('mouseover',e=>{
+    if(e.target.matches('button,a,.case-card,.clue-item,.suspect-card')){
+      gsap.to(cursorRing,{width:52,height:52,borderColor:'rgba(200,160,48,.6)',duration:.25});
+      gsap.to(cursor,{scale:1.4,duration:.2});
+    }
+  });
+  document.addEventListener('mouseout',e=>{
+    if(e.target.matches('button,a,.case-card,.clue-item,.suspect-card')){
+      gsap.to(cursorRing,{width:36,height:36,borderColor:'rgba(200,160,48,.35)',duration:.25});
+      gsap.to(cursor,{scale:1,duration:.2});
+    }
+  });
+  document.addEventListener('mousedown',()=>{
+    gsap.to(cursor,{scale:.7,duration:.1});
+    gsap.to(cursorRing,{scale:.85,duration:.1});
+  });
+  document.addEventListener('mouseup',()=>{
+    gsap.to(cursor,{scale:1,duration:.15});
+    gsap.to(cursorRing,{scale:1,duration:.15});
+  });
+})();
+
+/* ════════════════════════════════════════════════
+   ANIMACIÓN DE ENTRADA — HOME
+════════════════════════════════════════════════ */
+gsap.registerPlugin(ScrollTrigger);
+
+(()=>{
+  const tl = gsap.timeline({defaults:{ease:'power3.out'}});
+  tl
+    .from('#home-redline',   {scaleY:0,duration:.8,transformOrigin:'top'})
+    .from('#home-eyebrow',   {opacity:0,y:10,duration:.5},'-=.2')
+    .from('#home-title',     {opacity:0,scale:.96,duration:.9},'-=.3')
+    .from('#home-title-sub', {opacity:0,y:8,duration:.5},'-=.5')
+    .from('#home-divider',   {opacity:0,scaleX:.3,duration:.6,transformOrigin:'center'},'-=.3')
+    .from('#home-sub',       {opacity:0,y:12,duration:.6},'-=.3')
+    .from('#case-grid .case-card',{
+      opacity:0,y:30,stagger:.1,duration:.6,ease:'power2.out'
+    },'-=.2')
+    .from('.home-footer',    {opacity:0,duration:.5},'-=.2');
+})();
+
+/* ════════════════════════════════════════════════
+   DATOS: 5 CASOS REALES
+════════════════════════════════════════════════ */
+const CASES = [
+
+/* ══ 0 ══ Doce Minutos */
+{
+  title:'Doce Minutos', bgNum:'01',
+  kicker:'Caso 01 · Sevilla, Barrio de Triana · Mayo 2023',
+  headline:'Tardó doce minutos en subir al cuarto. Nadie debería tardar doce minutos.',
+  body:'Marco Benítez, 29 años, rider de reparto a domicilio, es encontrado muerto en el garaje del Edificio Alameda de Triana, Sevilla. Herida de arma blanca. Su moto está aparcada. El pedido sin entregar. El tiempo de entrega registrado por la app: llegada al edificio a las 23:14. El cuerpo, a las 23:26. Doce minutos. Y en su teléfono, antes de que le rompieran la pantalla, alcanzó a mandar un audio a su compañero de trabajo.',
+  meta:[
+    {label:'Víctima',val:'Marco Benítez Durán, 29 años · Repartidor'},
+    {label:'Causa',val:'Herida de arma blanca (cuchillo de hoja larga)'},
+    {label:'Hallazgo',val:'17 may. 2023 · Garaje Edificio Alameda, Sevilla'},
+    {label:'Investigación',val:'Caso abierto · Policía Nacional, Sevilla'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🛵',q:'La moto aparcada, el pedido intacto',a:'La moto de Marco está en plaza de garaje visitante. El <span class="clue-highlight">pedido en la bolsa térmica, sin abrir</span>. Marco nunca llegó a entrar al edificio por el portal principal. Alguien lo hizo bajar al garaje antes de subir al cuarto.'},
+    {icon:'🪞',q:'La mancha de sangre en el ascensor',a:'El espejo del ascensor del garaje muestra <span class="clue-highlight">una mancha de sangre en el botón del piso cuatro</span>. El atacante subió después del crimen. Quien pulsó ese botón tenía sangre en los dedos.'},
+    {icon:'📱',q:'El vídeo borrado del teléfono',a:'La pantalla del teléfono de Marco fue golpeada contra el suelo, pero no destruida. Los técnicos detectan que <span class="clue-highlight">un vídeo de 18 segundos fue grabado y borrado</span> en la franja del crimen. Los metadatos del sistema de ficheros lo certifican: el archivo existió.'},
+  ],
+  testigos:[
+    {icon:'👩',q:'Señora Pardo, vecina del 3ºB',a:'Bajó al garaje a las 23:20 a buscar el coche de su marido. Vio salir rápido por las escaleras internas a <span class="clue-highlight">"un hombre trajeado, moreno, de unos 50 años"</span>. No lo conocía por nombre, pero dijo que vivía "en los pisos altos".'},
+    {icon:'🎧',q:'Omar Khalil, compañero repartidor',a:'A las 23:09, Marco le mandó un audio de voz: <span class="clue-highlight">"Tío, el del cuarto me ha dicho que baje al garaje a dejárselo. Aquí hay algo raro."</span> Ese audio se convierte en la pieza clave del caso.'},
+  ],
+  sospechosos:[
+    {emoji:'🛵',name:'Carlos Escribano',role:'Compañero repartidor · Deudor',motive:'Conflicto laboral con Marco por asignación de rutas. Le debía 400 euros. Pero estaba haciendo entregas en Camas en ese horario, verificado por la app de la empresa.'},
+    {emoji:'🏠',name:'Federico Salazar',role:'Residente 4ºA · Empresario',motive:'Cliente del pedido. Investigado previamente por blanqueo sin cargos. Las iniciales "del cuarto" del audio de Marco apuntan directamente a su piso. Moreno, alrededor de 50 años.'},
+    {emoji:'🔒',name:'Domingo Reyes',role:'Vigilante de seguridad del garaje',motive:'Estaba de turno esa noche. Declaró no haber visto nada. Conoce todos los ángulos ciegos del garaje. Pero el registro biométrico de su puesto lo ubica en la garita desde las 22:50 sin interrupciones.'},
+    {emoji:'👩',name:'Lucía Montero',role:'Exnovia de Marco · Vive en el 2ºC',motive:'Ruptura reciente y conflictiva. Vive en el edificio, lo que explicaría el destino del pedido. Pero el pedido estaba a nombre de Federico Salazar, 4ºA, no del 2ºC.'},
+  ],
+  pruebas:[
+    {icon:'🎙️',q:'El audio de WhatsApp: "el del cuarto"',a:'El mensaje de voz enviado por Marco a Omar segundos antes del ataque es la prueba más directa. Marco menciona explícitamente <span class="clue-highlight">"el del cuarto"</span>, es decir, el residente del piso 4ºA: Federico Salazar. La grabación fue periciada y validada como auténtica.'},
+    {icon:'🔐',q:'El registro del ascensor: ida y vuelta',a:'El sistema del edificio registra una <span class="clue-highlight">llamada al ascensor desde el garaje a las 23:15 y retorno al garaje a las 23:18</span>, con la tarjeta de acceso de Federico Salazar. Tres minutos. Suficiente para subir, cambiarse y volver. Salazar no tiene explicación para ese movimiento.'},
+    {icon:'🔪',q:'El cuchillo que falta en el 4ºA',a:'Durante el registro del apartamento de Salazar, los investigadores comprueban el bloque portacuchillos de cocina: <span class="clue-highlight">un espacio vacío correspondiente a un cuchillo de hoja larga de unos 20 centímetros</span>. La herida de Marco es compatible con esa medida. El cuchillo nunca apareció.'},
+  ],
+  killer:'Federico Salazar',
+  explanation:'Federico Salazar coordinaba desde el piso 4ºA un pequeño tráfico de sustancias para clientes del edificio. Esa noche, Marco Benítez llegó para entregar un pedido y, desde el rellano del cuarto, fue testigo de una transacción en curso. Salazar bajó al garaje con el pretexto de recoger el pedido y atacó a Marco allí. El audio enviado por Marco a su compañero segundos antes, el registro del ascensor que lo sitúa en el garaje en la franja exacta del crimen y el cuchillo desaparecido del bloque de cocina sellaron la investigación.',
+},
+
+/* ══ 1 ══ Asunta */
+{
+  title:'El Caso Asunta', bgNum:'02',
+  kicker:'Caso 02 · Santiago de Compostela · 21 septiembre 2013',
+  headline:'La niña que no debía morir',
+  body:'Asunta Basterra Porto, 12 años, de origen chino y adoptada por una familia de clase alta gallega, es encontrada muerta envuelta en una manta en una carretera comarcal de Teo. Sus padres —Alfonso Basterra, periodista, y Rosario Porto, abogada— dan la alarma por su desaparición horas antes. Desde el primer momento, las contradicciones en sus declaraciones y la frialdad con la que afrontan las cámaras llaman la atención de los investigadores.',
+  meta:[
+    {label:'Víctima',val:'Asunta Basterra Porto, 12 años'},
+    {label:'Causa',val:'Asfixia (somníferos + sofocación)'},
+    {label:'Hallazgo',val:'21 sep. 2013 · Teo, Galicia'},
+    {label:'Condena',val:'18 años cada progenitor (2015)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🛣️',q:'El lugar del hallazgo',a:'El cuerpo de Asunta aparece en una carretera poco transitada, <span class="clue-highlight">a escasos kilómetros de la segunda residencia de la familia</span>. Envuelta en una manta con prendas propias del hogar. Sin señales de agresión externa.'},
+    {icon:'💊',q:'El Orfidal en sangre',a:'La autopsia revela <span class="clue-highlight">lorazepam (Orfidal) en sangre a dosis altas</span>. Los análisis de cabello muestran que Asunta llevaba siendo sedada de forma intermitente <span class="clue-highlight">al menos dos meses antes de su muerte</span>.'},
+    {icon:'📦',q:'La manta y las sogas',a:'La manta que envuelve el cuerpo es identificada como <span class="clue-highlight">propiedad de la familia Porto-Basterra</span>. Las sogas son del mismo tipo que las halladas en la casa de campo en Teo.'},
+  ],
+  testigos:[
+    {icon:'👁️',q:'El vecino de la finca',a:'Un vecino declara haber visto el <span class="clue-highlight">coche de Rosario Porto</span> pasar por la carretera del hallazgo la noche del 21 de septiembre, en horario incompatible con la coartada de los padres.'},
+    {icon:'📱',q:'Las llamadas de esa noche',a:'Las torres de telefonía ubican los teléfonos de <span class="clue-highlight">ambos padres en la zona de Teo</span> durante las horas en que afirman estar en casa. Realizaron 23 llamadas entre sí en menos de dos horas.'},
+  ],
+  sospechosos:[
+    {emoji:'👩‍⚖️',name:'Rosario Porto',role:'Madre adoptiva · Abogada',motive:'Considerada instigadora por el tribunal. Relación deteriorada con Asunta. Inició trámites de separación. Algunos testigos apuntan a que la niña era fuente de conflicto.'},
+    {emoji:'📰',name:'Alfonso Basterra',role:'Padre adoptivo · Periodista',motive:'Condenado como coautor. En su ordenador se encontraron imágenes inapropiadas de Asunta. Papel activo aunque subordinado a Rosario.'},
+    {emoji:'👩‍🦳',name:'Carmen Porto',role:'Abuela materna',motive:'Figura controvertida durante el juicio. Alegaba conocer secretos de la familia. Sin evidencias directas de participación.'},
+    {emoji:'🧑',name:'Entorno escolar',role:'Compañeros de colegio',motive:'Línea de investigación inicial, descartada. Asunta no presentaba conflictos graves fuera del entorno familiar.'},
+  ],
+  pruebas:[
+    {icon:'🔬',q:'Historia de sedación (análisis capilar)',a:'Distintos segmentos del cabello de Asunta permiten trazar una <span class="clue-highlight">cronología de administración de Orfidal</span> que comienza semanas antes del crimen. Descarta ingesta accidental o voluntaria.'},
+    {icon:'📱',q:'El rastro digital de los padres',a:'Las búsquedas en dispositivos de la familia incluyen <span class="clue-highlight">«dosis letales sedantes»</span> y consultas sobre efectos del lorazepam, fechadas semanas antes del crimen.'},
+    {icon:'🚗',q:'La cámara de tráfico',a:'Una cámara de la DGT registra el <span class="clue-highlight">vehículo de Rosario Porto</span> en la zona de Teo en la franja horaria del depósito del cuerpo, contradiciendo su declaración inicial.'},
+  ],
+  killer:'Rosario Porto',
+  explanation:'Rosario Porto fue considerada la autora intelectual del crimen, con Alfonso Basterra como coautor. Ambos condenados a 18 años en 2015. El tribunal concluyó que Asunta fue sedada con Orfidal durante meses y finalmente asfixiada. Los motivos exactos nunca quedaron claros. Rosario Porto se suicidó en prisión en 2020. El caso es uno de los más estudiados de la criminología española reciente.',
+},
+
+/* ══ 2 ══ La Herencia de los Balmaseda */
+{
+  title:'La Herencia de los Balmaseda', bgNum:'03',
+  kicker:'Caso 03 · Salamanca · Marzo 2021',
+  headline:'El testamento fue firmado en lunes. El martes, nadie llegó a cobrar.',
+  body:'Don Augusto Balmaseda, 78 años, patriarca de una familia acomodada de Salamanca, fallece en su estudio en lo que parece un fallo cardíaco. Sin embargo, lo llamativo es el momento: muere la noche siguiente a haber firmado un nuevo testamento que desheredaba a su hijo mayor y dejaba casi todo a su sobrina. El forense ordena un análisis toxicológico de oficio. El resultado cambia todo.',
+  meta:[
+    {label:'Víctima',val:'Augusto Balmaseda Ríos, 78 años · Empresario'},
+    {label:'Causa',val:'Sobredosis de digitoxina (medicación cardíaca)'},
+    {label:'Hallazgo',val:'9 mar. 2021 · Salamanca, estudio privado'},
+    {label:'Investigación',val:'Caso abierto · Juzgado de instrucción nº3'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'📜',q:'El testamento sobre la mesa',a:'Augusto es encontrado sentado en su sillón, con el nuevo testamento firmado el día anterior visible sobre el escritorio. El análisis toxicológico revela <span class="clue-highlight">niveles de digitoxina seis veces superiores al rango terapéutico</span>. No fue un accidente de dosificación.'},
+    {icon:'🍷',q:'La copa de jerez vacía',a:'Una sola copa de jerez en la bandeja del sillón. Augusto nunca bebía solo: era una costumbre familiar. <span class="clue-highlight">Alguien compartió ese jerez con él</span> esa tarde. Alguien con acceso directo a la copa y al tiempo necesario para añadir la dosis excesiva.'},
+    {icon:'💊',q:'Los blísters de medicación vacíos',a:'En el cajón del baño, <span class="clue-highlight">tres blísters de digitoxina completamente vacíos</span> de una caja que debería durar un mes. Alguien administró semanas de dosis en pocos días, o concentró la dosis final en un único momento.'},
+  ],
+  testigos:[
+    {icon:'🧹',q:'Trinidad, la empleada del hogar',a:'Vio al doctor Esteban salir del estudio de Augusto <span class="clue-highlight">a las 19:00, una hora antes de la cena</span>. Traía "más pastillas de las que solía". Nunca le llamó la atención en el momento. Ahora no puede olvidarlo.'},
+    {icon:'👩',q:'Beatriz Balmaseda, la sobrina',a:'Declara que su tío le confió días antes que el médico <span class="clue-highlight">le había pedido dinero para guardar silencio</span> sobre algo que Augusto había descubierto. No especificó el qué. Augusto quería consultarlo con un abogado antes de actuar.'},
+  ],
+  sospechosos:[
+    {emoji:'👨‍💼',name:'Rodrigo Balmaseda',role:'Hijo mayor · Desheredado',motive:'El nuevo testamento lo excluye casi por completo por "conducta reiterada inapropiada". Tenía el motivo más obvio, pero también la coartada más verificable: estaba en Madrid esa tarde.'},
+    {emoji:'👩',name:'Beatriz Balmaseda',role:'Sobrina · Nueva heredera principal',motive:'La gran beneficiaria del nuevo testamento. Sin embargo, fue ella quien aportó el dato clave sobre el chantaje al médico. Difícilmente habría señalado esa pista si fuera culpable.'},
+    {emoji:'🧹',name:'Trinidad Ruiz',role:'Empleada del hogar · 20 años de servicio',motive:'Conoce todos los secretos de la familia. Recibe un pequeño legado en el testamento. Sin acceso a la medicación de Augusto ni formación para alterar dosis con ese nivel de precisión.'},
+    {emoji:'🩺',name:'Dr. Marcos Esteban',role:'Médico de cabecera · 15 años de relación',motive:'Acceso directo a la medicación de Augusto. Lleva años emitiendo recetas irregulares y apropiándose de fármacos caros. Augusto lo había descubierto días antes de morir.'},
+  ],
+  pruebas:[
+    {icon:'📋',q:'Las recetas falsificadas',a:'La farmacia local detecta <span class="clue-highlight">irregularidades en recetas del Dr. Esteban durante tres años</span>: medicamentos de alto precio facturados a la Seguridad Social pero no dispensados a los pacientes declarados. El fraude supera los 80.000 euros.'},
+    {icon:'📊',q:'El historial de medicación alterado',a:'Comparando los registros del médico con los de la farmacia, un perito detecta que Augusto recibió <span class="clue-highlight">el doble de la dosis prescrita de digitoxina durante el último mes</span>. La alteración es discreta pero sistemática.'},
+    {icon:'💳',q:'La transferencia bancaria sospechosa',a:'Cinco días antes de la muerte, el Dr. Esteban recibió <span class="clue-highlight">40.000 euros en una cuenta secundaria</span>, procedentes de una entidad asociada al patrimonio de Augusto Balmaseda. El mismo día en que Augusto lo confrontó por las recetas. El pago nunca fue justificado.'},
+  ],
+  killer:'Dr. Marcos Esteban',
+  explanation:'El doctor Marcos Esteban llevaba tres años falsificando recetas y apropiándose de medicamentos de alto coste. Cuando Augusto Balmaseda descubrió las irregularidades y lo confrontó directamente, el médico comprendió que tenía los días contados. Durante las semanas previas, fue aumentando gradualmente la dosis de digitoxina en el tratamiento cardíaco del anciano. La muerte parecía el final inevitable de una afección conocida. Fue el análisis toxicológico de oficio el que reveló los niveles imposibles de alcanzar por error. La transferencia bancaria, el historial alterado y el testimonio de Trinidad cerraron el caso.',
+},
+
+/* ══ 3 ══ Diana Quer */
+{
+  title:'Diana Quer', bgNum:'04',
+  kicker:'Caso 04 · A Pobra do Caramiñal · Agosto 2016',
+  headline:'La noche que no volvió a casa',
+  body:'Diana Quer López-Pinel, 18 años, desaparece en la madrugada del 22 al 23 de agosto de 2016 en A Pobra do Caramiñal (A Coruña), donde veraneaba. Sale a una fiesta y no regresa. Su teléfono se apaga a las 4:06. Las búsquedas se prolongan 16 meses. Su cuerpo es hallado en diciembre de 2017 en el interior de un pozo en una nave abandonada.',
+  meta:[
+    {label:'Víctima',val:'Diana Quer López-Pinel, 18 años'},
+    {label:'Causa',val:'Asfixia (estrangulamiento con brida)'},
+    {label:'Desapareció',val:'23 ago. 2016 · A Pobra do Caramiñal'},
+    {label:'Condena',val:'Prisión permanente revisable (2019)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'👟',q:'La sandalia en la carretera',a:'Horas después de la desaparición, la Guardia Civil localiza <span class="clue-highlight">una sandalia de Diana en la calzada</span>, en una zona poco iluminada por la que habría pasado de regreso a casa. Indica que algo ocurrió en ese punto.'},
+    {icon:'📍',q:'El último ping del móvil',a:'El teléfono emite su última señal a las <span class="clue-highlight">04:06 horas desde una antena próxima</span> a la zona de la sandalia. La batería no estaba agotada. A partir de ahí, silencio absoluto.'},
+    {icon:'🏚️',q:'La nave de O Milladoiro',a:'El cuerpo de Diana es hallado 16 meses después en el <span class="clue-highlight">interior de una cisterna en una nave en ruinas</span>. La nave era conocida en el entorno del agresor. Los restos presentan indicios de estrangulamiento con brida.'},
+  ],
+  testigos:[
+    {icon:'🚗',q:'El testigo de la carretera',a:'Un conductor declara haber visto a Diana caminar sola. Poco después, en el mismo tramo, <span class="clue-highlight">vio un coche detenido con las luces apagadas</span>. No le dio importancia en el momento.'},
+    {icon:'📞',q:'El entorno de El Chicle',a:'Investigadores detectan que <span class="clue-highlight">José Enrique Abuín "El Chicle"</span> tenía antecedentes por intento de agresión sexual en la misma zona en 2005 y conocía la nave de O Milladoiro.'},
+  ],
+  sospechosos:[
+    {emoji:'🔪',name:'José E. Abuín "El Chicle"',role:'Vecino de la comarca',motive:'Antecedentes por agresión sexual. Su ADN hallado en una brida junto al cuerpo. Conocía la nave donde fue ocultado el cadáver. Confesó el crimen en 2017.'},
+    {emoji:'👦',name:'Conocido de la fiesta',role:'Joven del entorno social',motive:'Línea investigada inicialmente. Sin relación probada. Descartado por coartada verificada.'},
+    {emoji:'👨',name:'Exnovio de Diana',role:'Ex pareja sentimental',motive:'Relación reciente. Interrogado en las primeras semanas. Alibi verificado por cámaras de seguridad en otra localidad.'},
+    {emoji:'🚶',name:'Desconocido de la zona',role:'Sin identificar inicialmente',motive:'Hipótesis manejada durante los primeros meses. Descartada al identificarse a El Chicle mediante ADN.'},
+  ],
+  pruebas:[
+    {icon:'🧬',q:'El ADN en la brida',a:'Análisis de ADN practicado sobre una <span class="clue-highlight">brida de plástico hallada junto al cuerpo</span> coincide con José Enrique Abuín Gey. Es la prueba que cierra el caso y provoca su detención en diciembre de 2017.'},
+    {icon:'📱',q:'Geolocalización del vehículo',a:'Los datos del teléfono de El Chicle sitúan su vehículo <span class="clue-highlight">en las inmediaciones del lugar de desaparición</span> de Diana en la franja horaria crítica de la madrugada.'},
+    {icon:'🔗',q:'Confesión y reconstrucción',a:'Tras su detención, El Chicle conduce a la Guardia Civil hasta el pozo. Confiesa haberla abordado, <span class="clue-highlight">atado con una brida y estrangulado</span> al resistirse. Prisión permanente revisable en 2019.'},
+  ],
+  killer:'José E. Abuín "El Chicle"',
+  explanation:'José Enrique Abuín Gey abordó a Diana mientras caminaba sola de madrugada, la inmovilizó con una brida y la estranguló. Escondió el cuerpo en una cisterna que conocía. Detenido en diciembre de 2017 tras el hallazgo del cadáver y la coincidencia de su ADN. Condenado a prisión permanente revisable en 2019. Su caso impulsó la "Ley Diana Quer".',
+},
+
+/* ══ 4 ══ La Profesora de Cuenca */
+{
+  title:'La Profesora de Cuenca', bgNum:'05',
+  kicker:'Caso 05 · Monasterio de Uclés, Cuenca · Agosto 2020',
+  headline:'Cayó desde el campanario donde había encontrado la prueba.',
+  body:'Sofía Ibáñez, 45 años, profesora de historia medieval en la UAM, es hallada al amanecer al pie de la torre norte del monasterio de Uclés, donde llevaba semanas investigando un manuscrito del siglo XV. Traumatismo mortal por caída. En el suelo, alrededor del cuerpo, páginas de su bloc de notas desperdigadas. En una de ellas, subrayada tres veces con tinta roja: la palabra PLAGIO. Su colega de investigación, Abel Moya, estaba alojado en el pueblo esa noche.',
+  meta:[
+    {label:'Víctima',val:'Sofía Ibáñez Carreras, 45 años · Historiadora'},
+    {label:'Causa',val:'Traumatismo múltiple por caída desde la torre'},
+    {label:'Hallazgo',val:'3 ago. 2020 · Monasterio de Uclés, Cuenca'},
+    {label:'Investigación',val:'Caso abierto · Guardia Civil, Cuenca'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'📄',q:'Las notas dispersas y la palabra clave',a:'Alrededor del cuerpo, páginas del bloc de notas de Sofía. Algunas tratan el manuscrito medieval. Una, con <span class="clue-highlight">la palabra PLAGIO subrayada tres veces</span> y el nombre "A.M." al margen. No cayeron solas: fueron lanzadas o se desprendieron en el forcejeo.'},
+    {icon:'👟',q:'Dos tipos de huellas en el barro del campanario',a:'Los escalones de acceso a la torre muestran dos patrones de pisadas en el barro: las de las zapatillas de Sofía... y otras <span class="clue-highlight">huellas de suela distinta, más grandes, de un calzado masculino</span>. Las segundas huellas acaban donde empiezan las de ella.'},
+    {icon:'🪟',q:'La ventana abierta en el campanario',a:'La única ventana sin reja del campanario, en el tramo sin barandilla, aparece <span class="clue-highlight">abierta desde dentro</span>. Sofía no tenía motivo para abrirla. La ventana da al patio interior donde se encontró el cuerpo.'},
+  ],
+  testigos:[
+    {icon:'⛪',q:'Fray Anselmo, hermano lego del monasterio',a:'Declara haber oído, desde el jardín claustral, <span class="clue-highlight">voces elevadas en la torre hacia las 21:00</span>: "una mujer y un hombre, discutían sobre un libro". Creyó que eran los investigadores discutiendo sobre el trabajo. No avisó a nadie.'},
+    {icon:'🏠',q:'La dueña del hostal del pueblo',a:'Abel Moya llegó al hostal sobre las <span class="clue-highlight">22:15, nervioso, con la ropa manchada de polvo y barro rojizo</span> en las manos y las rodillas. El mismo barro que cubre los escalones del campanario. Dijo que había dado "un paseo por el campo".'},
+  ],
+  sospechosos:[
+    {emoji:'📚',name:'Abel Moya',role:'Co-investigador · Colega de la UAM',motive:'Lleva tres años trabajando con Sofía. Ocho meses antes entregó a una editorial un libro basado en el mismo manuscrito que investigaban juntos, a su nombre exclusivo, usando las notas de Sofía. Ella acababa de descubrirlo.'},
+    {emoji:'🧱',name:'Fray Bernardo',role:'Monje custodio del archivo',motive:'Mostraba rechazo explícito a la presencia de investigadores externos. Protege los archivos del monasterio con celo inusual. Pero su acceso a la torre era limitado y su coartada en el oficio de completas está verificada.'},
+    {emoji:'🪙',name:'Doménico Fara',role:'Anticuario · Comprador interesado',motive:'Había intentado adquirir el manuscrito que Sofía investigaba, consciente de su valor en el mercado privado. Pero no había estado en el monasterio desde hacía tres semanas y no conocía a Abel Moya.'},
+    {emoji:'🗝️',name:'Ernesto Salas',role:'Caretaker del monasterio',motive:'Último en cerrar la noche anterior. Conoce todos los accesos. Pero no tenía relación con la investigación académica ni con el manuscrito en disputa.'},
+  ],
+  pruebas:[
+    {icon:'📖',q:'El libro publicado antes de tiempo',a:'La editorial confirma que Abel Moya entregó el manuscrito terminado <span class="clue-highlight">ocho meses antes de que concluyera el proyecto conjunto</span>. El texto incluye párrafos enteros de los borradores de Sofía, identificados por marcas de estilo y errores tipográficos idénticos. Plagio documentado.'},
+    {icon:'👟',q:'Las botas de Abel Moya en análisis forense',a:'Las botas intervenidas a Abel Moya durante el registro coinciden en <span class="clue-highlight">patrón de suela y composición de barro con las huellas del campanario</span>. El barro rojizo de la zona es inusual y distintivo. No puede explicar cómo llegó a sus botas esa noche.'},
+    {icon:'📱',q:'El último mensaje de Sofía',a:'En el teléfono de Sofía, un mensaje de WhatsApp enviado a su amiga Patricia a las <span class="clue-highlight">20:44, treinta minutos antes de las voces oídas por fray Anselmo</span>: "He confirmado que Abel me robó todo el trabajo. Voy a hablar con él ahora mismo en la torre. Si no me llamas mañana, llama tú."'},
+  ],
+  killer:'Abel Moya',
+  explanation:'Abel Moya había plagiado sistemáticamente el trabajo de Sofía Ibáñez para publicar un libro a su nombre, apropiándose de tres años de investigación conjunta. Cuando Sofía lo confrontó en la torre del monasterio esa noche, la discusión escaló a forcejeo. Abel la empujó y cayó desde el tramo sin barandilla. Intentó presentarlo como accidente. El mensaje de WhatsApp enviado por Sofía treinta minutos antes de morir, las huellas de sus botas en el barro rojo del campanario y el historial de plagio verificado lo situaron como único autor del crimen.',
+},
+
+/* ══ 5 ══ Marta del Castillo */
+{
+  title:'Marta del Castillo', bgNum:'06',
+  kicker:'Caso 06 · Sevilla · 24 enero 2009',
+  headline:'Confesó el crimen. Nunca dijo dónde está.',
+  body:'Marta del Castillo Casilari, 17 años, desaparece en Sevilla el 24 de enero de 2009 tras quedar con su exnovio Miguel Carcaño. Días después, Carcaño confiesa haberla matado y haber arrojado el cuerpo al río Guadalquivir. A pesar de múltiples búsquedas, el cuerpo de Marta nunca ha sido encontrado. Sus padres llevan más de 15 años reclamando la verdad.',
+  meta:[
+    {label:'Víctima',val:'Marta del Castillo Casilari, 17 años'},
+    {label:'Causa',val:'Homicidio (cuerpo no recuperado)'},
+    {label:'Desapareció',val:'24 ene. 2009 · Sevilla'},
+    {label:'Condena',val:'21 años para Miguel Carcaño (revisión)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🏠',q:'El piso de Carcaño',a:'La investigación detecta en el domicilio de Carcaño <span class="clue-highlight">restos de sangre de Marta</span>, pese a que la vivienda había sido limpiada. Los análisis confirman que Marta estuvo allí la noche de su desaparición.'},
+    {icon:'🌊',q:'El río Guadalquivir',a:'Carcaño confiesa haber arrojado el cuerpo al Guadalquivir. Se realizan <span class="clue-highlight">búsquedas exhaustivas durante semanas</span> con buzos y dragas. El cuerpo nunca es localizado. Cambia su versión en varias ocasiones.'},
+    {icon:'🚗',q:'El vehículo de traslado',a:'Testigos y análisis señalan que el cuerpo fue trasladado en un coche. Se identifican <span class="clue-highlight">manchas biológicas de Marta en un vehículo</span> usado esa noche por el entorno de Carcaño.'},
+  ],
+  testigos:[
+    {icon:'👥',q:'Los amigos de Carcaño',a:'Varios jóvenes del entorno han ofrecido versiones contradictorias. <span class="clue-highlight">Francisco Javier García "El Cuco"</span> fue condenado como cómplice, aunque su condena fue revisada posteriormente.'},
+    {icon:'👨‍👩‍👧',q:'La familia de Marta',a:'Los padres, Antonio del Castillo y Eva Casanueva, denuncian que <span class="clue-highlight">los implicados saben dónde está el cuerpo</span> y no lo dicen para evitar agravar sus condenas. Se han convertido en referentes del activismo por las víctimas.'},
+  ],
+  sospechosos:[
+    {emoji:'🧑',name:'Miguel Carcaño',role:'Exnovio de Marta',motive:'Confesó haberla matado accidentalmente. Cambió su versión múltiples veces sobre la localización del cuerpo. Condenado a 21 años.'},
+    {emoji:'👦',name:'Francisco J. García "El Cuco"',role:'Amigo de Carcaño',motive:'Condenado inicialmente como cómplice, después absuelto en revisión. Se sospecha que conoce la ubicación real del cuerpo.'},
+    {emoji:'👨',name:'Hermano de Carcaño',role:'Familiar implicado',motive:'Investigado por posible participación en el traslado del cuerpo. Su grado de implicación real sigue siendo objeto de debate judicial.'},
+    {emoji:'👩',name:'Amiga del grupo',role:'Testigo del entorno',motive:'Conocía a ambos. Sus declaraciones contribuyeron a la reconstrucción de los hechos aunque consideradas parciales.'},
+  ],
+  pruebas:[
+    {icon:'🧬',q:'ADN de Marta en el piso',a:'A pesar de la limpieza intensiva, los forenses recuperan <span class="clue-highlight">muestras biológicas de Marta</span> en grietas del suelo y la pared. Confirman que allí se produjo el crimen.'},
+    {icon:'📱',q:'Los mensajes de esa noche',a:'Las últimas comunicaciones de Marta son con Carcaño, que la cita en su domicilio. <span class="clue-highlight">A las 23:52 deja de haber actividad</span> en su teléfono. Nunca volvió a encenderse.'},
+    {icon:'🔎',q:'Versiones cambiantes sobre el cuerpo',a:'Carcaño ha señalado hasta <span class="clue-highlight">cuatro localizaciones distintas</span>: el Guadalquivir, un vertedero, una finca… Cada búsqueda ha resultado infructuosa. Muchos creen que el cuerpo nunca llegó al río.'},
+  ],
+  killer:'Miguel Carcaño',
+  explanation:'Miguel Carcaño confesó haber matado a Marta del Castillo en su piso y haber arrojado su cuerpo al Guadalquivir. Las sucesivas búsquedas no encontraron los restos. Condenado a 21 años. El cuerpo de Marta sigue sin aparecer. Sus padres continúan reclamando justicia y la localización de los restos de su hija.',
+},
+
+/* ══ 6 ══ El Violinista de Gracia */
+{
+  title:'El Violinista de Gracia', bgNum:'07',
+  kicker:'Caso 07 · Barcelona, Gracia · Enero 2019',
+  headline:'Una inocente en prisión. El asesino, libre.',
+  body:'Rocío Wanninkhof, 19 años, desaparece el 9 de octubre de 1999 cerca de su casa en Mijas Costa. Su cuerpo aparece días después. La investigación se centra en Dolores Vázquez, expareja de la madre de Rocío. Dolores es condenada en 2001 y pasa 17 meses en prisión. En 2003, el mismo asesino ataca a otra joven y su ADN lo vincula también al crimen de Rocío.',
+  meta:[
+    {label:'Víctima',val:'Rocío Wanninkhof Hornos, 19 años'},
+    {label:'Causa',val:'Heridas por arma blanca'},
+    {label:'Fecha',val:'9 oct. 1999 · Mijas Costa, Málaga'},
+    {label:'Condena',val:'25 años para Tony Alexander King (2006)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🌿',q:'El lugar del hallazgo',a:'El cuerpo de Rocío es encontrado en un descampado, con <span class="clue-highlight">múltiples heridas de arma blanca</span>. No hay testigos directos. El ADN no se procesa adecuadamente en ese momento, retrasando años la identificación del culpable.'},
+    {icon:'📝',q:'La nota anónima',a:'Una nota anónima es atribuida inicialmente a Dolores Vázquez por los peritos. <span class="clue-highlight">La pericial caligráfica fue después muy cuestionada</span> y considerada un error fundamental del proceso.'},
+    {icon:'🔍',q:'Ausencia de pruebas físicas',a:'En el escenario no se recuperan huellas ni fibras concluyentes. <span class="clue-highlight">El ADN no se procesa correctamente</span> con la tecnología disponible en 1999, lo que retrasará la solución del caso cuatro años.'},
+  ],
+  testigos:[
+    {icon:'👩',q:'La declaración de la madre',a:'Alicia Hornos señala directamente a Dolores Vázquez por la mala relación que mantenían. <span class="clue-highlight">Su testimonio influye decisivamente</span> en la dirección inicial de la investigación.'},
+    {icon:'🏘️',q:'Testigos del barrio',a:'Vecinos declaran haber visto a Dolores en la zona esa noche. Tras la condena de Tony King, <span class="clue-highlight">muchos testimonios fueron reconsiderados</span> como confusos o influenciados por el clima mediático.'},
+  ],
+  sospechosos:[
+    {emoji:'🇬🇧',name:'Tony Alexander King',role:'Ciudadano británico residente',motive:'Depredador sexual con antecedentes en Reino Unido. Vivía en la comarca bajo identidad falsa. En 2003 mata a Sonia Carabantes y su ADN lo conecta también a Rocío.'},
+    {emoji:'👩',name:'Dolores Vázquez',role:'Expareja de la madre de Rocío',motive:'Condenada erróneamente en 2001. La mala relación con la familia Wanninkhof y una pericial caligráfica errónea la convirtieron en sospechosa. Inocente. 17 meses presa.'},
+    {emoji:'🧑',name:'Conocido de la discoteca',role:'Joven del entorno social',motive:'Hipótesis inicial sin sustento probatorio. Descartado en las primeras semanas.'},
+    {emoji:'🚗',name:'Conductor desconocido',role:'Sin identificar',motive:'Hipótesis alternativa de la defensa de Dolores Vázquez. Sin base probatoria en el momento del juicio.'},
+  ],
+  pruebas:[
+    {icon:'🧬',q:'El ADN que lo cambió todo',a:'En 2003, King agrede y mata a Sonia Carabantes en Coín. El ADN del nuevo crimen es <span class="clue-highlight">contrastado con muestras del caso Wanninkhof y coincide</span>. King es el asesino de Rocío.'},
+    {icon:'📋',q:'Antecedentes de King en Reino Unido',a:'Investigaciones revelan que King había sido <span class="clue-highlight">condenado en Gran Bretaña por agresiones sexuales</span> antes de instalarse en España bajo identidad falsa. La Interpol no lo había detectado.'},
+    {icon:'⚖️',q:'La absolución de Dolores Vázquez',a:'Tras la identificación de King, <span class="clue-highlight">Dolores Vázquez es absuelta y exonerada</span>. El Tribunal Supremo reconoce que la condena se basó en pruebas insuficientes. King fue condenado a 25 años en 2006.'},
+  ],
+  killer:'Tony Alexander King',
+  explanation:'Tony Alexander King, ciudadano británico con antecedentes por agresiones sexuales, asesinó a Rocío Wanninkhof en 1999. Dolores Vázquez cargó con una condena errónea durante 17 meses. Cuando King mató a Sonia Carabantes en 2003, el ADN lo conectó a ambos crímenes. Condenado a 25 años. El caso se estudia como ejemplo de error judicial y los peligros de la presión mediática.',
+},
+
+/* ══ 7 ══ El Caso Bretón */
+{
+  title:'El Caso Bretón', bgNum:'08',
+  kicker:'Caso 08 · Córdoba · 8 octubre 2011',
+  headline:'Los niños que no volvieron del parque',
+  body:'Ruth y José Bretón Ortiz, de 6 y 2 años, desaparecen el 8 de octubre de 2011 durante una visita con su padre en el Parque Cruz Conde de Córdoba. El padre denuncia que su ex-mujer se los había llevado. Las cámaras demuestran que es mentira: los niños nunca salieron. Sus restos son hallados meses después, calcinados, en la finca familiar de La Rinconada.',
+  meta:[
+    {label:'Víctimas',val:'Ruth (6 años) y José (2 años) Bretón Ortiz'},
+    {label:'Causa',val:'Homicidio · Cuerpos incinerados'},
+    {label:'Desaparecieron',val:'8 oct. 2011 · Parque Cruz Conde, Córdoba'},
+    {label:'Condena',val:'40 años de prisión para José Bretón (2013)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🌳',q:'Las cámaras del parque',a:'Las grabaciones son determinantes: <span class="clue-highlight">los niños nunca salieron del parque con nadie</span>. La coartada del padre —que la madre se los llevó— queda destruida desde el primer día.'},
+    {icon:'🔥',q:'El incendio en La Rinconada',a:'Meses antes de la desaparición, Bretón encendió una <span class="clue-highlight">gran hoguera en la finca familiar de La Rinconada</span> (Sevilla). Vecinos lo vieron. Los investigadores obtienen una orden para excavar el lugar.'},
+    {icon:'🦴',q:'Los restos hallados en la finca',a:'En la finca aparecen <span class="clue-highlight">restos óseos calcinados</span>. El análisis genético confirma que pertenecen a Ruth y José. Los niños fueron quemados en ese lugar.'},
+  ],
+  testigos:[
+    {icon:'👨‍🌾',q:'Los vecinos de La Rinconada',a:'Varios vecinos declaran haber visto a <span class="clue-highlight">Bretón encender una gran hoguera</span> varios días y recoger los restos. No relacionaron lo que veían con la desaparición de sus hijos.'},
+    {icon:'👩',q:'Ruth Ortiz, la madre',a:'Denuncia desde el primer momento que su ex-marido es responsable. Señala la conflictividad de la separación y <span class="clue-highlight">la incapacidad del sistema para proteger a sus hijos</span> a pesar de sus advertencias previas.'},
+  ],
+  sospechosos:[
+    {emoji:'👨',name:'José Bretón',role:'Padre de los menores',motive:'Inmerso en una separación muy conflictiva. Acusó a la madre como estrategia. Condenado a 40 años. Los niños eran un instrumento en su guerra con su ex-pareja.'},
+    {emoji:'👩',name:'Ruth Ortiz',role:'Madre de los menores',motive:'Acusada falsamente por el padre. Víctima de la estrategia de Bretón. Fue sospechosa en los primeros días hasta que las cámaras desmontaron la coartada.'},
+    {emoji:'👴',name:'Familiar de Bretón',role:'Entorno familiar del padre',motive:'Investigado por posible conocimiento de los hechos. Sin cargos. La finca pertenecía a la familia.'},
+    {emoji:'🧑',name:'Hipótesis del desconocido',role:'Línea inicial',motive:'Investigada en los primeros días. Descartada rápidamente con las grabaciones del parque.'},
+  ],
+  pruebas:[
+    {icon:'🧬',q:'Identificación genética de los restos',a:'Los fragmentos óseos son sometidos a análisis de ADN mitocondrial. <span class="clue-highlight">Confirman que pertenecen a Ruth y José Bretón Ortiz</span>. La prueba es definitiva.'},
+    {icon:'📹',q:'Las grabaciones del parque',a:'Las cámaras registran a José Bretón entrando con los niños pero <span class="clue-highlight">saliendo solo</span>. Ninguna imagen muestra a Ruth Ortiz ese día. La coartada colapsa.'},
+    {icon:'🔦',q:'Análisis del lugar de cremación',a:'Los forenses determinan que el fuego fue de <span class="clue-highlight">alta temperatura y larga duración</span>, con intención de destruir los restos completamente. Se encuentran objetos personales de los niños entre las cenizas.'},
+  ],
+  killer:'José Bretón',
+  explanation:'José Bretón mató a sus hijos Ruth y José y quemó sus cuerpos en la finca familiar para culpar a su ex-mujer. Las cámaras del parque desmontaron su coartada desde el primer día. Condenado a 40 años en 2013. El caso evidenció los fallos del sistema ante situaciones de violencia vicaria: Ruth Ortiz había alertado en múltiples ocasiones del comportamiento de su ex-marido.',
+},
+
+/* ══ 8 ══ Rocío Wanninkhof */
+{
+  title:'Rocío Wanninkhof', bgNum:'09',
+  kicker:'Caso 09 · Mijas, Málaga · 9 octubre 1999',
+  headline:'Una inocente en prisión. El asesino, libre.',
+  body:'Rocío Wanninkhof, 19 años, desaparece el 9 de octubre de 1999 cerca de su casa en Mijas Costa. Su cuerpo aparece días después. La investigación se centra en Dolores Vázquez, expareja de la madre de Rocío. Dolores es condenada en 2001 y pasa 17 meses en prisión. En 2003, el mismo asesino ataca a otra joven y su ADN lo vincula también al crimen de Rocío.',
+  meta:[
+    {label:'Víctima',val:'Rocío Wanninkhof Hornos, 19 años'},
+    {label:'Causa',val:'Heridas por arma blanca'},
+    {label:'Fecha',val:'9 oct. 1999 · Mijas Costa, Málaga'},
+    {label:'Condena',val:'25 años para Tony Alexander King (2006)'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'🌿',q:'El lugar del hallazgo',a:'El cuerpo de Rocío es encontrado en un descampado, con <span class="clue-highlight">múltiples heridas de arma blanca</span>. No hay testigos directos. El ADN no se procesa adecuadamente en ese momento, retrasando años la identificación del culpable.'},
+    {icon:'📝',q:'La nota anónima',a:'Una nota anónima es atribuida inicialmente a Dolores Vázquez por los peritos. <span class="clue-highlight">La pericial caligráfica fue después muy cuestionada</span> y considerada un error fundamental del proceso.'},
+    {icon:'🔍',q:'Ausencia de pruebas físicas',a:'En el escenario no se recuperan huellas ni fibras concluyentes. <span class="clue-highlight">El ADN no se procesa correctamente</span> con la tecnología disponible en 1999, lo que retrasará la solución del caso cuatro años.'},
+  ],
+  testigos:[
+    {icon:'👩',q:'La declaración de la madre',a:'Alicia Hornos señala directamente a Dolores Vázquez por la mala relación que mantenían. <span class="clue-highlight">Su testimonio influye decisivamente</span> en la dirección inicial de la investigación.'},
+    {icon:'🏘️',q:'Testigos del barrio',a:'Vecinos declaran haber visto a Dolores en la zona esa noche. Tras la condena de Tony King, <span class="clue-highlight">muchos testimonios fueron reconsiderados</span> como confusos o influenciados por el clima mediático.'},
+  ],
+  sospechosos:[
+    {emoji:'🇬🇧',name:'Tony Alexander King',role:'Ciudadano británico residente',motive:'Depredador sexual con antecedentes en Reino Unido. Vivía en la comarca bajo identidad falsa. En 2003 mata a Sonia Carabantes y su ADN lo conecta también a Rocío.'},
+    {emoji:'👩',name:'Dolores Vázquez',role:'Expareja de la madre de Rocío',motive:'Condenada erróneamente en 2001. La mala relación con la familia Wanninkhof y una pericial caligráfica errónea la convirtieron en sospechosa. Inocente. 17 meses presa.'},
+    {emoji:'🧑',name:'Conocido de la discoteca',role:'Joven del entorno social',motive:'Hipótesis inicial sin sustento probatorio. Descartado en las primeras semanas.'},
+    {emoji:'🚗',name:'Conductor desconocido',role:'Sin identificar',motive:'Hipótesis alternativa de la defensa de Dolores Vázquez. Sin base probatoria en el momento del juicio.'},
+  ],
+  pruebas:[
+    {icon:'🧬',q:'El ADN que lo cambió todo',a:'En 2003, King agrede y mata a Sonia Carabantes en Coín. El ADN del nuevo crimen es <span class="clue-highlight">contrastado con muestras del caso Wanninkhof y coincide</span>. King es el asesino de Rocío.'},
+    {icon:'📋',q:'Antecedentes de King en Reino Unido',a:'Investigaciones revelan que King había sido <span class="clue-highlight">condenado en Gran Bretaña por agresiones sexuales</span> antes de instalarse en España bajo identidad falsa. La Interpol no lo había detectado.'},
+    {icon:'⚖️',q:'La absolución de Dolores Vázquez',a:'Tras la identificación de King, <span class="clue-highlight">Dolores Vázquez es absuelta y exonerada</span>. El Tribunal Supremo reconoce que la condena se basó en pruebas insuficientes. King fue condenado a 25 años en 2006.'},
+  ],
+  killer:'Tony Alexander King',
+  explanation:'Tony Alexander King, ciudadano británico con antecedentes por agresiones sexuales, asesinó a Rocío Wanninkhof en 1999. Dolores Vázquez cargó con una condena errónea durante 17 meses. Cuando King mató a Sonia Carabantes en 2003, el ADN lo conectó a ambos crímenes. Condenado a 25 años. El caso se estudia como ejemplo de error judicial y los peligros de la presión mediática.',
+},
+
+/* ══ 9 ══ El Fotógrafo del Puerto */
+{
+  title:'El Fotógrafo del Puerto', bgNum:'10',
+  kicker:'Caso 10 · Valencia, Zona Portuaria · Noviembre 2018',
+  headline:'Tenía las fotos. Por eso no pudo contarlas.',
+  body:'Irene Salgado, 34 años, fotógrafa documentalista especializada en investigación portuaria, es hallada muerta en un almacén en desuso de la zona del puerto de Valencia. Traumatismo craneal compatible con golpe. La escena fue limpiada a conciencia, pero los rastros biológicos no mienten. Su cámara apareció cerca. Sin tarjeta de memoria. Horas antes le había dicho a su editor que tenía "la foto definitiva".',
+  meta:[
+    {label:'Víctima',val:'Irene Salgado Mora, 34 años · Fotógrafa'},
+    {label:'Causa',val:'Traumatismo craneal por objeto contundente'},
+    {label:'Hallazgo',val:'18 nov. 2018 · Almacén 7, Puerto de Valencia'},
+    {label:'Investigación',val:'Caso abierto · Unidad de Homicidios Valencia'},
+  ],
+  tabs:['🔬 Escena','👤 Testigos','🕵️ Sospechosos','🧪 Pruebas'],
+  escena:[
+    {icon:'📷',q:'La cámara sin tarjeta de memoria',a:'La cámara profesional de Irene aparece a tres metros del cuerpo, intacta. Pero la <span class="clue-highlight">tarjeta de memoria ha sido extraída</span>. Quien la mató sabía exactamente lo que buscaba. No fue un robo oportunista.'},
+    {icon:'📓',q:'El cuaderno mojado pero legible',a:'A los pies del cuerpo, un cuaderno empapado. Legible bajo luz forense: <span class="clue-highlight">nombres, fechas y coordenadas de contenedores</span>. La última anotación, en tinta diferente: "L.C. — reunión 23h — almacén 7". Escrito esa misma tarde.'},
+    {icon:'🧹',q:'La escena limpiada',a:'El almacén fue fregado con lejía, pero los <span class="clue-highlight">forenses recuperan muestras biológicas en grietas del suelo</span> y en la base de una columna. La limpieza fue rápida y nerviosa, no profesional. Quedaron rastros.'},
+  ],
+  testigos:[
+    {icon:'📞',q:'Jorge Pla, editor de la revista',a:'La llamó a las 22:30. Irene dijo que tenía <span class="clue-highlight">"la foto que lo cambia todo"</span> y que llamaría en una hora. Nunca llamó. Pla tardó cinco horas en avisar a la policía. Explica que pensó que "se le habría muerto la batería".'},
+    {icon:'🔦',q:'El vigilante de seguridad nocturno',a:'Un agente de seguridad del puerto declara haber visto una <span class="clue-highlight">furgoneta oscura sin matrícula visible</span> aparcada junto al almacén 7 pasada la medianoche. Se alejó antes de que saliera nadie.'},
+  ],
+  sospechosos:[
+    {emoji:'📰',name:'Jorge Pla',role:'Editor de la revista · Último en hablar con ella',motive:'La presionaba para publicar el reportaje antes de tiempo, contra la recomendación de Irene. Llegó tarde a avisar. Pero no tenía acceso a la zona portuaria ni conexión con los contenedores.'},
+    {emoji:'🚢',name:'Luis Carrasco',role:'Director de operaciones · Naviera Levante',motive:'Objeto directo de la investigación de Irene. Relacionado con irregularidades en manifiestos de carga durante dos años. Las iniciales "L.C." de la última anotación del cuaderno son las suyas.'},
+    {emoji:'🏠',name:'Clara Suárez',role:'Compañera de piso de Irene',motive:'Relación tensa ese mes por conflictos de convivencia. Sin acceso al puerto, sin conocimiento del reportaje y con coartada verificada por una cena familiar esa noche.'},
+    {emoji:'🔒',name:'Héctor Valls',role:'Jefe de seguridad portuaria',motive:'Acceso total a la zona. Conoce los movimientos de periodistas que solicitan acreditación. Pero su turno esa noche es verificable: estaba en la garita principal según el registro biométrico.'},
+  ],
+  pruebas:[
+    {icon:'📧',q:'El correo cifrado de reserva',a:'Irene había configurado un servidor de reserva al que enviaba copias cifradas de su trabajo. <span class="clue-highlight">El correo del día de su muerte contiene las fotos</span>: contenedores sin declarar, albaranes falsos y la firma manuscrita de Luis Carrasco validando las operaciones.'},
+    {icon:'🧬',q:'Las huellas en la tarjeta recuperada',a:'La tarjeta de memoria es localizada en un contenedor de basura a tres kilómetros del almacén. Sobre ella, <span class="clue-highlight">huellas dactilares parciales que coinciden con Luis Carrasco</span> en nueve puntos de comparación.'},
+    {icon:'🔐',q:'El registro de acceso al almacén 7',a:'El sistema electrónico de la naviera registra la <span class="clue-highlight">llave de acceso de Luis Carrasco en el almacén 7 a las 23:17</span>, exactamente la hora de la reunión anotada por Irene. No había ningún motivo operativo para que estuviera allí esa noche.'},
+  ],
+  killer:'Luis Carrasco',
+  explanation:'Luis Carrasco, director de operaciones de Naviera Levante, coordinaba desde hacía dos años un sistema de importaciones no declaradas usando contenedores fantasma. Cuando Irene Salgado lo documentó con fotografías y le citó en el almacén prometiendo revelarle "más información", Carrasco acudió con otra intención. La atacó y robó la tarjeta de memoria, creyendo que destruía la evidencia. No sabía que Irene había enviado esa misma tarde una copia cifrada al servidor de reserva. Las huellas en la tarjeta recuperada y el registro de acceso cerraron el caso.',
+},
+];
+
+/* ════════════════════════════════════════════════
+   ESTADO DEL JUEGO
+════════════════════════════════════════════════ */
+let currentCase   = null;
+let selectedSusp  = null;
+let revealedClues = {escena:[],testigos:[],pruebas:[]};
+
+function totalClues(c){ return c.escena.length+c.testigos.length+c.pruebas.length; }
+function countRevealed(){ return revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length; }
+
+/* ════════════════════════════════════════════════
+   TRANSICIÓN CINEMATOGRÁFICA
+════════════════════════════════════════════════ */
+function cinemaTransition(fn){
+  const flash = document.getElementById('flash');
+  gsap.to(flash,{opacity:1,duration:.25,ease:'power2.in',onComplete:()=>{
+    fn();
+    gsap.to(flash,{opacity:0,duration:.4,delay:.05,ease:'power2.out'});
+  }});
+}
+
+/* ════════════════════════════════════════════════
+   NAVEGACIÓN
+════════════════════════════════════════════════ */
+function goHome(){
+  clearTheme();
+  hideTimeline();
+  disableParanoia();
+  clearTimeout(paranoiaTimer);
+  const _epPanel=document.getElementById('evidence-panel');
+  if(_epPanel) _epPanel.classList.remove('open');
+  const _ebBtn=document.getElementById('evidence-board-btn');
+  if(_ebBtn) _ebBtn.classList.remove('active');
+
+  cinemaTransition(()=>{
+    document.getElementById('screen-home').style.display    = 'flex';
+    document.getElementById('screen-game').style.display   = 'none';
+    document.getElementById('screen-verdict').style.display= 'none';
+    currentCase=null; selectedSusp=null;
+    revealedClues={escena:[],testigos:[],pruebas:[]};
+    window.scrollTo(0,0);
+    setTimeout(()=>{ DetectiveRank.updateBadge(); updateScoreboard(); setLang(currentLang); }, 600);
+  });
+}
+
+let _pendingCaseIdx = null;
+
+/* ══════════════════════════════════════════════════════
+   CASE INTRO — intro cinematográfica por caso
+══════════════════════════════════════════════════════ */
+const CaseIntro = (() => {
+
+  const DURATION = 10000; // ms total
+
+  const DATA = [
+    // 0 — Doce Minutos (Sevilla, urban crime)
+    { color:'#d44020', effect:'rain', police:true,
+      narration:'Sevilla. Un repartidor entra a un edificio. Doce minutos después cae al vacío. Hay un vídeo en su móvil. Alguien quiere que desaparezca.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🛵  SEVILLA  ·  15 MAYO 2023  ·  23:47'},
+        {at:3000, t:'victim',   txt:'Javier Mora'},
+        {at:4000, t:'fact',     txt:'RIDER · 34 AÑOS · CUARTO PISO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: VÍDEO EN EL MÓVIL'},
+        {at:7000, t:'tagline',  txt:'"Nadie debería tardar doce minutos"'},
+      ]},
+    // 1 — Asunta (Santiago, heavy rain)
+    { color:'#4a7ab5', effect:'heavy_rain', police:false,
+      narration:'Santiago de Compostela. Una niña de doce años. Encontrada muerta en un camino de tierra. Sus padres dieron la alarma. Sus padres la llevaron allí.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🏡  SANTIAGO DE COMPOSTELA  ·  SEPTIEMBRE 2013'},
+        {at:3000, t:'victim',   txt:'Asunta Basterra Porto'},
+        {at:4000, t:'fact',     txt:'12 AÑOS · ADOPTADA · ENVUELTA EN UNA MANTA'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: LORAZEPAM EN SANGRE'},
+        {at:7000, t:'tagline',  txt:'"Sus padres dieron la alarma"'},
+      ]},
+    // 2 — Balmaseda (Salamanca, dust/candlelight)
+    { color:'#b8860b', effect:'dust', police:false,
+      narration:'Salamanca. Un millonario muere la noche después de cambiar su testamento. Tres herederos. Un médico con secretos. El veneno estaba en su medicación.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🏛️  SALAMANCA  ·  3 NOV 2021  ·  03:12'},
+        {at:3000, t:'victim',   txt:'Rodrigo Balmaseda'},
+        {at:4000, t:'fact',     txt:'MAGNATE · 78 AÑOS · NUEVO TESTAMENTO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: VENENO EN LA MEDICACIÓN'},
+        {at:7000, t:'tagline',  txt:'"Tres herederos. Uno de ellos mintió."'},
+      ]},
+    // 3 — Diana Quer (costa Galicia, rain+police)
+    { color:'#1a8a7a', effect:'rain', police:true,
+      narration:'A Pobra do Caramiñal. Dieciocho años. Sale de madrugada y no vuelve. Su cuerpo no aparecerá hasta dieciséis meses después, en el interior de un pozo.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌊  A POBRA DO CARAMIÑAL  ·  22 AGO 2016  ·  04:30'},
+        {at:3000, t:'victim',   txt:'Diana Quer López-Pinel'},
+        {at:4000, t:'fact',     txt:'18 AÑOS · DESAPARECIDA DE MADRUGADA'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: CHIP SIM LOCALIZADO EN EL POZO'},
+        {at:7000, t:'tagline',  txt:'"Dieciséis meses. Dos metros de agua."'},
+      ]},
+    // 4 — La Profesora (Cuenca, dust/monastero)
+    { color:'#8b7014', effect:'dust', police:false,
+      narration:'Cuenca. Una historiadora cae desde el campanario de un monasterio. En sus notas, una palabra subrayada tres veces. Plagio. Su colega estaba en el edificio esa noche.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'⛪  CUENCA  ·  17 OCT 2020  ·  22:58'},
+        {at:3000, t:'victim',   txt:'Dra. Carmen Vidal'},
+        {at:4000, t:'fact',     txt:'HISTORIADORA · CAMPANARIO · CAÍDA MORTAL'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: "PLAGIO" SUBRAYADO 3 VECES'},
+        {at:7000, t:'tagline',  txt:'"El conocimiento puede ser mortal"'},
+      ]},
+    // 5 — Marta del Castillo (Sevilla, searchlight/void)
+    { color:'#7a3aaa', effect:'sparks', police:true,
+      narration:'Sevilla. Diecisiete años. El asesino confesó todo. Nunca dijo dónde está el cuerpo. Sus padres siguen buscando más de quince años después.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌆  SEVILLA  ·  24 ENERO 2009  ·  NOCHE'},
+        {at:3000, t:'victim',   txt:'Marta del Castillo Carrasco'},
+        {at:4000, t:'fact',     txt:'17 AÑOS · EL CUERPO NUNCA APARECIÓ'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: CONFESIÓN SIN LOCALIZACIÓN'},
+        {at:7000, t:'tagline',  txt:'"Confesó todo. Menos lo único que importa."'},
+      ]},
+    // 6 — Violinista (Barcelona, sparks/concert amber)
+    { color:'#d4820a', effect:'sparks', police:false,
+      narration:'Barcelona. Un violinista de fama nacional muere en su apartamento. Aparente infarto. Pero hay una marca de punción que nadie vio a tiempo.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🎻  BARCELONA  ·  8 MAR 2019  ·  02:44'},
+        {at:3000, t:'victim',   txt:'Marc Esteve Puig'},
+        {at:4000, t:'fact',     txt:'VIOLINISTA DE FAMA NACIONAL · SUPUESTO INFARTO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: MARCA DE PUNCIÓN OCULTA'},
+        {at:7000, t:'tagline',  txt:'"La música no fue lo último que escuchó"'},
+      ]},
+    // 7 — Bretón (Córdoba, fire embers)
+    { color:'#cc3010', effect:'embers', police:true,
+      narration:'Córdoba. Ruth, seis años. José, dos años. Desaparecen con su padre en un parque. Las cámaras registran que nunca salieron.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌳  CÓRDOBA  ·  8 OCT 2011  ·  TARDE'},
+        {at:3000, t:'victim',   txt:'Ruth y José Bretón'},
+        {at:4000, t:'fact',     txt:'6 Y 2 AÑOS · PARQUE FINCA VISTA ALEGRE'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: NUNCA SALIERON DEL PARQUE'},
+        {at:7000, t:'tagline',  txt:'"El padre dio la alarma. El padre los vio por última vez."'},
+      ]},
+    // 8 — Wanninkhof (Mijas, stars/night)
+    { color:'#2a9a4a', effect:'stars', police:false,
+      narration:'Mijas. Diecinueve años. Una inocente pasa diecisiete meses en prisión. El verdadero asesino mata de nuevo antes de que lo identifiquen.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🌊  MIJAS, MÁLAGA  ·  SEPTIEMBRE 1999  ·  NOCHE'},
+        {at:3000, t:'victim',   txt:'Rocío Wanninkhof'},
+        {at:4000, t:'fact',     txt:'19 AÑOS · SISTEMA JUDICIAL FALLÓ'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: ADN — SOSPECHOSO ERRÓNEO'},
+        {at:7000, t:'tagline',  txt:'"La justicia llegó tarde. Demasiado tarde."'},
+      ]},
+    // 9 — Fotógrafo del Puerto (Valencia, fog/harbour)
+    { color:'#3a6aaa', effect:'fog', police:false,
+      narration:'Valencia. Una fotógrafa documentalista tenía la foto definitiva. Horas después estaba muerta en un almacén del puerto. La tarjeta de memoria había desaparecido.',
+      seq:[
+        {at:0,    t:'stamp',    txt:'EXPEDIENTE CLASIFICADO'},
+        {at:1500, t:'location', txt:'🚢  VALENCIA  ·  12 JUN 2018  ·  03:20'},
+        {at:3000, t:'victim',   txt:'Laia Ferrer Montoya'},
+        {at:4000, t:'fact',     txt:'FOTÓGRAFA DOCUMENTALISTA · ALMACÉN DEL PUERTO'},
+        {at:5400, t:'evidence', txt:'PRUEBA CLAVE: TARJETA DE MEMORIA ROBADA'},
+        {at:7000, t:'tagline',  txt:'"Tenía la foto. Por eso murió."'},
+      ]},
+  ];
+
+  let _cb=null, _idx=null, _afId=null, _timers=[], _particles=[];
+  let _ctx=null, _cvs=null, _aCtx=null, _gain=null;
+
+  function _el(id){ return document.getElementById(id); }
+
+  // ── Hex → RGB ──
+  function hexRgb(h){
+    const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);
+    return r?{r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)}:{r:200,g:100,b:0};
+  }
+
+  // ── Canvas ──
+  function initCvs(){
+    _cvs=_el('intro-canvas');
+    _ctx=_cvs.getContext('2d');
+    _cvs.width=innerWidth; _cvs.height=innerHeight;
+  }
+
+  function buildParticles(effect){
+    _particles=[];
+    const W=innerWidth,H=innerHeight;
+    if(effect==='rain'||effect==='heavy_rain'){
+      const n=effect==='heavy_rain'?220:130;
+      for(let i=0;i<n;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H-H,
+        sp:7+Math.random()*9+(effect==='heavy_rain'?6:0),
+        len:12+Math.random()*22,
+        op:.08+Math.random()*.2, t:'rain'
+      });
+    } else if(effect==='embers'){
+      for(let i=0;i<90;i++) _particles.push({
+        x:Math.random()*W, y:H+Math.random()*100,
+        vx:(Math.random()-.5)*1.4, vy:-.6-Math.random()*2.4,
+        sz:1+Math.random()*3, op:.6+Math.random()*.4,
+        life:Math.random(), t:'ember'
+      });
+    } else if(effect==='sparks'){
+      for(let i=0;i<70;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*1.5, vy:(Math.random()-.5)*1.5,
+        sz:.8+Math.random()*2.5, op:Math.random(),
+        life:Math.random(), t:'spark'
+      });
+    } else if(effect==='dust'){
+      for(let i=0;i<55;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*.4, vy:-.1-Math.random()*.35,
+        sz:.8+Math.random()*2.5, op:.04+Math.random()*.14, t:'dust'
+      });
+    } else if(effect==='fog'){
+      for(let i=0;i<10;i++) _particles.push({
+        x:Math.random()*W, y:H*.35+Math.random()*H*.65,
+        vx:.25+Math.random()*.4, sz:140+Math.random()*220,
+        op:.02+Math.random()*.06, t:'fog'
+      });
+    } else if(effect==='stars'){
+      for(let i=0;i<130;i++) _particles.push({
+        x:Math.random()*W, y:Math.random()*H,
+        sz:.4+Math.random()*1.8, op:Math.random(),
+        tw:Math.random()*Math.PI*2, t:'star'
+      });
+    }
+  }
+
+  function tick(effect, color){
+    if(!_ctx) return;
+    const W=_cvs.width,H=_cvs.height;
+    _ctx.clearRect(0,0,W,H);
+    const now=Date.now();
+    for(const p of _particles){
+      _ctx.save();
+      if(p.t==='rain'){
+        p.y+=p.sp; p.x+=p.sp*.12;
+        if(p.y>H){p.y=-p.len;p.x=Math.random()*W;}
+        _ctx.strokeStyle=`rgba(180,210,255,${p.op})`;
+        _ctx.lineWidth=.7;
+        _ctx.beginPath();_ctx.moveTo(p.x,p.y);_ctx.lineTo(p.x+p.len*.12,p.y+p.len);_ctx.stroke();
+      } else if(p.t==='ember'){
+        p.x+=p.vx+Math.sin(now*.001+p.life*10)*.3; p.y+=p.vy; p.life+=.004;
+        if(p.y<-10||p.life>1){p.y=H+10;p.x=Math.random()*W;p.life=0;p.op=.5+Math.random()*.5;}
+        const eo=p.op*(1-p.life);
+        _ctx.fillStyle=`rgba(255,${60+Math.floor(p.life*140)},0,${eo})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz*(1-p.life*.5),0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='spark'){
+        p.x+=p.vx; p.y+=p.vy; p.life+=.008;
+        if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=Math.random()*H;}
+        const so=p.op*Math.sin(p.life*Math.PI);
+        _ctx.fillStyle=`rgba(255,${160+Math.floor(p.life*80)},40,${so*.8})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='dust'){
+        p.x+=p.vx+Math.sin(now*.0004+p.op*80)*.18; p.y+=p.vy;
+        if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
+        _ctx.fillStyle=`rgba(210,190,130,${p.op})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='fog'){
+        p.x+=p.vx; if(p.x>W+p.sz) p.x=-p.sz;
+        const fg=_ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.sz);
+        fg.addColorStop(0,`rgba(200,215,255,${p.op})`);fg.addColorStop(1,'rgba(0,0,0,0)');
+        _ctx.fillStyle=fg;_ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      } else if(p.t==='star'){
+        p.tw+=.018;
+        const so=Math.max(0,(Math.sin(p.tw)*.5+.5)*p.op);
+        _ctx.fillStyle=`rgba(255,255,255,${so})`;
+        _ctx.beginPath();_ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);_ctx.fill();
+      }
+      _ctx.restore();
+    }
+    _afId=requestAnimationFrame(()=>tick(effect,color));
+  }
+
+  // ── Ambient audio ──
+  function startAudio(){
+    try{
+      _aCtx=new(window.AudioContext||window.webkitAudioContext)();
+      _gain=_aCtx.createGain();
+      _gain.gain.setValueAtTime(0,_aCtx.currentTime);
+      _gain.gain.linearRampToValueAtTime(.07,_aCtx.currentTime+2.5);
+      _gain.connect(_aCtx.destination);
+      const mk=(f,t)=>{const o=_aCtx.createOscillator();o.type=t;o.frequency.value=f;o.connect(_gain);o.start();return o;};
+      mk(44,'sine'); mk(66,'sine'); mk(110,'sine');
+      // Tremolo
+      const tOsc=_aCtx.createOscillator(); tOsc.frequency.value=.35;
+      const tG=_aCtx.createGain(); tG.gain.value=.025;
+      tOsc.connect(tG); tG.connect(_gain.gain); tOsc.start();
+    } catch(e){}
+  }
+
+  function stopAudio(){
+    if(!_aCtx) return;
+    try{ _gain.gain.linearRampToValueAtTime(0,_aCtx.currentTime+.6); }catch(e){}
+    setTimeout(()=>{ try{_aCtx.close();}catch(e){} _aCtx=null; },800);
+  }
+
+  // ── Web Speech ──
+  function speak(text){
+    if(!window.speechSynthesis) return;
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-ES'; u.rate=.82; u.pitch=.78; u.volume=.9;
+    const vs=speechSynthesis.getVoices();
+    const v=vs.find(x=>x.lang.startsWith('es')&&/male/i.test(x.name))
+           ||vs.find(x=>x.lang.startsWith('es'));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }
+
+  // ── Sequence ──
+  function runSeq(d){
+    const c=_el('intro-content');
+    c.innerHTML='';
+    const rgb=hexRgb(d.color);
+    const ov=_el('case-intro-overlay');
+    ov.style.setProperty('--intro-color',d.color);
+    // Police light
+    const pl=_el('intro-police-light');
+    if(pl) pl.style.display=d.police?'block':'none';
+    // Color vignette
+    const co=_el('intro-color-overlay');
+    if(co) co.style.background=`radial-gradient(ellipse at 50% 100%,rgba(${rgb.r},${rgb.g},${rgb.b},.15),transparent 70%)`;
+    // Bg number
+    const bn=_el('intro-bg-num');
+    if(bn) bn.textContent=String(_idx+1).padStart(2,'0');
+
+    for(const s of d.seq){
+      const id=setTimeout(()=>{
+        if(!_el('case-intro-overlay')?.classList.contains('active')) return;
+        const el=document.createElement('div');
+        el.className=s.t==='stamp'?'intro-stamp':'intro-line type-'+s.t;
+        el.textContent=s.txt;
+        c.appendChild(el);
+      },s.at);
+      _timers.push(id);
+    }
+
+    // Narración a los 2s
+    _timers.push(setTimeout(()=>speak(d.narration),2000));
+
+    // Progress bar
+    const fill=_el('intro-progress-fill');
+    if(fill){
+      fill.style.transition='none'; fill.style.width='0%';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        fill.style.transition=`width ${DURATION}ms linear`;
+        fill.style.width='100%';
+      }));
+    }
+
+    // Auto-finish
+    _timers.push(setTimeout(()=>_finish(),DURATION));
+  }
+
+  // ── finish ──
+  function _finish(){
+    const ov=_el('case-intro-overlay');
+    if(ov) ov.classList.remove('active');
+    document.body.style.overflow='';
+    _timers.forEach(clearTimeout); _timers=[];
+    cancelAnimationFrame(_afId);
+    if(window.speechSynthesis) speechSynthesis.cancel();
+    stopAudio();
+    if(_ctx) _ctx.clearRect(0,0,_cvs?.width||0,_cvs?.height||0);
+    const fill=_el('intro-progress-fill');
+    if(fill){fill.style.transition='none';fill.style.width='0%';}
+    if(_idx!==null) localStorage.setItem('crims_intro_'+_idx,'1');
+    const cb=_cb; _cb=null; cb?.();
+  }
+
+  // ── Public ──
+  function play(idx,callback){
+    _cb=callback; _idx=idx;
+    const d=DATA[idx];
+    if(!d){ callback?.(); return; }
+    _el('case-intro-overlay').classList.add('active');
+    document.body.style.overflow='hidden';
+    initCvs();
+    buildParticles(d.effect);
+    tick(d.effect,d.color);
+    startAudio();
+    runSeq(d);
+  }
+
+  function skip(){ _finish(); }
+
+  return {play,skip};
+})();
+
+function startCase(idx){
+  _pendingCaseIdx = idx;
+  const seen = localStorage.getItem('crims_intro_' + idx);
+  if(seen){
+    showPlayerModal(idx);
+  } else {
+    CaseIntro.play(idx, () => showPlayerModal(idx));
+  }
+}
+
+function animateGameEntry(){
+  const tl = gsap.timeline({defaults:{ease:'power3.out'}});
+  tl
+    .from('#briefing-wrap',       {opacity:0,y:40,duration:.7})
+    .from('#briefing-wrap .briefing-kicker',   {opacity:0,x:-20,duration:.5},'-=.4')
+    .from('#briefing-wrap .briefing-headline', {opacity:0,y:16,duration:.6},'-=.3')
+    .from('#briefing-wrap .briefing-body',     {opacity:0,duration:.5},'-=.2')
+    .from('#briefing-wrap .briefing-meta',     {opacity:0,y:8,duration:.4},'-=.2')
+    .from('#inv-tabs',            {opacity:0,y:10,duration:.4},'-=.2')
+    .from('.clue-item',           {opacity:0,x:-16,stagger:.06,duration:.4},'-=.1')
+    .from('#accuse-section',      {opacity:0,duration:.4},'-=.1');
+}
+
+function switchTab(panelId, btn){
+  document.querySelectorAll('.inv-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
+    const p=document.getElementById('inv-'+id);
+    const active=id===panelId;
+    p.className='inv-panel'+(active?' active':'');
+    if(active){
+      gsap.from(p.children,{opacity:0,y:12,stagger:.05,duration:.3,ease:'power2.out'});
+    }
+  });
+}
+
+function restartCase(){
+  if(!confirm(tr('restart_confirm'))) return;
+  startCase(currentCase);
+}
+
+function nextCase(){
+  if(currentCase<CASES.length-1) startCase(currentCase+1);
+  else goHome();
+}
+
+/* ════════════════════════════════════════════════
+   RENDER CLUES
+════════════════════════════════════════════════ */
+function renderClues(type,clues){
+  const container=document.getElementById('clues-'+type);
+  container.innerHTML='';
+  clues.forEach((cl,i)=>{
+    const div=document.createElement('div');
+    div.className='clue-item';div.id=`clue-${type}-${i}`;
+    div.innerHTML=`
+      <div class="clue-flash" id="flash-${type}-${i}"></div>
+      <div class="clue-header">
+        <span class="clue-icon">${cl.icon}</span>
+        <span class="clue-q">${cl.q}</span>
+        <span class="clue-status pending" id="cs-${type}-${i}">${tr('clue_examine')}</span>
+      </div>
+      <div class="clue-answer">${cl.a}<br><span class="clue-note">${tr('clue_note')}</span></div>`;
+    div.onclick=()=>revealClue(type,i,div,cl);
+    container.appendChild(div);
+  });
+  updateProgress(type);
+}
+
+function revealClue(type,i,div,cl){
+  if(div.classList.contains('revealed'))return;
+
+  // Flash de cámara fotográfica
+  const flashEl=document.getElementById(`flash-${type}-${i}`);
+  gsap.timeline()
+    .to(flashEl,{opacity:.7,duration:.06,ease:'none'})
+    .to(flashEl,{opacity:0,duration:.25,ease:'power2.out'});
+
+  div.classList.add('revealed');
+  div.querySelector('.clue-status').textContent=tr('clue_analyzed');
+  // Remove classified stamp
+  const _stamp=div.querySelector('.clue-stamp');
+  if(_stamp) gsap.to(_stamp,{opacity:0,scale:1.1,duration:.3,onComplete:()=>_stamp.remove()});
+  resetParanoia();
+  div.querySelector('.clue-status').classList.replace('pending','done');
+
+  // Animar respuesta
+  const answer=div.querySelector('.clue-answer');
+  answer.style.display='block';
+  gsap.from(answer,{opacity:0,height:0,duration:.4,ease:'power2.out'});
+
+  if(!revealedClues[type].includes(i)) revealedClues[type].push(i);
+  updateProgress(type);
+  updateCluesBadge();
+}
+
+function updateProgress(type){
+  const total=CASES[currentCase][type].length;
+  const done=revealedClues[type].length;
+  document.getElementById(`prog-${type}-txt`).textContent=`${done} / ${total} ${tr('progress_clues')}`;
+  document.getElementById(`prog-${type}-fill`).style.width=(total?done/total*100:0)+'%';
+}
+
+function updateCluesBadge(){
+  const c=CASES[currentCase];
+  const total=totalClues(c),done=countRevealed();
+  document.getElementById('gh-clues').textContent=`${done} / ${total}`;
+}
+
+/* ════════════════════════════════════════════════
+   RENDER SOSPECHOSOS
+════════════════════════════════════════════════ */
+function renderSuspects(suspects){
+  const grid=document.getElementById('suspect-grid');
+  grid.innerHTML='';
+  suspects.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.className='suspect-card';card.id=`susp-${i}`;
+    card.innerHTML=`
+      <span class="suspect-emoji">${s.emoji}</span>
+      <div class="suspect-name">${s.name}</div>
+      <div class="suspect-role">${s.role}</div>
+      <div class="suspect-motive">${s.motive}</div>`;
+    card.onclick=()=>selectSuspect(i,s.name,card);
+    grid.appendChild(card);
+  });
+}
+
+function selectSuspect(i,name,card){
+  card.classList.add('revealed');
+
+  // Animar reveal del móvil
+  const motive=card.querySelector('.suspect-motive');
+  motive.style.display='block';
+  gsap.from(motive,{opacity:0,height:0,duration:.35,ease:'power2.out'});
+
+  document.querySelectorAll('.suspect-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected','revealed');
+  selectedSusp=name;
+
+  // Pulso de selección
+  gsap.fromTo(card,{boxShadow:'0 0 0 0 rgba(200,160,48,.6)'},{
+    boxShadow:'0 0 0 8px rgba(200,160,48,0)',duration:.6,ease:'power2.out'
+  });
+
+  document.getElementById('btn-accuse').disabled=false;
+  document.getElementById('accuse-sub').textContent=tr('suspect_sel').replace('{n}',name);
+
+  // Interrogation modal
+  const _c=CASES[currentCase];
+  if(_c&&_c.sospechosos){
+    const _s=_c.sospechosos[i];
+    if(_s) setTimeout(()=>openInterrogation(i,_s.name,_s.emoji||'🕵️',_s.role||'',_s.motive||''),250);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   ACUSACIÓN Y VEREDICTO
+════════════════════════════════════════════════ */
+function makeAccusation(){
+  if(!selectedSusp)return;
+  disableParanoia();
+  const c=CASES[currentCase];
+  const correct=selectedSusp===c.killer;
+  const score=countRevealed()+'/'+totalClues(c);
+
+  cinemaTransition(()=>{
+    document.getElementById('screen-game').style.display   ='none';
+    document.getElementById('screen-verdict').style.display='flex';
+    window.scrollTo(0,0);
+
+    document.getElementById('vd-icon').textContent       = correct?'✓':'✗';
+    document.getElementById('vd-icon-wrap').style.background = correct
+      ? 'rgba(74,154,90,.15)' : 'rgba(154,48,48,.15)';
+    document.getElementById('vd-icon-wrap').style.borderColor = correct
+      ? 'rgba(74,154,90,.3)' : 'rgba(154,48,48,.3)';
+    document.getElementById('vd-result').textContent     = correct?tr('verdict_ok'):tr('verdict_fail');
+    document.getElementById('vd-result').className       = 'verdict-result '+(correct?'correct':'wrong');
+    document.getElementById('vd-accused').textContent    = correct ? tr('accused_ok').replace('{n}',selectedSusp) : tr('accused_fail').replace('{n}',selectedSusp).replace('{k}',c.killer);
+    document.getElementById('vd-explanation').innerHTML  = c.explanation;
+    document.getElementById('vd-score').textContent      = score;
+
+    const btnNext=document.getElementById('btn-next-case');
+    btnNext.disabled=false;
+    btnNext.textContent=currentCase<CASES.length-1?tr('btn_next'):tr('btn_final');
+
+    // Animación de entrada del veredicto
+    setTimeout(()=>animateVerdict(correct),100);
+
+    // Premium: sound feedback + detective rank
+    if(correct){
+      AudioSystem.successChime();
+      const _clues=revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length;
+      const _pts=3+_clues;
+      DetectiveRank.addPoints(_pts);
+      if(currentPlayer){
+        DB.record({
+          player:      currentPlayer,
+          caseIdx:     currentCase,
+          caseTitle:   CASES[currentCase]?.title||'',
+          correct:     true,
+          cluesFound:  _clues,
+          ptsEarned:   _pts,
+          accused:     selectedSusp,
+        }).then(()=>updateScoreboard());
+      }
+    } else {
+      AudioSystem.heartbeat();
+      if(currentPlayer){
+        DB.record({
+          player:      currentPlayer,
+          caseIdx:     currentCase,
+          caseTitle:   CASES[currentCase]?.title||'',
+          correct:     false,
+          cluesFound:  revealedClues.escena.length+revealedClues.testigos.length+revealedClues.pruebas.length,
+          ptsEarned:   0,
+          accused:     selectedSusp,
+        }).then(()=>updateScoreboard());
+      }
+    }
+  });
+}
+
+function animateVerdict(correct){
+  const card=document.getElementById('verdict-card');
+
+  gsap.fromTo(card,
+    {opacity:0,scale:.92,y:30},
+    {opacity:1,scale:1,y:0,duration:.7,ease:'power3.out'}
+  );
+
+  if(correct){
+    // Partículas doradas
+    for(let i=0;i<24;i++){
+      setTimeout(()=>spawnParticle(),i*60);
+    }
+  } else {
+    // Shake rojo
+    gsap.to(card,{x:-6,duration:.05,yoyo:true,repeat:7,ease:'none'});
+  }
+}
+
+function spawnParticle(){
+  const p=document.createElement('div');
+  p.className='verdict-particle';
+  const hue=Math.random()>.5?'rgba(200,160,48,1)':'rgba(74,154,90,1)';
+  const x=20+Math.random()*60;
+  p.style.cssText=`left:${x}vw;top:60%;background:${hue}`;
+  document.body.appendChild(p);
+  gsap.to(p,{
+    y:-(100+Math.random()*200),
+    x:(Math.random()-.5)*80,
+    opacity:0,scale:Math.random()*.8+.4,
+    duration:1.2+Math.random()*.8,
+    ease:'power2.out',
+    onComplete:()=>p.remove()
+  });
+}
+
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE TEMAS POR CASO
+════════════════════════════════════════════════ */
+const CASE_THEMES = [
+  {accent:'#d44020'},  // 0 Doce Minutos
+  {accent:'#4a7ab5'},  // 1 Asunta
+  {accent:'#b8860b'},  // 2 Balmaseda
+  {accent:'#1a8a7a'},  // 3 Diana Quer
+  {accent:'#8b7014'},  // 4 La Profesora
+  {accent:'#7a3aaa'},  // 5 Marta
+  {accent:'#d4820a'},  // 6 Violinista
+  {accent:'#cc3010'},  // 7 Bretón
+  {accent:'#2a9a4a'},  // 8 Wanninkhof
+  {accent:'#3a6aaa'},  // 9 Fotógrafo
+];
+
+function applyTheme(idx){
+  document.body.setAttribute('data-t', String(idx));
+}
+function clearTheme(){
+  document.body.removeAttribute('data-t');
+}
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE AUDIO — Web Audio API procedural
+════════════════════════════════════════════════ */
+const AudioSystem = (()=>{
+  let ctx = null, masterGain = null, noiseNode = null, droneNode = null;
+  let lfoNode = null, lfoGain = null;
+  let running = false;
+  let btnEl = null;
+
+  // Frequency profiles per case (Hz for drone, filter settings)
+  const profiles = [
+    {f:55,  f2:110, nf:400, ng:.4},   // 0 Doce Minutos – low urban
+    {f:40,  f2:80,  nf:300, ng:.35},  // 1 Asunta – cold dark
+    {f:65,  f2:130, nf:600, ng:.3},   // 2 Balmaseda – noble tension
+    {f:50,  f2:100, nf:350, ng:.38},  // 3 Diana – coastal dread
+    {f:45,  f2:90,  nf:500, ng:.32},  // 4 Profesora – monastery echo
+    {f:35,  f2:70,  nf:250, ng:.5},   // 5 Marta – void deep
+    {f:70,  f2:140, nf:700, ng:.28},  // 6 Violinista – warm dark
+    {f:42,  f2:84,  nf:320, ng:.45},  // 7 Bretón – fire low
+    {f:58,  f2:116, nf:450, ng:.3},   // 8 Wanninkhof – mediterranean
+    {f:48,  f2:96,  nf:380, ng:.35},  // 9 Fotógrafo – harbour
+  ];
+
+  function makePinkNoise(ctx){
+    const bufSize = 2 * ctx.sampleRate;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(let i=0;i<bufSize;i++){
+      const w = (Math.random()*2-1);
+      b0=.99886*b0+w*.0555179;
+      b1=.99332*b1+w*.0750759;
+      b2=.96900*b2+w*.1538520;
+      b3=.86650*b3+w*.3104856;
+      b4=.55000*b4+w*.5329522;
+      b5=-.7616*b5-w*.0168980;
+      data[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*0.07;
+      b6=w*.115926;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    return src;
+  }
+
+  function startAmbient(caseIdx){
+    if(!ctx) return;
+    stopAmbient();
+    const p = profiles[caseIdx] || profiles[0];
+
+    // Pink noise
+    noiseNode = makePinkNoise(ctx);
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.value = p.nf;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = p.ng * 0.18;
+    noiseNode.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+    noiseNode.start(0);
+
+    // Drone
+    droneNode = ctx.createOscillator();
+    droneNode.type = 'sawtooth';
+    droneNode.frequency.value = p.f;
+    const droneFilter = ctx.createBiquadFilter();
+    droneFilter.type = 'lowpass';
+    droneFilter.frequency.value = p.f * 4;
+    droneFilter.Q.value = 1.5;
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0.06;
+
+    // LFO subtle tremolo
+    lfoNode = ctx.createOscillator();
+    lfoNode.frequency.value = 0.07 + Math.random()*0.04;
+    lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.015;
+    lfoNode.connect(lfoGain);
+    lfoGain.connect(droneGain.gain);
+
+    droneNode.connect(droneFilter);
+    droneFilter.connect(droneGain);
+    droneGain.connect(masterGain);
+    droneNode.start(0);
+    lfoNode.start(0);
+
+    // Second harmonic drone at lower gain
+    const drone2 = ctx.createOscillator();
+    drone2.type = 'sine';
+    drone2.frequency.value = p.f2;
+    const d2g = ctx.createGain();
+    d2g.gain.value = 0.025;
+    drone2.connect(d2g);
+    d2g.connect(masterGain);
+    drone2.start(0);
+    // keep reference to stop later
+    droneNode._drone2 = drone2;
+    droneNode._d2g = d2g;
+  }
+
+  function stopAmbient(){
+    [noiseNode, droneNode, lfoNode].forEach(n=>{
+      if(n){ try{n.stop()}catch(e){} }
+    });
+    if(droneNode?._drone2){ try{droneNode._drone2.stop()}catch(e){} }
+    noiseNode = droneNode = lfoNode = lfoGain = null;
+  }
+
+  function init(){
+    btnEl = document.getElementById('audio-btn');
+    if(!ctx){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0;
+      masterGain.connect(ctx.destination);
+    }
+    if(ctx.state==='suspended') ctx.resume();
+    gsap.to(masterGain.gain,{value:1,duration:2.5});
+    running = true;
+    if(btnEl){ btnEl.textContent='🔊 Ambiente'; btnEl.classList.add('on'); }
+  }
+
+  return {
+    toggle(){
+      if(!ctx || !running){
+        init();
+        if(typeof currentCase !== 'undefined') startAmbient(currentCase);
+      } else {
+        running = false;
+        if(masterGain) gsap.to(masterGain.gain,{value:0,duration:1.5,onComplete:stopAmbient});
+        if(btnEl){ btnEl.textContent='🔇 Silencio'; btnEl.classList.remove('on'); }
+      }
+    },
+    playForCase(idx){
+      if(!running) return;
+      if(!ctx) return;
+      startAmbient(idx);
+    },
+    heartbeat(){
+      if(!ctx||!running) return;
+      // Short percussive hit
+      const osc = ctx.createOscillator();
+      const env = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 60;
+      env.gain.setValueAtTime(0.4, ctx.currentTime);
+      env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.25);
+      osc.connect(env); env.connect(masterGain);
+      osc.start(); osc.stop(ctx.currentTime+0.3);
+      setTimeout(()=>{
+        const o2 = ctx.createOscillator();
+        const e2 = ctx.createGain();
+        o2.type = 'sine'; o2.frequency.value = 55;
+        e2.gain.setValueAtTime(0.3,ctx.currentTime);
+        e2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.2);
+        o2.connect(e2); e2.connect(masterGain);
+        o2.start(); o2.stop(ctx.currentTime+0.25);
+      }, 400);
+    },
+    successChime(){
+      if(!ctx||!running) return;
+      [523,659,784,1047].forEach((f,i)=>{
+        setTimeout(()=>{
+          const osc=ctx.createOscillator();
+          const env=ctx.createGain();
+          osc.type='sine'; osc.frequency.value=f;
+          env.gain.setValueAtTime(0.15,ctx.currentTime);
+          env.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.6);
+          osc.connect(env); env.connect(masterGain);
+          osc.start(); osc.stop(ctx.currentTime+0.65);
+        },i*120);
+      });
+    }
+  };
+})();
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE RANGO DETECTIVE
+════════════════════════════════════════════════ */
+const DetectiveRank = (()=>{
+  const RANKS = [
+    {min:0,    icon:'🔍', title:'Detective Novato'},
+    {min:5,    icon:'📋', title:'Inspector'},
+    {min:15,   icon:'🗂️', title:'Investigador Senior'},
+    {min:30,   icon:'⚖️', title:'Fiscal Especial'},
+    {min:50,   icon:'🏛️', title:'Juez de Instrucción'},
+    {min:80,   icon:'🎖️', title:'Maestro Detective'},
+  ];
+
+  function load(){ return parseInt(localStorage.getItem('crims_pts')||'0'); }
+  function save(pts){ localStorage.setItem('crims_pts', String(pts)); }
+
+  function getRank(pts){
+    let r = RANKS[0];
+    for(const rank of RANKS){ if(pts>=rank.min) r=rank; }
+    return r;
+  }
+
+  function addPoints(pts){
+    const current = load();
+    const next = current + pts;
+    save(next);
+    updateBadge();
+    return next;
+  }
+
+  function updateBadge(){
+    const pts = load();
+    const rank = getRank(pts);
+    const iconEl = document.getElementById('rank-icon');
+    const labelEl = document.getElementById('rank-label');
+    const ptsEl = document.getElementById('rank-pts');
+    const badge = document.getElementById('rank-badge');
+    if(iconEl) iconEl.textContent = rank.icon;
+    if(labelEl) labelEl.textContent = rank.title;
+    if(ptsEl) ptsEl.textContent = `· ${pts} pts`;
+    if(badge){
+      badge.classList.add('visible');
+    }
+  }
+
+  return { load, addPoints, updateBadge, getRank };
+})();
+
+/* ════════════════════════════════════════════════
+   PANTALLA DE CARGA — EXPEDIENTE CLASIFICADO
+════════════════════════════════════════════════ */
+function showLoadingScreen(caseIdx, title, callback){
+  const screen = document.getElementById('screen-loading');
+  const titleEl = document.getElementById('load-case-title');
+  const bar     = document.getElementById('load-bar');
+
+  screen.classList.add('active');
+  document.body.classList.add('loading');
+  if(titleEl) titleEl.textContent = title;
+
+  // Apply theme immediately
+  applyTheme(caseIdx);
+
+  // Animate loading bar
+  let pct = 0;
+  bar.style.width = '0%';
+  const iv = setInterval(()=>{
+    pct += (Math.random()*12 + 4);
+    if(pct >= 96){ pct = 96; clearInterval(iv); }
+    bar.style.width = pct + '%';
+  }, 80);
+
+  setTimeout(()=>{
+    clearInterval(iv);
+    bar.style.width = '100%';
+    setTimeout(()=>{
+      screen.classList.remove('active');
+      document.body.classList.remove('loading');
+      callback();
+    }, 350);
+  }, 1400);
+}
+
+/* ════════════════════════════════════════════════
+   TABLÓN DE EVIDENCIAS
+════════════════════════════════════════════════ */
+function toggleEvidenceBoard(){
+  const panel = document.getElementById('evidence-panel');
+  if(!panel) return;
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open') && typeof currentCase !== 'undefined'){
+    renderEvidenceBoard(currentCase);
+  }
+}
+
+function renderEvidenceBoard(caseIdx){
+  const c = CASES[caseIdx];
+  if(!c) return;
+  const content = document.getElementById('ep-content');
+  if(!content) return;
+
+  const sections = [
+    {label:'Escena del crimen', items:c.escena, key:'escena'},
+    {label:'Testigos',          items:c.testigos, key:'testigos'},
+    {label:'Pruebas materiales',items:c.pruebas,  key:'pruebas'},
+  ];
+
+  let html = '';
+  sections.forEach(sec=>{
+    if(!sec.items?.length) return;
+    html += `<div class="ep-section">`;
+    html += `<div class="ep-section-label">${sec.label}</div>`;
+    sec.items.forEach((item, i)=>{
+      const revealed = Array.isArray(revealedClues[sec.key]) && revealedClues[sec.key].includes(i);
+      html += `<div class="ep-item ${revealed ? 'unlocked' : 'locked'}">`;
+      if(revealed){
+        html += `<strong>${item.q}</strong><br>${item.a}`;
+      } else {
+        html += `[CLASIFICADO]`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+
+  content.innerHTML = html || '<div class="ep-section-label">Sin evidencias registradas.</div>';
+}
+
+/* ════════════════════════════════════════════════
+   SALA DE INTERROGACIÓN
+════════════════════════════════════════════════ */
+let interrogationTarget = null;
+
+function openInterrogation(suspectIdx, name, emoji, role, motive){
+  interrogationTarget = suspectIdx;
+  document.getElementById('intg-emoji').textContent  = emoji  || '🕵️';
+  document.getElementById('intg-name').textContent   = name   || 'Sospechoso';
+  document.getElementById('intg-role').textContent   = role   || '';
+  document.getElementById('intg-motive').textContent = motive || '';
+
+  const modal = document.getElementById('interrogation-modal');
+  modal.classList.add('active');
+  AudioSystem.heartbeat();
+
+  // GSAP entrance
+  gsap.fromTo('.intg-room',
+    {opacity:0,y:30,scale:.97},
+    {opacity:1,y:0,scale:1,duration:.5,ease:'power3.out'}
+  );
+}
+
+function closeInterrogation(){
+  const modal = document.getElementById('interrogation-modal');
+  gsap.to('.intg-room',{opacity:0,y:20,scale:.97,duration:.3,ease:'power2.in',
+    onComplete:()=>modal.classList.remove('active')
+  });
+  interrogationTarget = null;
+}
+
+function accuseFromInterrogation(){
+  if(interrogationTarget === null) return;
+  const c = CASES[currentCase];
+  // Select the suspect first
+  const suspCards = document.querySelectorAll('.suspect-card');
+  if(suspCards[interrogationTarget]){
+    suspCards[interrogationTarget].click();
+  }
+  closeInterrogation();
+  setTimeout(()=>makeAccusation(), 400);
+}
+
+/* ════════════════════════════════════════════════
+   TYPEWRITER HELPER
+════════════════════════════════════════════════ */
+function typewriterEl(el, text, speed=28){
+  return new Promise(resolve=>{
+    el.textContent='';
+    el.classList.add('typewriter');
+    let i=0;
+    const iv=setInterval(()=>{
+      el.textContent += text[i++];
+      if(i>=text.length){
+        clearInterval(iv);
+        el.classList.remove('typewriter');
+        el.classList.add('done');
+        resolve();
+      }
+    },speed);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   TIMELINE STRIP
+════════════════════════════════════════════════ */
+function renderTimeline(c){
+  const strip = document.getElementById('timeline-strip');
+  const inner = document.getElementById('timeline-inner');
+  if(!strip || !inner || !c.meta) return;
+
+  // Build timeline from meta + escena items
+  const events = [];
+  c.meta.forEach(m=>{
+    if(m.label==='Hallazgo') events.push({date:m.val, ev:'Hallazgo del cuerpo'});
+    if(m.label==='Condena')  events.push({date:m.val, ev:'Condena dictada'});
+    if(m.label==='Investigación') events.push({date:'Hoy', ev:'Investigación abierta'});
+  });
+  if(!events.length) return;
+
+  inner.innerHTML = events.map(e=>`
+    <div class="tl-node">
+      <div class="tl-dot"></div>
+      <div class="tl-date">${e.date||''}</div>
+      <div class="tl-ev">${e.ev||''}</div>
+    </div>
+  `).join('');
+
+  strip.style.display='block';
+  setTimeout(()=>strip.classList.add('open'),100);
+}
+
+function hideTimeline(){
+  const strip = document.getElementById('timeline-strip');
+  if(!strip) return;
+  strip.classList.remove('open');
+  setTimeout(()=>{strip.style.display='none'},450);
+}
+
+/* ════════════════════════════════════════════════
+   MODO PARANOIA (idle > 45s en pantalla de juego)
+════════════════════════════════════════════════ */
+let paranoiaTimer = null;
+const PARA_TEXTS = [
+  '¿QUIÉN MIENTE?','OBSERVA LOS DETALLES','EL CULPABLE LO SABE',
+  'CONFÍA EN LAS PRUEBAS','NADIE HABLA POR CASUALIDAD','¿ESTÁS SEGURO?',
+  'REVISA CADA PISTA','LA VERDAD ESTÁ AHÍ'
+];
+
+function enableParanoia(){
+  const overlay = document.getElementById('paranoia-overlay');
+  if(!overlay) return;
+  overlay.innerHTML='';
+  // Vertical lines
+  [15,38,62,85].forEach(pct=>{
+    const ln=document.createElement('div');
+    ln.className='para-vline';
+    ln.style.left=pct+'%';
+    ln.style.animationDelay=(Math.random()*3)+'s';
+    overlay.appendChild(ln);
+  });
+  // Random texts
+  for(let i=0;i<3;i++){
+    const tx=document.createElement('div');
+    tx.className='para-text';
+    tx.textContent=PARA_TEXTS[Math.floor(Math.random()*PARA_TEXTS.length)];
+    tx.style.left=(10+Math.random()*75)+'%';
+    tx.style.top=(15+Math.random()*70)+'%';
+    tx.style.animationDelay=(Math.random()*6)+'s';
+    overlay.appendChild(tx);
+  }
+  overlay.classList.add('active');
+}
+
+function disableParanoia(){
+  const overlay=document.getElementById('paranoia-overlay');
+  if(overlay) overlay.classList.remove('active');
+}
+
+function resetParanoia(){
+  disableParanoia();
+  clearTimeout(paranoiaTimer);
+  paranoiaTimer=setTimeout(enableParanoia, 45000);
+}
+
+/* ════════════════════════════════════════════════
+   CLASSIFIED STAMP on unrevealed clues
+════════════════════════════════════════════════ */
+function addStampsToClues(){
+  document.querySelectorAll('.clue-item').forEach(cl=>{
+    if(!cl.querySelector('.clue-stamp')){
+      const stamp = document.createElement('div');
+      stamp.className = 'clue-stamp';
+      stamp.textContent = 'CLASIFICADO';
+      cl.appendChild(stamp);
+    }
+  });
+}
+
+document.addEventListener('keydown', ()=>{ if(paranoiaTimer) resetParanoia(); });
+document.addEventListener('click', ()=>{  if(paranoiaTimer) resetParanoia(); });
+
+
+/* ════════════════════════════════════════════════
+   SISTEMA DE JUGADORES — Ruslan & Anabel
+════════════════════════════════════════════════ */
+let currentPlayer = null; // 'Ruslan' | 'Anabel'
+
+const PLAYERS = ['Ruslan','Anabel'];
+
+/* RANKS_FEMALE reemplazado por tr() */
+
+function getPlayerPts(name){
+  return DB.pts(name);
+}
+function addPlayerPts(name, pts){
+  // Llamado desde makeAccusation — la escritura real ocurre en DB.record()
+  const cur = getPlayerPts(name);
+  localStorage.setItem('crims_pts_'+name, String(cur+pts));
+  if(DB._data[name]) DB._data[name].total_pts = cur+pts;
+  return cur+pts;
+}
+const RANK_THRESHOLDS = [
+  {min:0, key:'rank_0'},{min:5, key:'rank_1'},{min:15, key:'rank_2'},
+  {min:30,key:'rank_3'},{min:50,key:'rank_4'},{min:80, key:'rank_5'},
+];
+const RANK_ICONS = ['🔍','📋','🗂️','⚖️','🏛️','🎖️'];
+
+function getPlayerRank(name){
+  const pts = getPlayerPts(name);
+  const female = name==='Anabel';
+  let idx=0;
+  RANK_THRESHOLDS.forEach((r,i)=>{ if(pts>=r.min) idx=i; });
+  const key = RANK_THRESHOLDS[idx].key + (female?'f':'');
+  return { title: tr(key), icon: RANK_ICONS[idx] };
+}
+
+function updateScoreboard(){
+  PLAYERS.forEach(name=>{
+    const pts  = getPlayerPts(name);
+    const rank = getPlayerRank(name);
+    // home scoreboard
+    const sbR = document.getElementById('sb-rank-'+name);
+    const sbP = document.getElementById('sb-pts-'+name);
+    if(sbR) sbR.textContent = rank.title;
+    if(sbP) sbP.textContent = pts+' pts';
+    // player modal
+    const pmR = document.getElementById('pm-rank-'+name);
+    const pmP = document.getElementById('pm-pts-'+name);
+    if(pmR) pmR.textContent = rank.title;
+    if(pmP) pmP.textContent = pts+' pts';
+  });
+}
+
+function showPlayerModal(caseIdx){
+  updateScoreboard();
+  applyTheme(caseIdx);
+  const modal = document.getElementById('player-modal');
+  modal.classList.add('active');
+  // GSAP entrance
+  gsap.fromTo('.pm-title',{opacity:0,y:20},{opacity:1,y:0,duration:.5,ease:'power3.out',delay:.1});
+  gsap.fromTo('.pm-player-btn',{opacity:0,y:30,scale:.96},{opacity:1,y:0,scale:1,stagger:.12,duration:.5,ease:'power3.out',delay:.2});
+}
+
+function selectPlayer(name, emoji){
+  currentPlayer = name;
+  const modal = document.getElementById('player-modal');
+  // Show who's playing in game header
+  const tag = document.getElementById('game-player-tag');
+  if(tag) tag.textContent = emoji+' '+name;
+
+  gsap.to('.pm-players',{opacity:0,y:-20,duration:.3,ease:'power2.in',onComplete:()=>{
+    modal.classList.remove('active');
+    // Proceed to loading screen
+    const c = CASES[_pendingCaseIdx];
+    showLoadingScreen(_pendingCaseIdx, c?.title||'Caso', ()=>{
+      cinemaTransition(()=>{
+        currentCase   = _pendingCaseIdx;
+        selectedSusp  = null;
+        revealedClues = {escena:[],testigos:[],pruebas:[]};
+
+        document.getElementById('screen-home').style.display    = 'none';
+        document.getElementById('screen-verdict').style.display = 'none';
+        document.getElementById('screen-game').style.display    = 'block';
+        window.scrollTo(0,0);
+
+        const ci = CASES[_pendingCaseIdx];
+        document.getElementById('gh-title').textContent = ci.title;
+        updateCluesBadge();
+        document.getElementById('br-bgnum').textContent    = ci.bgNum;
+        document.getElementById('br-kicker').textContent   = ci.kicker;
+        document.getElementById('br-headline').textContent = ci.headline;
+        document.getElementById('br-body').textContent     = ci.body;
+        const meta = document.getElementById('br-meta');
+        meta.innerHTML = ci.meta.map(m=>`
+          <div class="meta-item">
+            <span class="meta-label">${m.label}</span>
+            <span class="meta-val">${m.val}</span>
+          </div>`).join('');
+
+        const tabs   = document.getElementById('inv-tabs');
+        const tabIds = ['escena','testigos','sospechosos','pruebas'];
+        tabs.innerHTML='';
+        ci.tabs.forEach((_tl,i)=>{
+          const b=document.createElement('button');
+          b.className='inv-tab'+(i===0?' active':'');
+          b.textContent=tr(TAB_KEYS[i]);b.onclick=()=>switchTab(tabIds[i],b);
+          tabs.appendChild(b);
+        });
+
+        renderClues('escena',  ci.escena);
+        renderClues('testigos',ci.testigos);
+        renderClues('pruebas', ci.pruebas);
+        renderSuspects(ci.sospechosos);
+        ['escena','testigos','sospechosos','pruebas'].forEach(id=>{
+          document.getElementById('inv-'+id).className='inv-panel'+(id==='escena'?' active':'');
+        });
+
+        document.getElementById('btn-accuse').disabled=true;
+        document.getElementById('accuse-sub').textContent='Selecciona un sospechoso antes de presentar la acusación.';
+
+        animateGameEntry();
+        AudioSystem.playForCase(_pendingCaseIdx);
+        setTimeout(()=>{
+          addStampsToClues();
+          renderTimeline(ci);
+          resetParanoia();
+          const _eb=document.getElementById('evidence-board-btn');
+          if(_eb) _eb.classList.add('active');
+        }, 600);
+      });
+    });
+    gsap.set('.pm-players',{opacity:1,y:0});
+  }});
+}
+
+</script>
+
+<!-- ════ LOADING SCREEN ════ -->
+<div id="screen-loading">
+  <div class="load-stamp">EXPEDIENTE CLASIFICADO</div>
+  <div class="load-case-title" id="load-case-title">Cargando caso…</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="load-bar"></div></div>
+  <div class="load-classif-sub">Acceso restringido · Solo detectives autorizados</div>
+</div>
+
+<!-- ════ AUDIO BUTTON ════ -->
+<button id="audio-btn" onclick="AudioSystem.toggle()" title="Sonido ambiental">🔇 Silencio</button>
+
+<!-- ════ EVIDENCE BOARD BUTTON ════ -->
+<button id="evidence-board-btn" onclick="toggleEvidenceBoard()">📋 Tablón</button>
+
+<!-- ════ EVIDENCE PANEL ════ -->
+<div id="evidence-panel">
+  <div class="ep-header">
+    <div class="ep-title">📋 Tablón de evidencias</div>
+    <button class="ep-close" onclick="toggleEvidenceBoard()">✕</button>
+  </div>
+  <div id="ep-content"></div>
+</div>
+
+<!-- ════ INTERROGATION MODAL ════ -->
+<div id="interrogation-modal">
+  <div class="intg-room">
+    <div class="intg-lamp"></div>
+    <div class="intg-header">
+      <div class="intg-emoji" id="intg-emoji">🕵️</div>
+      <div class="intg-name-wrap">
+        <div class="intg-name" id="intg-name">Sospechoso</div>
+        <div class="intg-role" id="intg-role">Rol desconocido</div>
+      </div>
+    </div>
+    <div class="intg-body">
+      <div class="intg-label">Declaración · Sala de interrogación</div>
+      <div class="intg-motive-text" id="intg-motive"></div>
+    </div>
+    <div class="intg-actions">
+      <button class="intg-btn danger" id="intg-accuse-btn" onclick="accuseFromInterrogation()">
+        ⚖️ Acusar formalmente
+      </button>
+      <button class="intg-btn close-btn" onclick="closeInterrogation()">Cerrar sala</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PARANOIA OVERLAY ════ -->
+<div id="paranoia-overlay"></div>
+
+<!-- ════ TIMELINE STRIP ════ -->
+<div id="timeline-strip"><div class="timeline-inner" id="timeline-inner"></div></div>
+
+
+<!-- ════ PLAYER SELECTION MODAL ════ -->
+<div id="player-modal">
+  <div class="pm-label">Identificación de detective</div>
+  <div class="pm-title">¿Quién investiga <span>este caso</span>?</div>
+  <div class="pm-players">
+    <button class="pm-player-btn" onclick="selectPlayer('Ruslan','🐒')">
+      <span class="pm-player-emoji">🐒</span>
+      <span class="pm-player-name">Ruslan</span>
+      <span class="pm-player-rank" id="pm-rank-Ruslan">Detective Novato</span>
+      <span class="pm-player-pts" id="pm-pts-Ruslan">0 pts</span>
+    </button>
+    <div class="pm-divider">vs</div>
+    <button class="pm-player-btn" onclick="selectPlayer('Anabel','💅')">
+      <span class="pm-player-emoji">💅</span>
+      <span class="pm-player-name">Anabel</span>
+      <span class="pm-player-rank" id="pm-rank-Anabel">Detective Novata</span>
+      <span class="pm-player-pts" id="pm-pts-Anabel">0 pts</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     INTRO CINEMATOGRÁFICA — overlay
+════════════════════════════════════════════════ -->
+<div id="case-intro-overlay">
+  <canvas id="intro-canvas"></canvas>
+  <div class="intro-police-light" id="intro-police-light"></div>
+  <div class="intro-color-overlay" id="intro-color-overlay"></div>
+  <div class="intro-bg-num" id="intro-bg-num"></div>
+  <div class="intro-content" id="intro-content"></div>
+  <div class="intro-progress">
+    <div class="intro-progress-fill" id="intro-progress-fill"></div>
+  </div>
+  <button class="intro-skip" onclick="CaseIntro.skip()">Saltar ›</button>
+</div>
+
+<!-- ════ SELECTOR IDIOMA ════ -->
+<div id="lang-picker">
+  <button class="lang-btn active" data-lang="es" onclick="setLang('es')">
+    <span class="lang-flag">🇪🇸</span> ES
+  </button>
+  <span class="lang-sep">·</span>
+  <button class="lang-btn" data-lang="ca" onclick="setLang('ca')">
+    <span class="lang-flag">🏴󠁥󠁳󠁣󠁴󠁿</span> CA
+  </button>
+  <span class="lang-sep">·</span>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">
+    <span class="lang-flag">🇬🇧</span> EN
+  </button>
+</div>
+
+</body>
+</html>

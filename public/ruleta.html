@@ -1,0 +1,4068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Bali 2026 · 18–23 Junio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+/* ══════════════════════════════════════════
+   TOKENS  (palette extraída de la foto)
+══════════════════════════════════════════ */
+:root{
+  /* cielo */
+  --sky-top:   #50606e;
+  --sky-warm:  #9a7a48;
+  --sky-gold:  #c58420;
+  --horizon:   #d87010;
+  --sun:       #ffc020;
+  /* tierra/océano */
+  --ocean:     #1e2830;
+  --land:      #161e14;
+  /* oro de interfaz */
+  --gold:      #E8BA2A;
+  --gold2:     #FFD060;
+  --gold-dim:  rgba(232,186,42,0.18);
+  /* texto */
+  --t1:  #FFF8EE;
+  --t2:  rgba(255,240,210,0.72);
+  --t3:  rgba(255,235,200,0.40);
+  /* superficies */
+  --surf:  rgba(12,8,4,0.55);
+  --surf2: rgba(22,14,6,0.70);
+  --bd:    rgba(232,186,42,0.22);
+  --bd2:   rgba(232,186,42,0.38);
+  /* colores actividades */
+  --p0:#D4622A; --p1:#2A9E8A; --p2:#D4A220; --p3:#B83050;
+  --p4:#6A3A9A; --p5:#1E7A5A; --p6:#C06840; --p7:#1878A8;
+  --p8:#9A5A28; --p9:#A83060; --p10:#28926A;--p11:#7840B8;
+  --p12:#C88820;--p13:#C03848;--p14:#4A9A70;
+}
+
+/* ══════════════════════════════════════════
+   BASE
+══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  color:var(--t1);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  /* Fondo inspirado en la foto: cielo nublado-dorado → horizonte naranja → tierra oscura */
+  background:
+    /* nubes sutiles izquierda */
+    radial-gradient(ellipse 70% 25% at 20% 12%, rgba(160,145,120,0.28) 0%, transparent 60%),
+    /* nubes derecha */
+    radial-gradient(ellipse 55% 20% at 78% 8%,  rgba(140,130,115,0.22) 0%, transparent 55%),
+    /* halo del sol */
+    radial-gradient(circle 260px at 47% 52%, rgba(255,210,60,0.55) 0%, rgba(220,140,10,0.30) 45%, transparent 70%),
+    /* gradiente principal */
+    linear-gradient(to bottom,
+      #4c5a68  0%,
+      #7a6840 16%,
+      #b88030 32%,
+      #d89020 46%,
+      #d07018 54%,
+      #803810 60%,
+      #2a3828 66%,
+      #1a2418 80%,
+      #101610 100%
+    );
+  background-attachment:fixed;
+}
+
+/* ══════════════════════════════════════════
+   ELEMENTOS ATMOSFÉRICOS FIJOS
+══════════════════════════════════════════ */
+/* Disco del sol */
+.sun-disc{
+  position:fixed;
+  width:80px;height:80px;
+  border-radius:50%;
+  background:radial-gradient(circle at 44% 44%, #fff8d0,#ffc828 40%,#f0a010 80%);
+  box-shadow:0 0 50px 20px rgba(255,200,40,.4),0 0 120px 50px rgba(240,160,16,.2);
+  top:49%; left:46%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Resplandor horizontal del horizonte */
+.horizon-glow{
+  position:fixed;
+  height:3px;
+  left:0;right:0;
+  top:56%;
+  background:linear-gradient(to right,transparent,rgba(255,190,30,.35),rgba(255,160,20,.5),rgba(255,190,30,.35),transparent);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ══════════════════════════════════════════
+   COPAS DE VINO SVG (elemento decorativo
+   inspirado directamente en la foto)
+══════════════════════════════════════════ */
+.wine-scene{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:52vh;
+  pointer-events:none;
+  z-index:1;
+  overflow:hidden;
+}
+
+/* ══════════════════════════════════════════
+   ESTRELLAS
+══════════════════════════════════════════ */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{
+  position:absolute;border-radius:50%;background:#fff;
+  animation:twinkle var(--d,3s) ease-in-out infinite var(--dl,0s);
+}
+@keyframes twinkle{
+  0%,100%{opacity:var(--lo,.15);transform:scale(1)}
+  50%     {opacity:1;           transform:scale(1.5)}
+}
+
+/* Luciérnagas */
+.ff{
+  position:fixed;width:3px;height:3px;border-radius:50%;
+  background:#b0ffd8;
+  box-shadow:0 0 7px 3px rgba(176,255,210,.65);
+  pointer-events:none;z-index:2;
+  animation:ffm var(--d,8s) ease-in-out infinite var(--dl,0s),
+            ffg 2s ease-in-out infinite var(--gd,0s);
+}
+@keyframes ffm{
+  0%{transform:translate(0,0)}25%{transform:translate(var(--x1),var(--y1))}
+  50%{transform:translate(var(--x2),var(--y2))}75%{transform:translate(var(--x3),var(--y3))}100%{transform:translate(0,0)}
+}
+@keyframes ffg{
+  0%,100%{opacity:.12;box-shadow:0 0 4px 1px rgba(176,255,210,.25)}
+  50%    {opacity:1;  box-shadow:0 0 10px 4px rgba(176,255,210,.8)}
+}
+
+/* ══════════════════════════════════════════
+   APP WRAPPER
+══════════════════════════════════════════ */
+.app{
+  position:relative;z-index:10;
+  max-width:1220px;
+  margin:0 auto;
+  padding:28px 18px 300px;
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+header{text-align:center;margin-bottom:40px}
+
+.badge-dates{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(12,8,4,.55);
+  border:1px solid var(--bd2);
+  border-radius:50px;
+  padding:7px 20px;
+  font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);
+  backdrop-filter:blur(12px);
+  margin-bottom:16px;
+  box-shadow:0 0 20px rgba(232,186,42,.12);
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 8px rgba(232,186,42,.8);animation:twinkle 2s ease-in-out infinite}
+
+h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.4rem,5.5vw,4.2rem);
+  font-weight:900;letter-spacing:-.025em;line-height:1;
+  color:var(--t1);text-shadow:0 4px 24px rgba(0,0,0,.5);
+}
+h1 em{
+  font-style:italic;color:var(--gold);
+  text-shadow:0 0 40px rgba(232,186,42,.5);
+}
+
+.header-sub{
+  font-family:'Dancing Script',cursive;
+  font-size:1.15rem;color:var(--t2);
+  margin-top:8px;letter-spacing:.02em;
+}
+
+/* Countdown */
+.countdown{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:16px;
+  background:rgba(12,8,4,.5);
+  border:1px solid var(--bd);
+  border-radius:50px;
+  padding:8px 18px;
+  backdrop-filter:blur(12px);
+}
+.countdown .cd-num{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;font-weight:700;color:var(--gold);
+  letter-spacing:-.03em;line-height:1;
+}
+.countdown .cd-lbl{font-size:.78rem;color:var(--t3);font-weight:500}
+.countdown .cd-sep{color:var(--bd2);font-size:1.2rem}
+
+/* ── Suggestion preview modal ── */
+.sugg-overlay{
+  position:fixed;inset:0;z-index:1500;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.sugg-overlay.show{display:flex;animation:fadeIn .22s ease}
+.sugg-card{
+  background:rgba(10,6,2,.97);border:1px solid rgba(232,186,42,.35);
+  border-radius:24px;overflow:hidden;
+  width:100%;max-width:440px;
+  box-shadow:0 28px 90px rgba(0,0,0,.7);
+  animation:popIn .28s cubic-bezier(.17,.67,.3,1.3);
+}
+.sugg-photo{
+  width:100%;height:220px;object-fit:cover;object-position:center;
+  display:block;background:#1a1612;
+}
+.sugg-photo-placeholder{
+  width:100%;height:220px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.03);font-size:4rem;
+}
+.sugg-body{padding:20px 20px 22px}
+.sugg-cat{
+  font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);opacity:.75;margin-bottom:5px;
+}
+.sugg-name{
+  font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;
+  color:var(--t1);line-height:1.15;margin-bottom:16px;
+}
+.sugg-actions{display:flex;gap:8px}
+.btn-sugg-add{
+  flex:1;background:linear-gradient(135deg,#b84010,#d87020);
+  color:#fff;border:none;border-radius:12px;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
+  padding:12px 16px;cursor:pointer;transition:transform .15s,box-shadow .2s;
+  box-shadow:0 4px 18px rgba(184,64,16,.4);
+}
+.btn-sugg-add:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(184,64,16,.55)}
+.btn-sugg-map{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(42,158,138,.12);border:1px solid rgba(42,158,138,.3);
+  border-radius:12px;color:#2A9E8A;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
+  padding:12px 14px;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-map:hover{background:rgba(42,158,138,.22)}
+.btn-sugg-close{
+  position:absolute;top:12px;right:12px;
+  background:rgba(0,0,0,.5);border:none;cursor:pointer;
+  color:#fff;font-size:1rem;width:30px;height:30px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;z-index:2;
+}
+.btn-sugg-close:hover{background:rgba(0,0,0,.75)}
+.sugg-card-wrap{position:relative}
+.btn-photo-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.45);border:none;cursor:pointer;
+  color:#fff;font-size:1.8rem;width:38px;height:38px;
+  border-radius:50%;display:none;align-items:center;justify-content:center;
+  transition:background .15s;z-index:2;line-height:1;
+}
+.btn-photo-nav.prev{left:10px}
+.btn-photo-nav.next{right:10px}
+.btn-photo-nav:hover{background:rgba(0,0,0,.7)}
+.btn-photo-nav.visible{display:flex}
+.photo-counter{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.5);color:#fff;
+  font-size:.68rem;font-weight:600;letter-spacing:.04em;
+  padding:3px 10px;border-radius:50px;
+  display:none;z-index:2;
+}
+.photo-counter.visible{display:block}
+.photo-attribution{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:22px 10px 6px;
+  background:linear-gradient(to top,rgba(0,0,0,.55),transparent);
+  color:rgba(255,255,255,.6);font-size:.58rem;
+  text-align:right;letter-spacing:.02em;
+  display:none;pointer-events:none;
+}
+.photo-attribution.visible{display:block}
+.btn-sugg-reserve{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(52,168,83,.14);border:1px solid rgba(52,168,83,.35);
+  border-radius:12px;color:#5cb85c;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:12px 12px;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-reserve:hover{background:rgba(52,168,83,.26)}
+
+/* Guardar / saved */
+.btn-sugg-save{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(232,186,42,.10);border:1px solid rgba(232,186,42,.28);
+  border-radius:12px;color:var(--gold);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:10px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-save:hover{background:rgba(232,186,42,.22)}
+.btn-sugg-save.saved{
+  background:rgba(232,186,42,.22);border-color:rgba(232,186,42,.55);
+}
+
+/* Buscador sugerencias */
+.sugg-search-row{display:flex;gap:6px;margin-bottom:10px}
+.sugg-search-row input{
+  flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,186,42,.18);
+  border-radius:10px;padding:7px 12px;color:var(--t1);
+  font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;
+}
+.sugg-search-row input::placeholder{color:var(--t3)}
+.sugg-search-row input:focus{border-color:rgba(232,186,42,.45)}
+.btn-sugg-search{
+  background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.28);
+  border-radius:10px;color:var(--gold);font-size:.8rem;font-weight:600;
+  padding:7px 13px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-sugg-search:hover{background:rgba(232,186,42,.24)}
+
+/* Sección guardadas */
+.saved-chips-section{margin-top:4px}
+.saved-chips-section .chips{margin-top:6px}
+.chip.saved-chip{
+  background:rgba(232,186,42,.08);border-color:rgba(232,186,42,.3);color:var(--gold);
+  position:relative;padding-right:26px;
+}
+.chip-remove{
+  position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  font-size:.65rem;color:var(--t3);cursor:pointer;line-height:1;
+  padding:0 2px;transition:color .15s;
+}
+.chip-remove:hover{color:#ff6b6b}
+
+/* Botón random */
+.btn-random{
+  width:100%;max-width:380px;
+  background:rgba(106,58,154,.18);border:1px solid rgba(106,58,154,.35);
+  border-radius:14px;color:#c09de8;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;
+  padding:13px 24px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+}
+.btn-random:hover{background:rgba(106,58,154,.32);border-color:rgba(106,58,154,.6);transform:translateY(-1px)}
+.btn-random:active{transform:scale(.98)}
+
+/* Modal plan sorpresa */
+.plan-overlay{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.plan-overlay.show{opacity:1;pointer-events:auto}
+.plan-card{
+  background:linear-gradient(145deg,rgba(20,12,4,.95),rgba(12,8,2,.98));
+  border:1px solid rgba(232,186,42,.35);border-radius:24px;
+  padding:32px 28px 28px;max-width:380px;width:90%;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px rgba(232,186,42,.1);
+  animation:popIn .35s cubic-bezier(.17,.67,.3,1.3);
+  text-align:center;
+}
+.plan-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;font-weight:900;color:var(--t1);
+  margin-bottom:4px;
+}
+.plan-sub{
+  font-family:'Dancing Script',cursive;
+  font-size:1rem;color:var(--gold);margin-bottom:20px;
+}
+.plan-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.plan-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(232,186,42,.1);
+  border-radius:12px;padding:10px 14px;text-align:left;
+}
+.plan-row-date{
+  font-size:.7rem;font-weight:700;color:var(--t3);
+  letter-spacing:.06em;text-transform:uppercase;min-width:72px;
+}
+.plan-row-name{font-size:.9rem;font-weight:600;color:var(--t1)}
+.plan-actions{display:flex;gap:10px}
+.btn-plan-ok{
+  flex:1;background:linear-gradient(135deg,#b84010,#e8a028);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
+  padding:13px;cursor:pointer;transition:all .2s;
+}
+.btn-plan-ok:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,64,16,.5)}
+.btn-plan-reroll{
+  background:rgba(106,58,154,.2);border:1px solid rgba(106,58,154,.35);
+  border-radius:12px;color:#c09de8;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
+  padding:13px 16px;cursor:pointer;transition:all .2s;
+}
+.btn-plan-reroll:hover{background:rgba(106,58,154,.38)}
+
+/* Botón aburrido */
+.btn-bored{
+  position:fixed;bottom:24px;right:20px;
+  background:rgba(10,6,2,.75);border:1px solid rgba(232,186,42,.18);
+  border-radius:50px;padding:9px 18px;
+  color:var(--t3);font-size:.72rem;font-weight:600;cursor:pointer;
+  backdrop-filter:blur(14px);z-index:990;transition:all .25s;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.btn-bored:hover{
+  border-color:rgba(232,186,42,.45);color:var(--gold);
+  transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.5);
+}
+.btn-bored-ico{font-size:1rem;animation:boredWiggle 3s ease-in-out infinite}
+@keyframes boredWiggle{
+  0%,90%,100%{transform:rotate(0)}
+  93%{transform:rotate(-12deg)}
+  96%{transform:rotate(10deg)}
+}
+
+/* Botón cerrar sesión */
+.btn-logout{
+  position:fixed;top:14px;right:16px;
+  background:rgba(0,0,0,.4);border:1px solid rgba(232,186,42,.18);
+  border-radius:50px;padding:6px 14px;
+  color:var(--t3);font-size:.7rem;font-weight:600;cursor:pointer;
+  backdrop-filter:blur(12px);z-index:999;transition:all .2s;
+}
+.btn-logout:hover{border-color:rgba(232,186,42,.45);color:var(--gold)}
+
+/* Modal estado post-login */
+.status-overlay{
+  position:fixed;inset:0;z-index:10000;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(10px);
+  padding:20px;
+}
+.status-overlay.show{display:flex}
+.status-card{
+  background:linear-gradient(145deg,rgba(20,12,4,.97),rgba(10,6,2,.99));
+  border:1px solid rgba(232,186,42,.32);border-radius:24px;
+  padding:30px 26px 26px;max-width:360px;width:100%;
+  box-shadow:0 30px 80px rgba(0,0,0,.8),0 0 0 1px rgba(232,186,42,.08);
+  animation:popIn .35s cubic-bezier(.17,.67,.3,1.3);
+  text-align:center;
+}
+.status-who{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.status-who-btn{
+  flex:1;padding:9px 12px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(232,186,42,.15);
+  color:var(--t3);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.status-who-btn.active{
+  background:rgba(232,186,42,.15);border-color:rgba(232,186,42,.5);color:var(--gold);
+}
+.status-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.3rem;font-weight:900;color:var(--t1);margin-bottom:4px;
+}
+.status-subtitle{
+  font-family:'Dancing Script',cursive;
+  font-size:.9rem;color:var(--t3);margin-bottom:18px;min-height:1.3em;
+}
+.status-rows{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.status-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.03);border:1px solid rgba(232,186,42,.08);
+  border-radius:10px;padding:9px 13px;text-align:left;gap:10px;
+}
+.status-row-label{font-size:.78rem;color:var(--t2);flex:1}
+.status-row-stars{display:flex;gap:3px}
+.star-btn{
+  font-size:1.1rem;background:none;border:none;cursor:pointer;
+  padding:0 1px;line-height:1;color:rgba(232,186,42,.25);
+  transition:color .12s,transform .1s;
+}
+.star-btn.on{color:var(--gold);text-shadow:0 0 8px rgba(232,186,42,.6)}
+.star-btn:hover{transform:scale(1.25)}
+.status-row-stars:hover .star-btn{color:rgba(232,186,42,.4)}
+.status-row-stars:hover .star-btn.on{color:var(--gold)}
+.btn-status-enter{
+  width:100%;
+  background:linear-gradient(135deg,#b84010,#e8a028);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;
+  padding:14px;cursor:pointer;transition:all .2s;
+}
+.btn-status-enter:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(184,64,16,.5)}
+
+/* Aviso login */
+.login-aviso{
+  margin-top:28px;padding:18px 24px;max-width:360px;
+  background:rgba(0,0,0,.35);border:1px solid rgba(232,186,42,.12);
+  border-radius:14px;text-align:center;
+  backdrop-filter:blur(8px);
+}
+.login-aviso-text{
+  font-size:.72rem;color:var(--t3);line-height:1.75;font-style:italic;margin-bottom:10px;
+}
+.login-aviso-copy{
+  font-size:.62rem;color:rgba(232,186,42,.35);font-weight:600;letter-spacing:.04em;
+}
+
+/* Footer */
+.site-footer{
+  margin-top:60px;padding:32px 20px 20px;
+  text-align:center;border-top:1px solid rgba(232,186,42,.1);
+}
+.footer-copy{
+  font-family:'Playfair Display',serif;
+  font-size:.8rem;font-weight:700;color:var(--gold);
+  letter-spacing:.08em;margin-bottom:10px;opacity:.7;
+}
+.footer-text{
+  font-size:.72rem;color:var(--t3);line-height:1.7;
+  max-width:440px;margin:0 auto 12px;font-style:italic;
+}
+.footer-tag{
+  font-size:.65rem;color:rgba(232,186,42,.3);
+  letter-spacing:.06em;font-weight:600;
+}
+
+.orn{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
+.orn-line{height:1px;width:70px;background:linear-gradient(to right,transparent,rgba(232,186,42,.35),transparent)}
+.orn-dot{color:var(--gold);font-size:.65rem;opacity:.7}
+
+/* ══════════════════════════════════════════
+   GRID PRINCIPAL  3 columnas
+══════════════════════════════════════════ */
+.main-grid{
+  display:grid;
+  grid-template-columns:300px 1fr 340px;
+  gap:20px;
+  align-items:start;
+}
+@media(max-width:1080px){.main-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px) {.main-grid{grid-template-columns:1fr}}
+
+/* ══════════════════════════════════════════
+   GLASS CARD  (warm gold tint)
+══════════════════════════════════════════ */
+.glass{
+  background:var(--surf);
+  border:1px solid var(--bd);
+  border-radius:22px;
+  backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);
+  box-shadow:0 20px 60px rgba(0,0,0,.45),
+             0 0 0 1px rgba(0,0,0,.2) inset,
+             0 0 30px rgba(232,186,42,.04);
+}
+.panel{padding:24px 20px}
+
+.section-label{
+  font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);opacity:.65;margin-bottom:12px
+}
+
+/* ══════════════════════════════════════════
+   INPUT ROW
+══════════════════════════════════════════ */
+.add-row{display:flex;gap:8px;margin-bottom:18px}
+.input-wrap{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(232,186,42,.2);
+  border-radius:14px;padding:0 14px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.input-wrap:focus-within{border-color:rgba(232,186,42,.5);box-shadow:0 0 0 3px rgba(232,186,42,.08)}
+.input-wrap input{
+  flex:1;background:none;border:none;outline:none;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--t1);
+  padding:12px 0;
+}
+.input-wrap input::placeholder{color:var(--t3)}
+
+.btn-add{
+  background:linear-gradient(135deg,#c04818,#d87020);
+  color:#fff;border:none;border-radius:14px;
+  width:46px;height:46px;font-size:1.5rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 18px rgba(200,72,24,.4);
+  transition:transform .15s,box-shadow .15s;flex-shrink:0;
+}
+.btn-add:hover{transform:scale(1.08) rotate(90deg);box-shadow:0 6px 26px rgba(200,72,24,.6)}
+
+/* ══════════════════════════════════════════
+   POOL LIST
+══════════════════════════════════════════ */
+#pool-list{
+  list-style:none;display:flex;flex-direction:column;gap:5px;
+  max-height:300px;overflow-y:auto;margin-bottom:16px;padding-right:2px;
+}
+#pool-list::-webkit-scrollbar{width:3px}
+#pool-list::-webkit-scrollbar-thumb{background:rgba(232,186,42,.2);border-radius:99px}
+
+.pool-item{
+  display:flex;align-items:center;gap:9px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(232,186,42,.1);
+  border-radius:10px;padding:9px 12px;
+  cursor:grab;
+  transition:background .15s,border-color .15s;
+  animation:slideIn .2s ease;
+}
+.pool-item:hover{background:rgba(232,186,42,.06);border-color:rgba(232,186,42,.22)}
+.pool-item.drag-over{border-color:var(--gold);background:rgba(232,186,42,.09)}
+.pip{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pool-label{flex:1;font-size:.85rem;font-weight:500;color:var(--t2)}
+.btn-tiny{
+  background:none;border:none;cursor:pointer;
+  color:var(--t3);font-size:.82rem;padding:3px 6px;
+  border-radius:6px;transition:all .15s;line-height:1;
+}
+.btn-tiny:hover{background:rgba(232,186,42,.1);color:var(--gold)}
+
+.empty-pool{text-align:center;color:var(--t3);font-size:.85rem;padding:20px 0}
+
+/* Chips rencias */
+.divider{height:1px;background:linear-gradient(to right,transparent,rgba(232,186,42,.18),transparent);margin:16px 0}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  background:rgba(255,255,255,.04);border:1px solid rgba(232,186,42,.13);
+  border-radius:50px;padding:4px 11px;
+  font-size:.72rem;font-weight:500;color:var(--t3);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.chip:hover{background:rgba(232,186,42,.1);border-color:rgba(232,186,42,.38);color:var(--gold);transform:translateY(-1px)}
+
+/* ══════════════════════════════════════════
+   COLUMNA CENTRAL  – RULETA
+══════════════════════════════════════════ */
+.wheel-col{display:flex;flex-direction:column;align-items:center;gap:16px}
+
+/* Indicator: "Girando para DÍA X" */
+.spin-target-badge{
+  background:var(--surf2);
+  border:1px solid var(--bd2);
+  border-radius:50px;
+  padding:8px 20px;
+  font-size:.8rem;font-weight:600;
+  color:var(--gold);letter-spacing:.04em;
+  text-align:center;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 0 16px rgba(232,186,42,.12);
+  min-height:40px;
+}
+.stb-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);
+  animation:twinkle 1.5s ease-in-out infinite;flex-shrink:0}
+
+/* Wheel frame */
+.wheel-frame{
+  position:relative;padding:16px;
+}
+.wheel-frame::before,.wheel-frame::after{
+  content:'';position:absolute;inset:0;border-radius:50%;pointer-events:none;
+}
+.wheel-frame::before{
+  border:1px solid rgba(232,186,42,.28);
+  animation:slowSpin 22s linear infinite;
+}
+.wheel-frame::after{
+  border:1px dashed rgba(232,186,42,.1);inset:6px;
+  animation:slowSpin 32s linear infinite reverse;
+}
+@keyframes slowSpin{to{transform:rotate(360deg)}}
+
+.frame-gem{
+  position:absolute;width:9px;height:9px;
+  background:var(--gold);border-radius:50%;
+  box-shadow:0 0 10px 3px rgba(232,186,42,.55);
+  z-index:5;pointer-events:none;
+}
+.fg-top   {top:6px;left:50%;transform:translateX(-50%)}
+.fg-right {right:6px;top:50%;transform:translateY(-50%)}
+.fg-bottom{bottom:6px;left:50%;transform:translateX(-50%)}
+.fg-left  {left:6px;top:50%;transform:translateY(-50%)}
+
+.wheel-wrap{
+  position:relative;width:380px;height:380px;
+  border-radius:50%;overflow:hidden;
+  box-shadow:
+    0 0 0 3px rgba(232,186,42,.35),
+    0 0 0 7px rgba(232,186,42,.07),
+    0 30px 80px rgba(0,0,0,.65),
+    0 0 50px rgba(232,186,42,.07) inset;
+}
+@media(max-width:480px){.wheel-wrap{width:300px;height:300px}}
+#wheel-canvas{display:block}
+
+/* ══════════════════════════════════════════
+   CHAT
+══════════════════════════════════════════ */
+.chat-fab{
+  position:fixed;bottom:72px;right:20px;z-index:1100;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#2A9E8A,#1E7A5A);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.35rem;
+  box-shadow:0 4px 20px rgba(42,158,138,.45);
+  transition:transform .2s,box-shadow .2s;
+}
+.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(42,158,138,.6)}
+.chat-fab-badge{
+  position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:50%;
+  background:#f87171;border:2px solid #0c0804;font-size:.62rem;font-weight:700;color:#fff;
+  display:none;align-items:center;justify-content:center;padding:0 3px;
+}
+.chat-fab-badge.show{display:flex}
+.chat-panel{
+  position:fixed;top:0;right:-400px;bottom:0;width:360px;z-index:1200;
+  background:rgba(10,6,2,.97);border-left:1px solid rgba(232,186,42,.2);
+  backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  display:flex;flex-direction:column;
+  transition:right .35s cubic-bezier(.17,.67,.3,1.1);
+  box-shadow:-8px 0 48px rgba(0,0,0,.55);
+}
+.chat-panel.open{right:0}
+.chat-header{
+  display:flex;align-items:center;gap:10px;padding:16px 18px;
+  border-bottom:1px solid rgba(232,186,42,.14);flex-shrink:0;
+}
+.chat-header-info{flex:1}
+.chat-header-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--t1)}
+.chat-header-sub{font-size:.7rem;color:var(--t3);margin-top:1px}
+.chat-user-label{
+  font-size:.68rem;font-weight:600;color:var(--gold);
+  background:rgba(232,186,42,.1);border:1px solid rgba(232,186,42,.2);
+  border-radius:50px;padding:3px 10px;cursor:pointer;white-space:nowrap;transition:background .2s;
+}
+.chat-user-label:hover{background:rgba(232,186,42,.2)}
+.btn-chat-clear{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  font-size:1rem;padding:4px 6px;border-radius:8px;transition:all .15s;
+}
+.btn-chat-clear:hover{background:rgba(248,113,113,.12);color:#f87171}
+.btn-chat-close{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  font-size:1.25rem;padding:4px 6px;border-radius:8px;transition:all .15s;
+}
+.btn-chat-close:hover{background:rgba(232,186,42,.1);color:var(--gold)}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:14px 14px 8px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(232,186,42,.15);border-radius:99px}
+.chat-bubble{display:flex;flex-direction:column;max-width:84%;animation:bubbleIn .2s ease}
+.chat-bubble.mine{align-self:flex-end;align-items:flex-end}
+.chat-bubble.theirs{align-self:flex-start;align-items:flex-start}
+@keyframes bubbleIn{
+  from{opacity:0;transform:translateY(6px) scale(.96)}
+  to{opacity:1;transform:none}
+}
+.bubble-author{font-size:.63rem;font-weight:700;color:var(--t3);margin-bottom:2px;letter-spacing:.04em}
+.bubble-body{padding:9px 13px;font-size:.85rem;line-height:1.4;color:var(--t1);word-break:break-word}
+.chat-bubble.mine .bubble-body{
+  background:linear-gradient(135deg,rgba(200,100,40,.72),rgba(180,80,24,.65));
+  border-radius:16px 16px 4px 16px;border:1px solid rgba(232,186,42,.2);
+}
+.chat-bubble.theirs .bubble-body{
+  background:rgba(42,158,138,.22);border-radius:16px 16px 16px 4px;
+  border:1px solid rgba(42,158,138,.28);
+}
+.bubble-time{font-size:.6rem;color:var(--t3);margin-top:3px;opacity:.6}
+.chat-bubble.suggestion .bubble-body{border-color:rgba(232,186,42,.4);background:rgba(232,186,42,.12)}
+.btn-add-suggestion{
+  margin-top:5px;background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.3);
+  border-radius:8px;color:var(--gold);font-family:'DM Sans',sans-serif;
+  font-size:.72rem;font-weight:600;padding:5px 12px;cursor:pointer;transition:all .2s;
+}
+.btn-add-suggestion:hover{background:rgba(232,186,42,.24)}
+.btn-add-suggestion:disabled{opacity:.45;cursor:default}
+.chat-date-sep{
+  text-align:center;font-size:.62rem;color:var(--t3);
+  margin:4px 0;letter-spacing:.06em;opacity:.55;
+}
+.chat-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--t3);font-size:.85rem;gap:8px;opacity:.55;text-align:center;
+}
+.chat-input-row{
+  padding:12px 14px 14px;border-top:1px solid rgba(232,186,42,.12);
+  display:flex;flex-direction:column;gap:8px;flex-shrink:0;
+}
+.chat-suggestion-toggle{
+  display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--t3);
+  cursor:pointer;user-select:none;
+}
+.chat-suggestion-toggle input[type=checkbox]{accent-color:var(--gold);cursor:pointer}
+.chat-input-wrap{display:flex;gap:8px;align-items:flex-end}
+.chat-textarea{
+  flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,186,42,.2);
+  border-radius:12px;padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:.88rem;color:var(--t1);outline:none;resize:none;
+  min-height:42px;max-height:90px;line-height:1.4;transition:border-color .2s;
+}
+.chat-textarea:focus{border-color:rgba(232,186,42,.45);box-shadow:0 0 0 3px rgba(232,186,42,.07)}
+.chat-textarea::placeholder{color:var(--t3)}
+.btn-chat-send{
+  background:linear-gradient(135deg,#2A9E8A,#1E7A5A);
+  border:none;border-radius:12px;width:42px;height:42px;flex-shrink:0;
+  color:#fff;font-size:1.05rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 14px rgba(42,158,138,.4);transition:transform .15s,box-shadow .15s;
+}
+.btn-chat-send:hover{transform:scale(1.08);box-shadow:0 5px 20px rgba(42,158,138,.55)}
+.btn-chat-send:active{transform:scale(.96)}
+.user-picker-overlay{
+  position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);display:flex;align-items:center;
+  justify-content:center;padding:20px;animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.user-picker-card{
+  background:rgba(10,6,2,.95);border:1px solid rgba(232,186,42,.38);
+  border-radius:24px;padding:30px 24px;width:100%;max-width:320px;
+  text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.65);
+  animation:popIn .28s cubic-bezier(.17,.67,.3,1.3);
+}
+.user-picker-title{
+  font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;
+  color:var(--t1);margin-bottom:5px;
+}
+.user-picker-sub{font-size:.82rem;color:var(--t3);margin-bottom:22px}
+.user-picker-options{display:flex;gap:10px}
+.btn-user-pick{
+  flex:1;padding:16px 10px;border-radius:16px;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;
+  transition:transform .15s,box-shadow .2s;
+}
+.btn-user-pick.ruslan{
+  background:linear-gradient(135deg,rgba(210,100,40,.85),rgba(184,64,16,.75));
+  color:#fff;border:1px solid rgba(232,186,42,.25);
+  box-shadow:0 4px 18px rgba(200,72,24,.3);
+}
+.btn-user-pick.amor{
+  background:linear-gradient(135deg,rgba(42,158,138,.75),rgba(30,122,90,.7));
+  color:#fff;border:1px solid rgba(42,158,138,.3);
+  box-shadow:0 4px 18px rgba(42,158,138,.3);
+}
+.btn-user-pick:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.pick-emoji{font-size:2rem}
+@media(max-width:480px){.chat-panel{width:100%;right:-100%}}
+
+/* ══════════════════════════════════════════
+   MAPA MODAL
+══════════════════════════════════════════ */
+.map-overlay{
+  position:fixed;inset:0;z-index:1500;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.map-overlay.show{display:flex;animation:fadeIn .22s ease}
+.map-card{
+  background:rgba(10,6,2,.97);border:1px solid rgba(232,186,42,.35);
+  border-radius:22px;overflow:hidden;
+  width:100%;max-width:580px;
+  box-shadow:0 28px 90px rgba(0,0,0,.7);
+  animation:popIn .28s cubic-bezier(.17,.67,.3,1.3);
+  display:flex;flex-direction:column;
+}
+.map-card-header{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px;border-bottom:1px solid rgba(232,186,42,.14);flex-shrink:0;
+}
+.map-card-title{
+  flex:1;font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;color:var(--t1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.btn-map-close{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  font-size:1.25rem;padding:4px 6px;border-radius:8px;transition:all .15s;flex-shrink:0;
+}
+.btn-map-close:hover{background:rgba(232,186,42,.1);color:var(--gold)}
+.map-iframe-wrap{width:100%;height:320px;position:relative;background:#1a1612}
+.map-iframe-wrap iframe{width:100%;height:100%;border:none;display:block}
+.map-iframe-wrap .map-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--t3);font-size:.85rem;gap:8px;flex-direction:column;
+}
+.map-card-footer{
+  padding:12px 18px;border-top:1px solid rgba(232,186,42,.1);
+  display:flex;gap:8px;align-items:center;flex-shrink:0;
+}
+.btn-open-maps{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.28);
+  border-radius:10px;color:var(--gold);
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;
+  padding:10px 16px;text-decoration:none;transition:all .2s;
+}
+.btn-open-maps:hover{background:rgba(232,186,42,.22)}
+.btn-open-gmaps{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(66,133,244,.15);border:1px solid rgba(66,133,244,.3);
+  border-radius:10px;color:#7aafff;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:10px 14px;text-decoration:none;transition:all .2s;white-space:nowrap;
+}
+.btn-open-gmaps:hover{background:rgba(66,133,244,.25)}
+
+/* Botón mapa en items */
+.btn-tiny-map{
+  background:none;border:none;cursor:pointer;
+  font-size:.8rem;padding:3px 5px;border-radius:6px;
+  transition:all .15s;line-height:1;color:var(--t3);
+}
+.btn-tiny-map:hover{background:rgba(42,158,138,.18);transform:scale(1.15)}
+
+/* Botón mapa en result box */
+.btn-map-result{
+  background:rgba(42,158,138,.1);border:1px solid rgba(42,158,138,.25);
+  border-radius:10px;color:#2A9E8A;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  padding:8px 16px;cursor:pointer;transition:all .2s;width:100%;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-map-result:hover{background:rgba(42,158,138,.2)}
+
+@media(max-width:580px){.map-iframe-wrap{height:240px}}
+
+.wheel-pointer{
+  position:absolute;top:-3px;left:50%;
+  transform:translateX(-50%);z-index:20;pointer-events:none;
+}
+.wheel-hub{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle at 40% 38%,#fffde0,#f4c430 55%,#c8860a 100%);
+  border:3px solid rgba(255,253,224,.35);
+  box-shadow:0 0 0 6px rgba(0,0,0,.35),0 0 20px 6px rgba(244,196,48,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;z-index:10;pointer-events:none;
+}
+
+/* Buttons */
+.btn-spin{
+  width:100%;max-width:380px;
+  background:linear-gradient(135deg,#b84010 0%,#d87020 50%,#e8a028 100%);
+  color:#fff;border:none;border-radius:14px;
+  padding:16px 32px;
+  font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;
+  letter-spacing:.02em;cursor:pointer;
+  box-shadow:0 6px 28px rgba(184,64,16,.45),0 0 0 1px rgba(232,186,42,.2);
+  transition:transform .15s,box-shadow .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-spin:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 10px 36px rgba(184,64,16,.55),0 0 0 1px rgba(232,186,42,.3);
+}
+.btn-spin:active:not(:disabled){transform:scale(.98)}
+.btn-spin:disabled{opacity:.35;cursor:not-allowed}
+.spin-ico{font-size:1.2rem;display:inline-block}
+.btn-spin:not(:disabled):hover .spin-ico{animation:spinIco .5s linear}
+@keyframes spinIco{to{transform:rotate(360deg)}}
+
+.btn-ghost{
+  background:none;border:1px solid rgba(232,186,42,.2);border-radius:12px;
+  color:var(--t3);font-family:'DM Sans',sans-serif;
+  font-size:.78rem;font-weight:500;padding:8px 18px;
+  cursor:pointer;transition:all .2s;
+}
+.btn-ghost:hover{border-color:rgba(232,186,42,.4);color:var(--gold);background:rgba(232,186,42,.05)}
+
+/* Result box */
+#result-box{
+  width:100%;max-width:380px;
+  background:rgba(10,6,2,.65);
+  border:1px solid var(--bd2);
+  border-radius:20px;padding:24px 20px;
+  text-align:center;display:none;
+  backdrop-filter:blur(20px);
+  animation:popIn .38s cubic-bezier(.17,.67,.3,1.3);
+  box-shadow:0 0 50px rgba(232,186,42,.1),0 20px 60px rgba(0,0,0,.45);
+}
+#result-box.show{display:block}
+.res-emoji{font-size:2.6rem;display:block;margin-bottom:6px}
+.res-kicker{
+  font-family:'Dancing Script',cursive;
+  font-size:1rem;color:var(--gold);margin-bottom:6px;
+}
+.res-text{
+  font-family:'Playfair Display',serif;
+  font-size:1.45rem;font-weight:700;color:var(--t1);
+  letter-spacing:-.01em;line-height:1.25;
+}
+.res-day-label{
+  margin-top:8px;font-size:.78rem;font-weight:600;
+  color:var(--t3);letter-spacing:.06em;text-transform:uppercase;
+}
+.res-divider{height:1px;background:rgba(232,186,42,.18);margin:14px 0}
+.btn-confirm{
+  background:rgba(232,186,42,.15);
+  border:1px solid rgba(232,186,42,.35);
+  border-radius:10px;
+  color:var(--gold);font-family:'DM Sans',sans-serif;
+  font-size:.88rem;font-weight:600;
+  padding:10px 20px;cursor:pointer;transition:all .2s;width:100%;
+}
+.btn-confirm:hover{background:rgba(232,186,42,.25);box-shadow:0 0 20px rgba(232,186,42,.18)}
+
+/* ══════════════════════════════════════════
+   ITINERARIO  –  6 días
+══════════════════════════════════════════ */
+.itinerary{padding:20px 18px}
+
+.itin-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;
+}
+.itin-progress{
+  font-size:.72rem;font-weight:600;color:var(--t3);letter-spacing:.04em;
+}
+.itin-progress b{color:var(--gold)}
+
+.day-cards{display:flex;flex-direction:column;gap:10px}
+
+/* Day card */
+.day-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(232,186,42,.12);
+  border-radius:14px;padding:13px 14px;
+  transition:all .2s;
+}
+.day-card.assigned{border-color:rgba(232,186,42,.28);background:rgba(232,186,42,.06)}
+.day-card.active-target{
+  border-color:rgba(232,186,42,.55);
+  background:rgba(232,186,42,.1);
+  box-shadow:0 0 16px rgba(232,186,42,.12);
+}
+
+.day-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.day-num{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;color:var(--gold);
+  min-width:20px;
+}
+.day-date{font-size:.75rem;font-weight:600;color:var(--t3);flex:1;letter-spacing:.02em}
+.day-emoji{font-size:1rem}
+
+/* Pending */
+.day-pending{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.03);
+  border:1px dashed rgba(232,186,42,.18);
+  border-radius:9px;
+}
+.day-pending .pend-icon{font-size:1.1rem;opacity:.4}
+.day-pending .pend-text{font-size:.8rem;color:var(--t3);font-style:italic;flex:1}
+.btn-select-day{
+  background:rgba(232,186,42,.12);border:1px solid rgba(232,186,42,.25);
+  border-radius:8px;color:var(--gold);font-family:'DM Sans',sans-serif;
+  font-size:.7rem;font-weight:600;padding:4px 10px;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-select-day:hover{background:rgba(232,186,42,.22)}
+.btn-select-day.is-target{background:rgba(232,186,42,.28);border-color:var(--gold)}
+
+/* Assigned */
+.day-assigned{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.04);
+  border-radius:9px;
+}
+.day-activity-pip{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.day-activity-text{flex:1;font-size:.85rem;font-weight:600;color:var(--t1);line-height:1.3}
+.btn-respin{
+  background:none;border:none;cursor:pointer;
+  color:var(--t3);font-size:.9rem;padding:3px 5px;
+  border-radius:6px;transition:all .15s;
+}
+.btn-respin:hover{background:rgba(232,186,42,.1);color:var(--gold)}
+
+/* Progress bar */
+.progress-bar-wrap{
+  margin-top:16px;height:3px;
+  background:rgba(232,186,42,.1);border-radius:99px;overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(to right,var(--gold),var(--gold2));
+  transition:width .5s ease;
+}
+
+/* ══════════════════════════════════════════
+   ANIMACIONES
+══════════════════════════════════════════ */
+@keyframes slideIn{
+  from{opacity:0;transform:translateX(-8px)}
+  to  {opacity:1;transform:none}
+}
+@keyframes popIn{
+  from{opacity:0;transform:scale(.78) translateY(12px)}
+  to  {opacity:1;transform:none}
+}
+
+/* Confetti */
+.confetti-piece{
+  position:fixed;border-radius:2px;top:-20px;
+  animation:confettiFall linear forwards;
+  pointer-events:none;z-index:999;
+}
+@keyframes confettiFall{
+  0%  {transform:translateY(0) rotate(0deg) scale(1);opacity:1}
+  85% {opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg) scale(.4);opacity:0}
+}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:26px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:rgba(10,6,2,.92);
+  border:1px solid rgba(232,186,42,.3);
+  backdrop-filter:blur(16px);
+  color:var(--t1);padding:11px 22px;border-radius:50px;
+  font-size:.87rem;font-weight:500;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transition:transform .35s cubic-bezier(.17,.67,.3,1.3);
+  z-index:1000;white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Sync status indicator */
+#sync-status{
+  position:fixed;bottom:26px;right:20px;z-index:1001;
+  display:flex;align-items:center;gap:7px;
+  background:rgba(10,6,2,.88);
+  border:1px solid rgba(232,186,42,.18);
+  border-radius:50px;padding:7px 14px;
+  font-size:.7rem;font-weight:600;color:var(--t3);
+  backdrop-filter:blur(12px);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s;
+}
+#sync-status.show{opacity:1}
+.sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:background .3s}
+#sync-status.syncing .sync-dot{background:var(--gold);animation:syncPulse 1s ease-in-out infinite}
+#sync-status.ok      .sync-dot{background:#4ade80}
+#sync-status.err     .sync-dot{background:#f87171}
+@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ══════════════════════════════════════════
+   LOGIN OVERLAY
+══════════════════════════════════════════ */
+#login-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;overflow-y:auto;
+  /* mismo fondo que el body */
+  background:
+    radial-gradient(ellipse 70% 25% at 20% 12%,rgba(160,145,120,.28) 0%,transparent 60%),
+    radial-gradient(circle 260px at 47% 52%,rgba(255,210,60,.5) 0%,rgba(220,140,10,.28) 45%,transparent 70%),
+    linear-gradient(to bottom,#4c5a68 0%,#7a6840 16%,#b88030 32%,#d89020 46%,#d07018 54%,#803810 60%,#2a3828 66%,#1a2418 80%,#101610 100%);
+  transition:opacity .75s ease,visibility .75s;
+}
+#login-overlay.exit{opacity:0;visibility:hidden;pointer-events:none}
+
+/* Sol decorativo en el login */
+#login-overlay .lsun{
+  position:absolute;width:70px;height:70px;border-radius:50%;
+  background:radial-gradient(circle at 44% 44%,#fff8d0,#ffc828 40%,#f0a010 80%);
+  box-shadow:0 0 50px 20px rgba(255,200,40,.35),0 0 100px 40px rgba(240,160,16,.18);
+  top:47%;left:46%;transform:translate(-50%,-50%);pointer-events:none;
+}
+#login-overlay .lhoriz{
+  position:absolute;height:2px;left:0;right:0;top:54%;
+  background:linear-gradient(to right,transparent,rgba(255,190,30,.3),rgba(255,160,20,.45),rgba(255,190,30,.3),transparent);
+  pointer-events:none;
+}
+
+/* Card */
+.login-card{
+  position:relative;z-index:1;
+  width:100%;max-width:430px;
+  border-radius:26px;overflow:hidden;
+  background:rgba(10,6,2,.65);
+  border:1px solid rgba(232,186,42,.35);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+  box-shadow:0 0 0 1px rgba(0,0,0,.2) inset,
+             0 32px 90px rgba(0,0,0,.65),
+             0 0 60px rgba(232,186,42,.08);
+  animation:lCardIn 1s cubic-bezier(.17,.67,.3,1.1) forwards;
+}
+@keyframes lCardIn{
+  from{opacity:0;transform:translateY(24px) scale(.96)}
+  to  {opacity:1;transform:none}
+}
+
+/* ── Image area ── */
+.login-img{
+  width:100%;height:248px;position:relative;overflow:hidden;
+  background:linear-gradient(to bottom,#7a6840,#803810 70%,#2a3828 100%);
+}
+.login-img img{
+  width:100%;height:100%;object-fit:cover;object-position:center 38%;
+  display:block;position:absolute;inset:0;
+  opacity:0;transition:opacity .6s ease;
+}
+.login-img img.loaded{opacity:1}
+.login-img img.errored{display:none}
+
+/* SVG ilustración copas (fallback) */
+.login-svg-wrap{
+  position:absolute;inset:0;
+  display:flex;align-items:stretch;
+}
+.login-svg-wrap svg{width:100%;height:100%;display:block}
+
+/* Degradado sobre la imagen */
+.login-img-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(10,6,2,0) 35%,rgba(10,6,2,.82) 100%);
+  pointer-events:none;
+}
+/* Texto flotante sobre la imagen */
+.login-img-label{
+  position:absolute;bottom:16px;left:0;right:0;
+  text-align:center;
+  font-family:'Dancing Script',cursive;
+  font-size:1rem;color:rgba(255,240,200,.7);
+  letter-spacing:.04em;pointer-events:none;
+}
+
+/* ── Form ── */
+.login-form{padding:26px 28px 30px;text-align:center}
+.login-icon{font-size:2rem;display:block;margin-bottom:8px;
+  animation:floatIcon 3.5s ease-in-out infinite}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.login-title{
+  font-family:'Playfair Display',serif;
+  font-size:2rem;font-weight:900;letter-spacing:-.025em;
+  color:var(--t1);margin-bottom:3px;
+  text-shadow:0 3px 16px rgba(0,0,0,.5);
+}
+.login-title em{font-style:italic;color:var(--gold);text-shadow:0 0 30px rgba(232,186,42,.5)}
+.login-sub{
+  font-family:'Dancing Script',cursive;
+  font-size:.95rem;color:var(--t2);margin-bottom:20px;
+}
+.login-orn{
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px;
+}
+.login-orn-line{height:1px;width:55px;background:linear-gradient(to right,transparent,rgba(232,186,42,.3),transparent)}
+.login-orn-dot{color:var(--gold);font-size:.6rem;opacity:.6}
+
+/* Password field */
+.pw-wrap{position:relative;margin-bottom:10px}
+.pw-wrap input{
+  width:100%;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(232,186,42,.25);
+  border-radius:14px;
+  padding:14px 50px 14px 18px;
+  font-family:'DM Sans',sans-serif;font-size:.95rem;
+  color:var(--t1);outline:none;letter-spacing:.12em;
+  transition:border-color .2s,box-shadow .2s;
+}
+.pw-wrap input:focus{
+  border-color:rgba(232,186,42,.55);
+  box-shadow:0 0 0 3px rgba(232,186,42,.1);
+}
+.pw-wrap input::placeholder{letter-spacing:.04em;color:var(--t3)}
+.pw-eye{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--t3);font-size:1rem;padding:4px;
+  line-height:1;transition:color .2s;
+}
+.pw-eye:hover{color:var(--gold)}
+
+.login-err{
+  font-size:.8rem;color:#f87171;
+  margin-bottom:10px;min-height:18px;
+  opacity:0;transition:opacity .3s;
+}
+.login-err.show{opacity:1}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%    {transform:translateX(-9px)}
+  40%    {transform:translateX(9px)}
+  60%    {transform:translateX(-6px)}
+  80%    {transform:translateX(6px)}
+}
+.card-shake{animation:shake .4s ease}
+
+.btn-login{
+  width:100%;
+  background:linear-gradient(135deg,#b84010 0%,#d87020 50%,#e8a028 100%);
+  color:#fff;border:none;border-radius:14px;
+  padding:15px 32px;
+  font-family:'DM Sans',sans-serif;font-size:.98rem;font-weight:700;
+  letter-spacing:.03em;cursor:pointer;
+  box-shadow:0 6px 24px rgba(184,64,16,.4),0 0 0 1px rgba(232,186,42,.2);
+  transition:transform .15s,box-shadow .2s;
+}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(184,64,16,.5),0 0 0 1px rgba(232,186,42,.3)}
+.btn-login:active{transform:scale(.98)}
+.login-hint{margin-top:14px;font-size:.7rem;color:var(--t3);opacity:.55;letter-spacing:.04em}
+  
+/* ══════════════════════════════════════════════════════
+   RUSHFLIX — botón
+══════════════════════════════════════════════════════ */
+.btn-rushflix{
+  position:fixed;bottom:68px;right:20px;
+  background:linear-gradient(135deg,#8b0000,#c0152a);
+  border:1px solid rgba(255,80,80,.25);
+  border-radius:50px;padding:9px 18px;
+  color:#fff;font-size:.72rem;font-weight:700;cursor:pointer;
+  backdrop-filter:blur(14px);z-index:990;transition:all .28s;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+  box-shadow:0 4px 24px rgba(160,10,30,.45);
+  text-decoration:none;letter-spacing:.04em;
+}
+.btn-rushflix:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(192,21,42,.55);
+  border-color:rgba(255,100,100,.5);
+}
+.btn-rushflix-ico{font-size:1rem}
+
+/* ══════════════════════════════════════════════════════
+   RUSHFLIX — overlay principal
+══════════════════════════════════════════════════════ */
+#rushflix-overlay{
+  position:fixed;inset:0;z-index:9800;
+  background:#0a0a0f;
+  display:none;flex-direction:column;
+  font-family:'DM Sans',sans-serif;
+  overflow:hidden;
+}
+#rushflix-overlay.open{display:flex}
+
+/* Header */
+.rfx-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 40px;
+  background:linear-gradient(180deg,rgba(10,10,15,1) 0%,transparent 100%);
+  position:relative;z-index:2;flex-shrink:0;
+}
+.rfx-logo{
+  font-family:'DM Sans',sans-serif;
+  font-size:clamp(2.4rem,7vw,5rem);
+  font-weight:900;letter-spacing:-.04em;
+  color:#e50914;
+  position:relative;
+  display:inline-block;
+  animation:rfxReveal 1.2s cubic-bezier(.16,1,.3,1) both;
+  text-shadow:0 0 60px rgba(229,9,20,.7),0 0 20px rgba(229,9,20,.4);
+}
+.rfx-logo::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,
+    transparent 20%,
+    rgba(255,255,255,.55) 48%,
+    rgba(255,255,255,.15) 52%,
+    transparent 70%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:rfxShine 1.8s cubic-bezier(.4,0,.2,1) .4s both;
+  pointer-events:none;
+}
+@keyframes rfxReveal{
+  0%  {opacity:0;letter-spacing:.25em;filter:blur(8px) brightness(3);transform:scaleX(1.08)}
+  60% {opacity:1;filter:blur(0) brightness(1.4)}
+  100%{opacity:1;letter-spacing:-.04em;filter:blur(0) brightness(1);transform:scaleX(1)}
+}
+@keyframes rfxShine{
+  0%  {background-position:120% 0}
+  100%{background-position:-60% 0}
+}
+.rfx-logo span{all:unset}
+.rfx-cafe{
+  font-size:.68rem;color:rgba(255,180,60,.55);
+  margin-top:5px;letter-spacing:.08em;font-style:italic;
+}
+.rfx-close{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer;
+  padding:8px 16px;border-radius:4px;transition:all .2s;
+  display:flex;align-items:center;gap:6px;font-size:.75rem;letter-spacing:.1em;
+}
+.rfx-close:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* Main content (hub or iframe mode) */
+.rfx-body{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:0 40px 40px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
+}
+
+/* Section title */
+.rfx-section-title{
+  font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:20px;padding-top:32px;
+}
+
+/* Platform grid */
+.rfx-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;
+  margin-bottom:40px;
+}
+
+.rfx-card{
+  position:relative;border-radius:10px;overflow:hidden;
+  cursor:pointer;transition:transform .25s,box-shadow .25s;
+  aspect-ratio:16/9;
+  border:1px solid rgba(255,255,255,.06);
+}
+.rfx-card:hover{
+  transform:scale(1.04) translateY(-3px);
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  border-color:rgba(255,255,255,.18);
+  z-index:2;
+}
+.rfx-card-bg{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.rfx-card-logo{
+  font-family:'Playfair Display',serif;
+  font-weight:900;letter-spacing:-.02em;
+  text-align:center;line-height:1;
+  position:relative;z-index:1;
+  text-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+.rfx-card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.7) 100%);
+}
+.rfx-card-footer{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:12px 14px 14px;z-index:2;
+}
+.rfx-card-name{
+  font-size:.78rem;font-weight:600;color:#fff;
+  margin-bottom:2px;letter-spacing:.03em;
+}
+.rfx-card-type{
+  font-size:.6rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;
+}
+.rfx-card-play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+  background:rgba(255,255,255,.9);color:#000;
+  border-radius:50%;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;z-index:3;
+  transition:transform .2s,opacity .2s;
+  padding-left:4px;
+}
+.rfx-card:hover .rfx-card-play{transform:translate(-50%,-50%) scale(1)}
+
+/* Iframe viewer mode */
+#rfx-viewer{
+  display:none;position:absolute;inset:0;z-index:10;
+  flex-direction:column;background:#000;
+}
+#rfx-viewer.active{display:flex}
+#rfx-viewer-bar{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 20px;background:rgba(0,0,0,.9);flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+#rfx-viewer-title{
+  font-size:.8rem;font-weight:600;color:#fff;flex:1;
+}
+#rfx-viewer-iframe{
+  flex:1;border:none;width:100%;height:100%;background:#000;
+}
+.rfx-viewer-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.7);font-size:.7rem;letter-spacing:.1em;
+  padding:6px 14px;border-radius:3px;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.rfx-viewer-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+.rfx-viewer-btn.danger{border-color:rgba(200,30,30,.4);color:rgba(255,80,80,.8)}
+.rfx-viewer-btn.danger:hover{background:rgba(180,20,20,.2)}
+
+/* Blocked notice */
+#rfx-blocked{
+  display:none;position:absolute;inset:0;z-index:11;
+  background:rgba(10,10,15,.97);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;text-align:center;padding:40px;
+}
+#rfx-blocked.show{display:flex}
+.rfx-blocked-icon{font-size:3rem;opacity:.4}
+.rfx-blocked-title{font-size:1.1rem;color:#fff;font-weight:600}
+.rfx-blocked-sub{font-size:.8rem;color:rgba(255,255,255,.4);max-width:400px;line-height:1.6}
+.rfx-blocked-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+
+/* Custom platform add */
+.rfx-add-card{
+  border:2px dashed rgba(255,255,255,.1);border-radius:10px;
+  aspect-ratio:16/9;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;transition:border-color .2s,background .2s;
+  color:rgba(255,255,255,.25);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+}
+.rfx-add-card:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.03);color:rgba(255,255,255,.5)}
+.rfx-add-icon{font-size:1.6rem;opacity:.4}
+
+/* Add platform modal */
+#rfx-add-modal{
+  display:none;position:absolute;inset:0;z-index:20;
+  background:rgba(0,0,0,.85);align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);
+}
+#rfx-add-modal.open{display:flex}
+.rfx-modal-box{
+  background:#13131a;border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:32px;width:100%;max-width:440px;
+}
+.rfx-modal-title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:20px}
+.rfx-input{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:#fff;padding:10px 14px;border-radius:6px;font-size:.85rem;
+  outline:none;margin-bottom:12px;transition:border-color .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.rfx-input:focus{border-color:rgba(255,80,80,.5)}
+.rfx-input::placeholder{color:rgba(255,255,255,.25)}
+.rfx-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.rfx-btn-primary{
+  background:linear-gradient(135deg,#c0152a,#e8202a);
+  border:none;color:#fff;padding:9px 20px;border-radius:6px;
+  font-size:.78rem;font-weight:600;cursor:pointer;transition:opacity .2s;letter-spacing:.05em;
+}
+.rfx-btn-primary:hover{opacity:.85}
+.rfx-btn-ghost{
+  background:none;border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.5);padding:9px 20px;border-radius:6px;
+  font-size:.78rem;cursor:pointer;transition:all .2s;
+}
+.rfx-btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
+
+/* VPN status tag on card */
+.rfx-vpn-status{transition:color .4s}
+.rfx-card-hbo{cursor:pointer}
+
+/* VPN panel */
+.rfx-vpn-panel{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:24px;margin-top:20px;
+}
+.rfx-vpn-panel-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:24px;
+}
+.rfx-vpn-dot{
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  background:#555;transition:background .5s;
+  box-shadow:0 0 0 0 transparent;
+}
+.rfx-vpn-dot.checking{background:#888;animation:vpnPulse 1.2s infinite}
+.rfx-vpn-dot.ok{background:#2ecc71;box-shadow:0 0 12px rgba(46,204,113,.6)}
+.rfx-vpn-dot.fail{background:#e74c3c;box-shadow:0 0 12px rgba(231,76,60,.4)}
+@keyframes vpnPulse{0%,100%{opacity:.4}50%{opacity:1}}
+.rfx-vpn-panel-title{font-size:.9rem;font-weight:600;color:#fff}
+.rfx-vpn-panel-sub{font-size:.72rem;color:rgba(255,255,255,.4);margin-top:3px}
+
+.rfx-step-title{
+  font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:16px;
+}
+.rfx-step{
+  display:flex;gap:16px;padding:16px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.rfx-step:last-child{border-bottom:none}
+.rfx-step-alt{background:rgba(255,200,50,.03);border-radius:8px;padding:14px;border:1px solid rgba(255,200,50,.08)!important;margin-top:8px}
+.rfx-step-num{
+  flex-shrink:0;width:30px;height:30px;border-radius:50%;
+  background:rgba(229,9,20,.15);border:1px solid rgba(229,9,20,.3);
+  color:#e50914;font-size:.8rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
+.rfx-step-name{font-size:.85rem;font-weight:600;color:#fff;margin-bottom:5px}
+.rfx-step-desc{font-size:.74rem;color:rgba(255,255,255,.4);line-height:1.55;margin-bottom:10px}
+.rfx-step-btns{display:flex;gap:8px;flex-wrap:wrap}
+.rfx-step-btn{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.7);font-size:.72rem;padding:7px 14px;
+  border-radius:6px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.rfx-step-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+.rfx-vpn-ok-msg{
+  text-align:center;padding:20px;
+  font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.6;
+}
+.rfx-vpn-ok-msg strong{color:#2ecc71}
+
+/* Proxy panel */
+.rfx-proxy-box{
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;overflow:hidden;margin-bottom:4px;
+}
+.rfx-proxy-status{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);
+  font-size:.75rem;color:rgba(255,255,255,.5);
+}
+.rfx-proxy-info{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.rfx-proxy-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rfx-proxy-label{
+  font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);width:80px;flex-shrink:0;
+}
+.rfx-proxy-val{
+  flex:1;font-size:.75rem;color:#7ec8e3;
+  background:rgba(255,255,255,.04);padding:5px 10px;border-radius:4px;
+  word-break:break-all;min-width:0;
+}
+.rfx-copy-btn{
+  flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);font-size:.65rem;letter-spacing:.1em;
+  padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.rfx-copy-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* Geo banner */
+.rfx-geo-banner{
+  display:flex;align-items:flex-start;gap:16px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-left:3px solid #e8202a;
+  border-radius:8px;padding:18px 20px;margin-bottom:20px;
+}
+.rfx-geo-flag{font-size:2rem;flex-shrink:0;line-height:1;margin-top:2px}
+.rfx-geo-title{font-size:.88rem;font-weight:600;color:#fff;margin-bottom:6px}
+.rfx-geo-sub{font-size:.76rem;color:rgba(255,255,255,.45);line-height:1.6}
+
+.rfx-grid-4{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+
+/* VPN steps */
+.rfx-vpn-steps{
+  display:flex;gap:0;margin-bottom:36px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;overflow:hidden;flex-wrap:wrap;
+}
+.rfx-vpn-step{
+  flex:1;min-width:180px;
+  display:flex;align-items:center;gap:14px;
+  padding:16px 20px;
+  border-right:1px solid rgba(255,255,255,.06);
+  font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.4;
+}
+.rfx-vpn-step:last-child{border-right:none}
+.rfx-vpn-step strong{color:rgba(255,255,255,.75)}
+.rfx-vpn-num{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#c0152a,#e8202a);
+  color:#fff;font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+
+@media(max-width:600px){
+  .rfx-header{padding:16px 20px}
+  .rfx-body{padding:0 16px 32px}
+  .rfx-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     LOGIN OVERLAY
+     ════════════════════════════════════════
+     🔑 CONTRASEÑA: hash SHA-256 almacenado en PW_HASH (no texto plano)
+     📷 FOTO: guarda tu imagen como  foto.jpg  en esta misma carpeta
+═══════════════════════════════════════════ -->
+<div id="login-overlay">
+
+  <!-- Elementos ambientales del login -->
+  <div class="lsun"></div>
+  <div class="lhoriz"></div>
+
+  <div class="login-card" id="login-card">
+
+    <!-- ── Imagen / Ilustración ── -->
+    <div class="login-img">
+      <!--
+        Pon vuestra foto como  foto.jpg  en esta carpeta
+        y aparecerá aquí automáticamente.
+        Si no hay foto, se muestra la ilustración de las copas.
+      -->
+      <img id="login-photo" src="foto.jpg" alt="Bali 2026"
+        onload="this.classList.add('loaded')"
+        onerror="this.classList.add('errored')"/>
+
+      <!-- Ilustración SVG (copas de vino al atardecer, inspirada en tu foto) -->
+      <div class="login-svg-wrap">
+        <svg viewBox="0 0 430 248" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4a5868"/>
+              <stop offset="35%" stop-color="#9a7838"/>
+              <stop offset="55%" stop-color="#d08820"/>
+              <stop offset="70%" stop-color="#c06818"/>
+              <stop offset="85%" stop-color="#803010"/>
+              <stop offset="100%" stop-color="#1a2418"/>
+            </linearGradient>
+            <radialGradient id="lSun" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fffce0" stop-opacity="1"/>
+              <stop offset="35%" stop-color="#ffc828" stop-opacity="0.9"/>
+              <stop offset="70%" stop-color="#e08810" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#e08810" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="lGlass" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffd878" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="#ffc050" stop-opacity="0.35"/>
+            </linearGradient>
+            <filter id="lGlow">
+              <feGaussianBlur stdDeviation="3.5" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          <!-- Cielo -->
+          <rect width="430" height="248" fill="url(#lSky)"/>
+
+          <!-- Nubes sutiles -->
+          <ellipse cx="90"  cy="38" rx="110" ry="28" fill="rgba(155,135,95,.22)"/>
+          <ellipse cx="340" cy="22" rx="95"  ry="20" fill="rgba(140,120,90,.18)"/>
+          <ellipse cx="210" cy="55" rx="60"  ry="12" fill="rgba(130,115,85,.12)"/>
+
+          <!-- Halo solar -->
+          <circle cx="215" cy="138" r="55" fill="url(#lSun)" opacity="0.9"/>
+          <!-- Sol -->
+          <circle cx="215" cy="138" r="22"  fill="#fff8d0" opacity="0.95"/>
+          <circle cx="215" cy="138" r="18"  fill="#ffe060"/>
+          <!-- Línea horizonte -->
+          <line x1="0" y1="142" x2="430" y2="142" stroke="rgba(255,195,35,.25)" stroke-width="1"/>
+
+          <!-- Océano / tierra oscura -->
+          <path d="M0 148 Q215 142 430 148 L430 248 L0 248 Z" fill="#1a2418"/>
+          <path d="M0 158 Q215 152 430 158 L430 248 L0 248 Z" fill="#101610"/>
+
+          <!-- Reflejo del sol en el agua -->
+          <ellipse cx="215" cy="158" rx="70" ry="7" fill="rgba(255,175,20,.14)"/>
+
+          <!-- Repisa de piedra (como en la foto) -->
+          <path d="M55 192 Q215 188 375 192 L375 228 Q215 226 55 228 Z" fill="#252018"/>
+          <path d="M55 190 Q215 186 375 190" stroke="rgba(255,255,255,.05)" stroke-width="1.5" fill="none"/>
+          <!-- Textura piedra -->
+          <path d="M70 205 Q130 203 190 205 Q250 207 310 204" stroke="rgba(255,255,255,.03)" stroke-width="1" fill="none"/>
+
+          <!-- COPA IZQUIERDA  (ligeramente inclinada a la izquierda) -->
+          <g transform="translate(158,104) rotate(-4)" filter="url(#lGlow)">
+            <!-- Cuerpo de la copa -->
+            <path d="M-21,-60 C-37,-60 -45,-36 -39,-10 C-34,8 -18,18 0,18 C18,18 34,8 39,-10 C45,-36 37,-60 21,-60 Z"
+              fill="rgba(255,215,110,.07)" stroke="url(#lGlass)" stroke-width="2.2"/>
+            <!-- Brillo lateral izquierdo -->
+            <path d="M-19,-54 C-33,-54 -39,-32 -34,-10 C-29,6 -15,15 -4,17"
+              fill="none" stroke="rgba(255,252,200,.42)" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Vino blanco dorado -->
+            <path d="M-31,-3 C-21,11 -11,18 0,18 C11,18 21,11 31,-3 C24,5 12,10 0,10 C-12,10 -24,5 -31,-3 Z"
+              fill="rgba(205,158,18,.52)"/>
+            <!-- Brillo vino -->
+            <ellipse cx="-9" cy="6" rx="5" ry="2" fill="rgba(255,218,70,.42)" transform="rotate(-12,-9,6)"/>
+            <!-- Borde superior de la copa -->
+            <path d="M-21,-60 C-9,-64 9,-64 21,-60" stroke="rgba(255,252,200,.5)" stroke-width="1.5" fill="none"/>
+            <!-- Tallo -->
+            <line x1="-1" y1="18" x2="-4" y2="76" stroke="rgba(255,215,100,.6)" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Pie -->
+            <ellipse cx="-4" cy="78" rx="18" ry="4.5" fill="rgba(255,215,100,.45)"/>
+            <!-- Reflejo del sol en el cristal (como el lens flare de la foto) -->
+            <ellipse cx="14" cy="-38" rx="6" ry="11" fill="rgba(255,240,130,.22)" transform="rotate(-20,14,-38)"/>
+          </g>
+
+          <!-- COPA DERECHA  (más grande, inclinada a la derecha) -->
+          <g transform="translate(272,90) rotate(4)" filter="url(#lGlow)">
+            <path d="M-20,-56 C-36,-56 -44,-34 -38,-10 C-33,8 -17,18 0,18 C17,18 33,8 38,-10 C44,-34 36,-56 20,-56 Z"
+              fill="rgba(255,215,110,.08)" stroke="url(#lGlass)" stroke-width="2.2"/>
+            <path d="M-18,-50 C-32,-50 -38,-30 -33,-10 C-28,6 -14,15 -3,17"
+              fill="none" stroke="rgba(255,252,200,.40)" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Más vino (copa más llena) -->
+            <path d="M-30,-6 C-20,10 -10,18 0,18 C10,18 20,10 30,-6 C23,3 12,8 0,8 C-12,8 -23,3 -30,-6 Z"
+              fill="rgba(205,158,18,.58)"/>
+            <ellipse cx="-7" cy="4" rx="5" ry="2" fill="rgba(255,218,70,.46)" transform="rotate(-9,-7,4)"/>
+            <path d="M-20,-56 C-8,-60 8,-60 20,-56" stroke="rgba(255,252,200,.5)" stroke-width="1.5" fill="none"/>
+            <line x1="1" y1="18" x2="4" y2="72" stroke="rgba(255,215,100,.6)" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="4" cy="74" rx="17" ry="4" fill="rgba(255,215,100,.45)"/>
+            <ellipse cx="13" cy="-34" rx="5" ry="10" fill="rgba(255,240,130,.24)" transform="rotate(-18,13,-34)"/>
+          </g>
+
+          <!-- Lens flare sutil (como en la foto original) -->
+          <ellipse cx="248" cy="126" rx="3" ry="7" fill="rgba(255,230,100,.3)" transform="rotate(30,248,126)"/>
+          <circle cx="262" cy="122" r="4" fill="rgba(255,230,100,.18)"/>
+          <circle cx="240" cy="118" r="2" fill="rgba(255,240,150,.25)"/>
+
+          <!-- Degradado de cierre en la parte inferior -->
+          <rect width="430" height="248" fill="url(#lBottomFade)" opacity="1"/>
+          <defs>
+            <linearGradient id="lBottomFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="65%" stop-color="rgba(10,6,2,0)"/>
+              <stop offset="100%" stop-color="rgba(10,6,2,0.75)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div><!-- /svg-wrap -->
+
+      <div class="login-img-grad"></div>
+      <div class="login-img-label">2026 🍷</div>
+    </div><!-- /login-img -->
+
+    <!-- ── Formulario ── -->
+    <div class="login-form">
+      <span class="login-icon">🥥</span>
+      <div class="login-title"> Bali <em>Ruleta</em></div>
+      <div class="login-sub">Se me fue de las manos amor ✦</div>
+
+      <div class="login-orn">
+        <div class="login-orn-line"></div>
+        <span class="login-orn-dot">✦</span>
+        <span class="login-orn-dot" style="margin:0 5px">🌴</span>
+        <span class="login-orn-dot">✦</span>
+        <div class="login-orn-line"></div>
+      </div>
+
+      <div class="pw-wrap">
+        <input id="login-pw" type="password" placeholder="Contraseña…" autocomplete="current-password"/>
+        <button class="pw-eye" id="pw-eye" type="button">👁️</button>
+      </div>
+
+      <div class="login-err" id="login-err">Contraseña incorrecta, inténtalo de nuevo 🙈</div>
+
+      <button class="btn-login" id="btn-login">Entrar a Bali ✦</button>
+
+      <p class="login-hint">Acceso privado, no toques!</p>
+    </div>
+
+  </div><!-- /login-card -->
+
+  <div class="login-aviso">
+    <p class="login-aviso-text">
+      Web creada con café, estrés y decisiones cuestionables de última hora.<br>
+      Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.
+    </p>
+    <p class="login-aviso-copy">© 2026 El Desconocido &nbsp;·&nbsp; 🌐 esto es página de web, para que lo sepan</p>
+  </div>
+
+</div><!-- /login-overlay -->
+
+<!-- ── Decoraciones atmosféricas ── -->
+<div class="stars" id="stars"></div>
+<div class="sun-disc"></div>
+<div class="horizon-glow"></div>
+<div id="ff-wrap"></div>
+
+<!-- ── Escena: copas de vino + tierra balinesa ── -->
+<svg class="wine-scene" viewBox="0 0 1440 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sunReflW" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffd060" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffd060" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wineGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4a020" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#a06810" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd878" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffc050" stop-opacity="0.2"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- TIERRA / VEGETACIÓN OSCURA  (fondo) -->
+  <path d="M0 360 Q180 340 360 355 Q540 368 720 350 Q900 332 1080 355 Q1260 375 1440 360 L1440 500 L0 500 Z"
+    fill="#1a2418" opacity="0.95"/>
+  <path d="M0 380 Q360 365 720 378 Q1080 390 1440 375 L1440 500 L0 500 Z"
+    fill="#141c12" opacity="0.98"/>
+
+  <!-- Palmeras izquierda -->
+  <g transform="translate(70,80)" fill="#111a0e">
+    <path d="M0 420 Q-3 340 6 270 Q10 230 4 200" stroke="#111a0e" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M4 200 Q-45 155 -95 130 Q-65 145 -25 185 Z"/>
+    <path d="M4 200 Q-18 145 -12 90  Q8 130 16 180 Z"/>
+    <path d="M4 200 Q32 148 72 130  Q50 158 22 188 Z"/>
+    <path d="M4 200 Q38 175 85 180  Q58 185 20 198 Z"/>
+    <path d="M4 200 Q-38 178 -78 192 Q-50 196 -8 204 Z"/>
+  </g>
+  <g transform="translate(185,100)" fill="#0e160c">
+    <path d="M0 420 Q4 355 -7 285 Q-12 248 -3 218" stroke="#0e160c" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M-3 218 Q-52 170 -102 145 Q-72 162 -28 202 Z"/>
+    <path d="M-3 218 Q-22 162 -16 108 Q6 148 10 200 Z"/>
+    <path d="M-3 218 Q28 166 65 148  Q44 174 16 206 Z"/>
+  </g>
+
+  <!-- Palmeras derecha -->
+  <g transform="translate(1370,75) scale(-1,1)" fill="#111a0e">
+    <path d="M0 420 Q-3 340 6 270 Q10 230 4 200" stroke="#111a0e" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M4 200 Q-45 155 -95 130 Q-65 145 -25 185 Z"/>
+    <path d="M4 200 Q-18 145 -12 90  Q8 130 16 180 Z"/>
+    <path d="M4 200 Q32 148 72 130  Q50 158 22 188 Z"/>
+    <path d="M4 200 Q38 175 85 180  Q58 185 20 198 Z"/>
+    <path d="M4 200 Q-38 178 -78 192 Q-50 196 -8 204 Z"/>
+  </g>
+  <g transform="translate(1260,95) scale(-1,1)" fill="#0e160c">
+    <path d="M0 420 Q4 355 -7 285 Q-12 248 -3 218" stroke="#0e160c" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M-3 218 Q-52 170 -102 145 Q-72 162 -28 202 Z"/>
+    <path d="M-3 218 Q-22 162 -16 108 Q6 148 10 200 Z"/>
+    <path d="M-3 218 Q28 166 65 148  Q44 174 16 206 Z"/>
+  </g>
+
+  <!-- Templo Bali (centro) -->
+  <g transform="translate(650,100)" fill="#120a04" opacity="0.85">
+    <rect x="35" y="315" width="50" height="55" rx="2"/>
+    <rect x="22" y="298" width="76" height="20" rx="2"/>
+    <rect x="12" y="282" width="96" height="18" rx="2"/>
+    <polygon points="8,282 112,282 106,265 14,265"/>
+    <polygon points="14,265 106,265 100,249 20,249"/>
+    <polygon points="20,249 100,249 95,234 25,234"/>
+    <polygon points="25,234 95,234 90,220 30,220"/>
+    <polygon points="30,220 90,220 85,206 35,206"/>
+    <polygon points="35,206 85,206 81,193 39,193"/>
+    <polygon points="39,193 81,193 77,181 43,181"/>
+    <polygon points="43,181 77,181 74,170 46,170"/>
+    <polygon points="46,170 74,170 71,160 49,160"/>
+    <polygon points="49,160 71,160 69,151 51,151"/>
+    <line x1="60" y1="151" x2="60" y2="118" stroke="#120a04" stroke-width="4"/>
+    <ellipse cx="60" cy="116" rx="6" ry="5"/>
+    <path d="M60 116 Q58 105 60 100 Q62 105 60 116" fill="#f4c430" opacity="0.5"/>
+  </g>
+
+  <!-- Reflejo en el agua -->
+  <ellipse cx="720" cy="368" rx="260" ry="18" fill="url(#sunReflW)" opacity="0.5"/>
+
+  <!-- Superficie de agua / suelo -->
+  <path d="M0 370 Q720 355 1440 370 L1440 500 L0 500 Z" fill="url(#wineGrad)" opacity="0.3"/>
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  COPAS DE VINO  (el elemento clave  ║
+       ║  inspirado directamente en la foto) ║
+       ╚══════════════════════════════════════╝ -->
+
+  <!-- Copa izquierda  (ligeramente ladeada) -->
+  <g transform="translate(580,185) rotate(-4)" filter="url(#glow)">
+    <!-- Borde copa -->
+    <path d="M-30,-80 C-50,-80 -62,-48 -52,-12 C-44,12 -22,24 0,24 C22,24 44,12 52,-12 C62,-48 50,-80 30,-80 Z"
+      fill="none" stroke="url(#glassGrad)" stroke-width="2.5"/>
+    <!-- Brillo copa interior -->
+    <path d="M-28,-72 C-44,-72 -54,-44 -46,-10 C-40,10 -20,20 0,20"
+      fill="none" stroke="rgba(255,248,200,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Vino (fondo copa, color dorado como vino blanco) -->
+    <path d="M-40,10 C-28,22 -14,24 0,24 C14,24 28,22 40,10 L35,-2 C26,8 14,12 0,12 C-14,12 -26,8 -35,-2 Z"
+      fill="rgba(210,165,20,0.45)"/>
+    <!-- Brillos de luz en el vino -->
+    <ellipse cx="-12" cy="14" rx="6" ry="3" fill="rgba(255,225,80,0.35)" transform="rotate(-10,-12,14)"/>
+    <!-- Tallo -->
+    <line x1="0" y1="24" x2="-4" y2="88" stroke="url(#glassGrad)" stroke-width="3.5"/>
+    <!-- Pie -->
+    <path d="M-4,88 Q-28,92 -32,98 Q-28,100 -4,99 L4,99 Q28,100 32,98 Q28,92 4,88 Z"
+      fill="url(#glassGrad)"/>
+    <!-- Reflejo sol en el cristal -->
+    <ellipse cx="18" cy="-50" rx="8" ry="14" fill="rgba(255,235,100,0.2)" transform="rotate(-20,18,-50)"/>
+  </g>
+
+  <!-- Copa derecha (más grande, en primer plano) -->
+  <g transform="translate(720,160) rotate(3)" filter="url(#glow)">
+    <path d="M-26,-72 C-44,-72 -55,-42 -46,-10 C-38,10 -20,22 0,22 C20,22 38,10 46,-10 C55,-42 44,-72 26,-72 Z"
+      fill="none" stroke="url(#glassGrad)" stroke-width="2.5"/>
+    <path d="M-24,-65 C-40,-65 -50,-38 -42,-8 C-35,10 -18,20 0,20"
+      fill="none" stroke="rgba(255,248,200,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M-36,8 C-25,20 -12,22 0,22 C12,22 25,20 36,8 L31,-3 C22,7 11,11 0,11 C-11,11 -22,7 -31,-3 Z"
+      fill="rgba(210,165,20,0.50)"/>
+    <ellipse cx="-8" cy="13" rx="5" ry="2.5" fill="rgba(255,225,80,0.4)" transform="rotate(-8,-8,13)"/>
+    <line x1="0" y1="22" x2="3" y2="80" stroke="url(#glassGrad)" stroke-width="3.5"/>
+    <path d="M3,80 Q-25,85 -28,91 Q-24,93 3,92 L5,92 Q26,93 28,91 Q24,85 3,80 Z"
+      fill="url(#glassGrad)"/>
+    <ellipse cx="14" cy="-44" rx="7" ry="12" fill="rgba(255,235,100,0.22)" transform="rotate(-18,14,-44)"/>
+  </g>
+
+  <!-- Plano de apoyo (piedra volcánica como en la foto) -->
+  <rect x="460" y="280" width="380" height="80" rx="8" fill="#2a2420" opacity="0.8"/>
+  <rect x="460" y="278" width="380" height="6" rx="3" fill="#3a3028" opacity="0.6"/>
+  <!-- Textura piedra -->
+  <path d="M470 295 Q520 292 570 296 Q620 300 670 295 Q720 290 770 294 Q820 298 830 295"
+    stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+  <path d="M475 308 Q530 305 590 308 Q650 312 710 307 Q770 302 825 306"
+    stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none"/>
+
+  <!-- Reflejo copas en piedra -->
+  <ellipse cx="588" cy="288" rx="12" ry="4" fill="rgba(210,165,20,0.15)"/>
+  <ellipse cx="718" cy="284" rx="11" ry="3.5" fill="rgba(210,165,20,0.18)"/>
+</svg>
+
+<!-- ═══════════════════════════════════════
+     APP
+═══════════════════════════════════════ -->
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge-dates">
+      <span class="badge-dot"></span>
+       · 18 – 23 Junio 2026
+      <span class="badge-dot"></span>
+    </div>
+
+    <h1>Aventura <em>Bali 2026</em></h1>
+    <p class="header-sub">Estasss bien amorrrrr ? ✦</p>
+
+    <div class="countdown" id="countdown-wrap">
+      <span class="cd-num" id="cd-days">–</span>
+      <span class="cd-lbl">días</span>
+      <span class="cd-sep">·</span>
+      <span class="cd-num" id="cd-hours">–</span>
+      <span class="cd-lbl">horas</span>
+      <span class="cd-sep">·</span>
+      <span class="cd-num" id="cd-min">–</span>
+      <span class="cd-lbl">min</span>
+    </div>
+
+    <div class="orn">
+      <div class="orn-line"></div>
+      <span class="orn-dot">✦</span>
+      <span class="orn-dot" style="margin:0 4px">🌺</span>
+      <span class="orn-dot">✦</span>
+      <div class="orn-line"></div>
+    </div>
+  </header>
+
+  <button class="btn-logout" id="btn-logout" title="Cerrar sesión">🔒 Salir</button>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- ══ COL 1: POOL ══ -->
+    <div class="glass panel">
+      <p class="section-label">✦Ideas</p>
+
+      <div class="add-row">
+        <div class="input-wrap">
+          <input id="option-input" type="text" placeholder="Me muero de ganas!!" maxlength="55"/>
+        </div>
+        <button class="btn-add" id="btn-add" title="Añadir">+</button>
+      </div>
+
+      <p class="section-label">Actividad (<span id="pool-count">0</span>)</p>
+      <ul id="pool-list"></ul>
+      <p class="empty-pool" id="empty-pool" style="display:none">
+        🌴 Las ideas....
+      </p>
+
+      <div class="divider"></div>
+
+      <p class="section-label">💡 Sugerencias</p>
+      <div class="sugg-search-row">
+        <input id="sugg-search" type="text" placeholder="🔍 Buscar un sitio en Bali…" maxlength="80"/>
+        <button class="btn-sugg-search" id="btn-sugg-search">Buscar</button>
+      </div>
+      <div class="chips" id="chips"></div>
+
+      <div class="saved-chips-section" id="saved-section" style="display:none">
+        <div class="divider"></div>
+        <p class="section-label">📌 Guardadas</p>
+        <div class="chips" id="saved-chips"></div>
+      </div>
+    </div>
+
+    <!-- ══ COL 2: RULETA ══ -->
+    <div class="wheel-col">
+
+      <div class="spin-target-badge" id="spin-target-badge">
+        <span class="stb-dot"></span>
+        <span id="stb-text">Selecciona un día o gira ↓</span>
+      </div>
+
+      <div class="wheel-frame">
+        <div class="frame-gem fg-top"></div>
+        <div class="frame-gem fg-right"></div>
+        <div class="frame-gem fg-bottom"></div>
+        <div class="frame-gem fg-left"></div>
+        <div class="wheel-wrap">
+          <div class="wheel-pointer">
+            <svg width="30" height="36" viewBox="0 0 30 36" fill="none">
+              <defs>
+                <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FFD878"/>
+                  <stop offset="100%" stop-color="#E8B020"/>
+                </linearGradient>
+              </defs>
+              <path d="M15 36 L1 5 Q15 -2 29 5 Z" fill="url(#pg)"/>
+              <path d="M15 30 L5 8 Q15 2 25 8 Z" fill="rgba(0,0,0,0.18)"/>
+              <circle cx="15" cy="7" r="4" fill="#FFE090"/>
+            </svg>
+          </div>
+          <canvas id="wheel-canvas" width="380" height="380"></canvas>
+          <div class="wheel-hub">🍷</div>
+        </div>
+      </div>
+
+      <button class="btn-spin" id="btn-spin">
+        <span class="spin-ico">✦</span>
+        ¡Girar la Ruleta!
+      </button>
+
+      <button class="btn-random" id="btn-random">
+        🎲 Selección al azar
+      </button>
+
+      <button class="btn-ghost" id="btn-reset" style="margin-top:-4px">↺ Reiniciar todo el itinerario</button>
+
+      <!-- Result -->
+      <div id="result-box">
+        <span class="res-emoji" id="res-emoji">🎉</span>
+        <p class="res-kicker">¡El destino ha decidido!</p>
+        <p class="res-text" id="res-text">–</p>
+        <p class="res-day-label" id="res-day-label"></p>
+        <div class="res-divider"></div>
+        <button class="btn-map-result" id="btn-map-result">📍 ¿Dónde está en Bali?</button>
+        <button class="btn-confirm" id="btn-confirm">✓ Confirmar para este día</button>
+      </div>
+
+    </div>
+
+    <!-- ══ COL 3: ITINERARIO ══ -->
+    <div class="glass itinerary">
+      <div class="itin-header">
+        <p class="section-label" style="margin:0">📅 Itinerario</p>
+        <span class="itin-progress"><b id="prog-n">0</b>/6 días</span>
+      </div>
+
+      <div class="day-cards" id="day-cards"></div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-copy">© 2026 El Desconocido</p>
+    <p class="footer-text">Web creada con café, estrés y decisiones cuestionables de última hora.<br>Uso no autorizado prohibido… aunque la ruleta probablemente te mande igual a un sitio random.</p>
+    <p class="footer-tag">🌐 esto es página de web, para que lo sepan</p>
+  </footer>
+
+</div>
+
+<a class="btn-bored" href="game.html" target="_blank" rel="noopener">
+  <span class="btn-bored-ico">🕵️</span> Estoy aburrid@
+</a>
+
+<div id="toast"></div>
+<div id="sync-status"><div class="sync-dot"></div><span id="sync-txt">Sincronizando…</span></div>
+
+<!-- ══════════════════════════════════════
+     CHAT
+══════════════════════════════════════ -->
+<button class="chat-fab" id="chat-fab" aria-label="Abrir chat">
+  💬
+  <span class="chat-fab-badge" id="chat-badge"></span>
+</button>
+
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-header-title">💬</div>
+      <div class="chat-header-sub">Mejor que Whasap</div>
+    </div>
+    <span class="chat-user-label" id="chat-user-label" title="Cambiar usuario"></span>
+    <button class="btn-chat-clear" id="btn-chat-clear" title="Borrar todos los mensajes">🗑️</button>
+    <button class="btn-chat-close" id="btn-chat-close">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-empty" id="chat-empty">
+      <span style="font-size:2rem">🇪🇸</span>
+      <span>Tu banderaaaa!</span>
+    </div>
+  </div>
+
+  <div class="chat-input-row">
+    <label class="chat-suggestion-toggle">
+      <input type="checkbox" id="chat-is-suggestion"/>
+      💡 Ssugerencia de actividad
+    </label>
+    <div class="chat-input-wrap">
+      <textarea class="chat-textarea" id="chat-textarea" placeholder="Escribe algo si te apetece" rows="1"></textarea>
+      <button class="btn-chat-send" id="btn-chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SUGGESTION PREVIEW MODAL
+══════════════════════════════════════ -->
+<div class="sugg-overlay" id="sugg-overlay">
+  <div class="sugg-card">
+    <div class="sugg-card-wrap">
+      <img class="sugg-photo" id="sugg-photo" src="" alt="" style="display:none"/>
+      <div class="sugg-photo-placeholder" id="sugg-placeholder"><span id="sugg-emoji">🌴</span></div>
+      <button class="btn-sugg-close" id="btn-sugg-close">✕</button>
+      <button class="btn-photo-nav prev" id="btn-photo-prev">‹</button>
+      <button class="btn-photo-nav next" id="btn-photo-next">›</button>
+      <div class="photo-counter" id="photo-counter"></div>
+      <div class="photo-attribution" id="photo-attribution"></div>
+    </div>
+    <div class="sugg-body">
+      <div class="sugg-cat" id="sugg-cat"></div>
+      <div class="sugg-name" id="sugg-name"></div>
+      <div class="sugg-actions">
+        <button class="btn-sugg-add" id="btn-sugg-add">Añadir al bombo</button>
+        <button class="btn-sugg-save" id="btn-sugg-save">Guardar</button>
+        <a class="btn-sugg-reserve" id="btn-sugg-reserve" href="#" target="_blank" rel="noopener" style="display:none">🍽️ Reservar</a>
+        <a class="btn-sugg-map" id="btn-sugg-map" href="#" target="_blank" rel="noopener">📍 Mapa</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAPA MODAL
+══════════════════════════════════════ -->
+<div class="map-overlay" id="map-overlay">
+  <div class="map-card">
+    <div class="map-card-header">
+      <span class="map-card-title" id="map-card-title">📍 Ubicación</span>
+      <button class="btn-map-close" id="btn-map-close">✕</button>
+    </div>
+    <div class="map-iframe-wrap">
+      <div class="map-loading" id="map-loading">🗺️<span>Cargando mapa…</span></div>
+      <iframe id="map-iframe" frameborder="0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="opacity:0;transition:opacity .4s"></iframe>
+    </div>
+    <div class="map-card-footer">
+      <a class="btn-open-maps" id="btn-open-maps" href="#" target="_blank" rel="noopener">
+        🗺️ Ver en mapa completo
+      </a>
+      <a class="btn-open-gmaps" id="btn-open-gmaps" href="#" target="_blank" rel="noopener">
+        <img src="https://www.google.com/favicon.ico" width="14" height="14" style="border-radius:2px" onerror="this.style.display='none'"/> Google Maps
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal plan sorpresa -->
+<div class="plan-overlay" id="plan-overlay">
+  <div class="plan-card">
+    <div class="plan-title">🎲 Plan Sorpresa</div>
+    <div class="plan-sub">Bali 2026 · Generado al azar ✦</div>
+    <div class="plan-rows" id="plan-rows"></div>
+    <div class="plan-actions">
+      <button class="btn-plan-ok" id="btn-plan-ok">¡Sí, este plan! 🌴</button>
+      <button class="btn-plan-reroll" id="btn-plan-reroll" title="Otro plan">🎲</button>
+    </div>
+  </div>
+</div>
+
+<!-- User picker modal -->
+<div class="user-picker-overlay" id="user-picker" style="display:none">
+  <div class="user-picker-card">
+    <div class="user-picker-title">¿Quién eres? </div>
+    <div class="user-picker-sub">Selecciona plis</div>
+    <div class="user-picker-options">
+      <button class="btn-user-pick ruslan" data-user="Ruslan">
+        <span class="pick-emoji"></span>
+        Ruslan
+      </button>
+      <button class="btn-user-pick amor" data-user="Anabel">
+        <span class="pick-emoji"></span>
+        Anabel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal estado post-login -->
+<div class="status-overlay" id="status-overlay">
+  <div class="status-card">
+    <div class="status-who" id="status-who">
+      <button class="status-who-btn active" id="swho-ruslan" data-who="Ruslan">🧔 Ruslan</button>
+      <button class="status-who-btn" id="swho-anabel" data-who="Anabel">🌸 Anabel</button>
+    </div>
+    <div class="status-title">📊 Estado actual</div>
+    <div class="status-subtitle" id="status-subtitle"></div>
+    <div class="status-rows" id="status-rows"></div>
+    <button class="btn-status-enter" id="btn-status-enter">Entrar a Bali ✦</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════ */
+// 🔑 Hash SHA-256 de la contraseña (nunca en texto plano)
+const PW_HASH = '54b134339a41eec6b7ac8d6f2a8c6d55aa67b97893c896b9daa0bf153b8f9f8e';
+
+async function hashStr(s){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+(function checkAuth(){
+  if(sessionStorage.getItem('bali-auth')==='1'){
+    const ov=document.getElementById('login-overlay');
+    if(ov) ov.style.display='none';
+  }
+})();
+
+async function tryLogin(){
+  const inp=document.getElementById('login-pw');
+  const err=document.getElementById('login-err');
+  const card=document.getElementById('login-card');
+  const hash = await hashStr(inp.value);
+  if(hash === PW_HASH){
+    sessionStorage.setItem('bali-auth','1');
+    const ov=document.getElementById('login-overlay');
+    ov.classList.add('exit');
+    setTimeout(()=>{ ov.style.display='none'; showStatusModal(); }, 650);
+  } else {
+    inp.value='';
+    err.classList.add('show');
+    card.classList.remove('card-shake');
+    void card.offsetWidth;
+    card.classList.add('card-shake');
+    inp.focus();
+    setTimeout(()=>err.classList.remove('show'),3200);
+  }
+}
+
+document.getElementById('btn-login').addEventListener('click',tryLogin);
+document.getElementById('login-pw').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin()});
+
+/* ── Modal de estado post-login ── */
+const STATUS_DATA = {
+  Ruslan: [
+    ['Nivel de organización',         1, 2],
+    ['Confianza en la ruleta',         4, 5],
+    ['Decisiones cuestionables hoy',   3, 5],
+    ['Ganas de Bali',                  5, 5],
+    ['Control real de la situación',   1, 2],
+  ],
+  Anabel: [
+    ['Paciencia con El Desconocido',   2, 4],
+    ['Ganas de beach club',            5, 5],
+    ['Nivel de anticipación',          4, 5],
+    ['Probabilidad de seguir el plan', 2, 3],
+    ['Happiness general',              4, 5],
+  ]
+};
+
+const STATUS_SUBS = {
+  Ruslan:  ['Resultados aproximados. La ruleta no se hace responsable.','Informe generado por IA sin criterio.','Datos actualizados a tiempo real. Más o menos.'],
+  Anabel:  ['Evaluación objetiva. Casi.','Generado con cariño y poca fiabilidad.','No se garantiza exactitud. Ni falta que hace.']
+};
+
+function rndInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function makeStarWidget(initial){
+  let current = initial;
+  const wrap = document.createElement('div');
+  wrap.className = 'status-row-stars';
+
+  function paint(hovered){
+    const val = hovered ?? current;
+    wrap.querySelectorAll('.star-btn').forEach((b,i)=>{
+      b.classList.toggle('on', i < val);
+      b.textContent = i < val ? '★' : '☆';
+    });
+  }
+
+  for(let i=1;i<=5;i++){
+    const b = document.createElement('button');
+    b.className = 'star-btn' + (i <= initial ? ' on' : '');
+    b.textContent = i <= initial ? '★' : '☆';
+    b.type = 'button';
+    b.addEventListener('mouseenter', ()=> paint(i));
+    b.addEventListener('mouseleave', ()=> paint(null));
+    b.addEventListener('click', ()=>{ current = i; paint(null); });
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
+
+let _statusWho = 'Ruslan';
+
+function renderStatus(who){
+  _statusWho = who;
+  document.querySelectorAll('.status-who-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.who===who);
+  });
+  const subs = STATUS_SUBS[who];
+  document.getElementById('status-subtitle').textContent = subs[rndInt(0,subs.length-1)];
+  const rows = document.getElementById('status-rows');
+  rows.innerHTML = '';
+  STATUS_DATA[who].forEach(([label, min, max])=>{
+    const n   = rndInt(min, max);
+    const row = document.createElement('div');
+    row.className = 'status-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'status-row-label';
+    lbl.textContent = label;
+    row.appendChild(lbl);
+    row.appendChild(makeStarWidget(n));
+    rows.appendChild(row);
+  });
+}
+
+function showStatusModal(){
+  document.getElementById('status-overlay').classList.add('show');
+  renderStatus('Ruslan');
+}
+
+document.querySelectorAll('.status-who-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> renderStatus(btn.dataset.who));
+});
+
+document.getElementById('btn-status-enter').addEventListener('click',()=>{
+  document.getElementById('status-overlay').classList.remove('show');
+});
+document.getElementById('pw-eye').addEventListener('click',()=>{
+  const inp=document.getElementById('login-pw');
+  const isHidden=inp.type==='password';
+  inp.type=isHidden?'text':'password';
+  document.getElementById('pw-eye').textContent=isHidden?'🙈':'👁️';
+});
+
+/* ═══════════════════════════════════════════
+   AMBIENT
+═══════════════════════════════════════════ */
+(()=>{
+  const sc=document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.2+.4,top=Math.random()*58;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${top}%;--d:${2+Math.random()*4}s;--dl:-${Math.random()*5}s;--lo:${.1+Math.random()*.3}`;
+    sc.appendChild(s);
+  }
+  const fc=document.getElementById('ff-wrap');
+  const rnd=()=>(Math.random()*100-50)+'px';
+  for(let i=0;i<12;i++){
+    const f=document.createElement('div');f.className='ff';
+    f.style.cssText=`left:${10+Math.random()*80}%;top:${52+Math.random()*38}%;--d:${6+Math.random()*9}s;--dl:-${Math.random()*9}s;--gd:-${Math.random()*2.5}s;--x1:${rnd()};--y1:${rnd()};--x2:${rnd()};--y2:${rnd()};--x3:${rnd()};--y3:${rnd()}`;
+    fc.appendChild(f);
+  }
+})();
+
+/* ═══════════════════════════════════════════
+   COUNTDOWN
+═══════════════════════════════════════════ */
+function updateCountdown(){
+  const target=new Date('2026-06-18T00:00:00');
+  const now=new Date();
+  const diff=target-now;
+  if(diff<=0){
+    document.getElementById('countdown-wrap').innerHTML='<span style="color:var(--gold);font-size:1rem;font-weight:700">¡Estáis en Bali! 🌴🍷</span>';
+    return;
+  }
+  const d=Math.floor(diff/864e5);
+  const h=Math.floor((diff%864e5)/36e5);
+  const m=Math.floor((diff%36e5)/6e4);
+  document.getElementById('cd-days').textContent=d;
+  document.getElementById('cd-hours').textContent=h;
+  document.getElementById('cd-min').textContent=String(m).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown,30000);
+
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+const PALETTE=['#D4622A','#2A9E8A','#D4A220','#B83050',
+               '#6A3A9A','#1E7A5A','#C06840','#1878A8',
+               '#9A5A28','#A83060','#28926A','#7840B8',
+               '#C88820','#C03848','#4A9A70'];
+
+/* Lugares de Ruslan & Anabel · Bali 2026 */
+const SUGGESTIONS=[
+  // ── Beach Clubs ──
+  {l:'Sundays Beach Club', e:'🏖️', c:'Beach Club',          m:'Sundays Beach Club Uluwatu Bali',    w:'Suluban_Beach'},
+  {l:'Savaya Bali',        e:'🎉', c:'Beach Club',          m:'Savaya Bali Uluwatu',                w:null},
+  {l:'Single Fin',         e:'🍻', c:'Beach Club · Bar',    m:'Single Fin Uluwatu Bali',            w:null},
+  {l:'Palmilla Bali',      e:'🌊', c:'Beach Club',          m:'Palmilla Bali Uluwatu',              w:null},
+  {l:'El Kabron Bali',     e:'🦞', c:'Beach Club · Rest.',  m:'El Kabron Bali Uluwatu',             w:null},
+  {l:'Minoo Beach Club',   e:'🏝️', c:'Beach Club',          m:'Minoo Beach Club Bali',              w:null},
+  // ── Playas ──
+  {l:'Padang Padang Beach',e:'🌊', c:'Playa',               m:'Padang Padang Beach Bali',           w:'Padang_Padang_beach'},
+  {l:'Thomas Beach',       e:'🏖️', c:'Playa',               m:'Thomas Beach Uluwatu Bali',          w:null},
+  {l:'Bingin Beach',       e:'🌅', c:'Playa',               m:'Bingin Beach Uluwatu Bali',          w:'Bingin_Beach'},
+  {l:'Melasti Beach',      e:'🌊', c:'Playa',               m:'Melasti Beach Bali',                 w:null},
+  {l:'Nyang Nyang Beach',  e:'🏝️', c:'Playa',               m:'Nyang Nyang Beach Bali',             w:null},
+  // ── Templo ──
+  {l:'Uluwatu Temple',     e:'🕌', c:'Templo',              m:'Uluwatu Temple Bali',                w:'Pura_Luhur_Uluwatu'},
+  // ── Restaurantes & Cafés ──
+  {l:'The Cave Bali',      e:'🍽️', c:'Restaurante',         m:'The Cave Bali Uluwatu',              w:null},
+  {l:'Mana Uluwatu',       e:'🥗', c:'Restaurante',         m:'Mana Uluwatu Bali',                  w:null},
+  {l:'Tabu',               e:'🍸', c:'Bar · Restaurante',   m:'Tabu Uluwatu Bali',                  w:null},
+  {l:'Suka Espresso',      e:'☕', c:'Cafetería',           m:'Suka Espresso Bali',                 w:null},
+  {l:'Rolling Fork',       e:'🍴', c:'Restaurante',         m:'Rolling Fork Bali',                  w:null},
+];
+
+const TRIP=[
+  {label:'DÍA 1',date:'Mié 18 Jun',emoji:'🌅'},
+  {label:'DÍA 2',date:'Jue 19 Jun',emoji:'🌊'},
+  {label:'DÍA 3',date:'Vie 20 Jun',emoji:'🌺'},
+  {label:'DÍA 4',date:'Sáb 21 Jun',emoji:'🌴'},
+  {label:'DÍA 5',date:'Dom 22 Jun',emoji:'🏄'},
+  {label:'DÍA 6',date:'Lun 23 Jun',emoji:'🌸'},
+];
+
+/* ═══════════════════════════════════════════
+   SUPABASE  (sincronización en la nube ☁️)
+═══════════════════════════════════════════ */
+const SB_URL  = 'https://hzebrblezimptcwnpijm.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6ZWJyYmxlemltcHRjd25waWptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MTM1MzIsImV4cCI6MjA5NTI4OTUzMn0.wC8U7uGFrLkQBy4AcJnIqflMpDFmdu1Jubn9JZ6UeBs';
+const sb = supabase.createClient(SB_URL, SB_ANON);
+
+const KEY='bali-v5';
+let pool=[],assignments=new Array(6).fill(null);
+let spinning=false,spinTarget=-1,pendingResult=null;
+let nextId=1;
+let saveTimer=null;
+
+/* ── Sync indicator ── */
+const syncEl   = document.getElementById('sync-status');
+const syncTxt  = document.getElementById('sync-txt');
+let syncHideT;
+function showSync(state, msg){
+  syncEl.className='show '+state;
+  syncTxt.textContent=msg;
+  clearTimeout(syncHideT);
+  if(state==='ok') syncHideT=setTimeout(()=>syncEl.classList.remove('show'),2500);
+}
+
+/* ── Save (Supabase + localStorage backup) ── */
+async function save(){
+  localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    showSync('syncing','Guardando…');
+    try{
+      const {error}=await sb.from('bali_ruleta').upsert({
+        id:'state', pool, assignments, next_id:nextId,
+        updated_at:new Date().toISOString()
+      });
+      if(error) throw error;
+      showSync('ok','Guardado ✓');
+    }catch(e){
+      showSync('err','Sin conexión — guardado local');
+      console.warn('Supabase save error:',e);
+    }
+  },600); // debounce 600ms
+}
+
+/* ── Load (Supabase → localStorage fallback) ── */
+async function load(){
+  try{
+    showSync('syncing','Cargando datos…');
+    const {data,error}=await sb.from('bali_ruleta')
+      .select('pool,assignments,next_id')
+      .eq('id','state')
+      .single();
+    if(error) throw error;
+    if(data){
+      pool        = data.pool        || [];
+      assignments = data.assignments || new Array(6).fill(null);
+      nextId      = data.next_id     || 1;
+      localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
+      showSync('ok','Datos cargados ✓');
+    }
+  }catch(e){
+    console.warn('Supabase load failed, using localStorage:',e);
+    showSync('err','Sin conexión — datos locales');
+    try{
+      const d=JSON.parse(localStorage.getItem(KEY)||'null');
+      if(d){pool=d.pool||[];assignments=d.assignments||new Array(6).fill(null);nextId=d.nextId||1;}
+    }catch(_){}
+  }
+}
+
+/* ── Realtime: recarga si el otro dispositivo cambia algo ── */
+sb.channel('bali_ruleta_changes')
+  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'bali_ruleta'},
+    async (payload)=>{
+      // Solo recarga si la actualización NO la hicimos nosotros (debounce de 1s)
+      await new Promise(r=>setTimeout(r,1000));
+      const d=payload.new;
+      if(d){
+        pool=d.pool||[];assignments=d.assignments||new Array(6).fill(null);nextId=d.next_id||1;
+        localStorage.setItem(KEY,JSON.stringify({pool,assignments,nextId}));
+        renderAll();
+        showSync('ok','Sincronizado con el otro dispositivo 🔄');
+      }
+    }
+  )
+  .subscribe();
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastT;
+function toast(msg){
+  const t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ═══════════════════════════════════════════
+   POOL OPERATIONS
+═══════════════════════════════════════════ */
+function addActivity(text){
+  text=text.trim();if(!text)return;
+  if([...pool,...assignments.filter(Boolean)].some(o=>o&&o.label.toLowerCase()===text.toLowerCase())){
+    toast('Esa idea ya existe 😊');return;
+  }
+  pool.push({id:nextId++,label:text,color:PALETTE[pool.length%PALETTE.length]});
+  save();renderAll();
+}
+
+function removeFromPool(id){
+  pool=pool.filter(p=>p.id!==id);
+  save();renderAll();
+}
+
+/* ═══════════════════════════════════════════
+   ITINERARY OPERATIONS
+═══════════════════════════════════════════ */
+function getNextEmptyDay(){return assignments.findIndex(a=>a===null)}
+
+function assignToDay(dayIdx,activity){
+  assignments[dayIdx]=activity;
+  pool=pool.filter(p=>p.id!==activity.id);
+  save();renderAll();
+}
+
+function returnToPool(dayIdx){
+  const act=assignments[dayIdx];
+  if(!act)return;
+  assignments[dayIdx]=null;
+  pool.push(act);
+  if(spinTarget===dayIdx)spinTarget=-1;
+  save();renderAll();
+  toast('Actividad devuelta al bombo 🎰');
+}
+
+function selectDayTarget(dayIdx){
+  if(assignments[dayIdx]!==null){toast('Ese día ya tiene actividad. Usa ↺ para re-girar 😊');return;}
+  spinTarget=dayIdx;
+  renderAll();
+}
+
+/* ═══════════════════════════════════════════
+   CANVAS WHEEL
+═══════════════════════════════════════════ */
+const canvas=$('wheel-canvas');
+const ctx=canvas.getContext('2d');
+let currentAngle=0;
+
+function drawWheelAt(angle,hiIdx){
+  const S=canvas.width,cx=S/2,cy=S/2,r=S/2-1;
+  ctx.clearRect(0,0,S,S);
+
+  if(!pool.length){
+    /* Empty */
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    const eg=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    eg.addColorStop(0,'rgba(40,16,4,.7)');eg.addColorStop(1,'rgba(16,8,2,.85)');
+    ctx.fillStyle=eg;ctx.fill();
+    for(let i=0;i<12;i++){
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(i*Math.PI/6);
+      ctx.beginPath();ctx.moveTo(28,0);ctx.lineTo(r,0);
+      ctx.strokeStyle='rgba(232,186,42,.07)';ctx.lineWidth=1;ctx.stroke();
+      ctx.restore();
+    }
+    ctx.beginPath();ctx.arc(cx,cy,r-18,0,Math.PI*2);
+    ctx.strokeStyle='rgba(232,186,42,.1)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='rgba(232,186,42,.3)';
+    ctx.font='500 13px DM Sans,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(assignments.every(a=>a!==null)?'¡Itinerario completo! 🌴':'Añadid ideas al bombo →',cx,cy);
+    return;
+  }
+
+  const slice=(Math.PI*2)/pool.length;
+
+  pool.forEach((opt,i)=>{
+    const start=angle+i*slice,end=start+slice;
+    const isHi=i===hiIdx;
+    const mid=start+slice/2;
+    const gx1=cx+(r*.3)*Math.cos(mid),gy1=cy+(r*.3)*Math.sin(mid);
+    const gx2=cx+r*Math.cos(mid),gy2=cy+r*Math.sin(mid);
+    const g=ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+    if(isHi){g.addColorStop(0,opt.color+'ff');g.addColorStop(1,opt.color+'cc')}
+    else    {g.addColorStop(0,opt.color+'cc');g.addColorStop(1,opt.color+'88')}
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+    ctx.fillStyle=g;ctx.fill();
+    if(isHi){
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+      ctx.fillStyle='rgba(255,255,255,.2)';ctx.fill();
+    }
+    /* Gold divider */
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(start);
+    ctx.beginPath();ctx.moveTo(28,0);ctx.lineTo(r,0);
+    ctx.strokeStyle=isHi?'rgba(255,252,190,.7)':'rgba(232,186,42,.38)';
+    ctx.lineWidth=isHi?2:1;ctx.stroke();ctx.restore();
+    /* Outer arc */
+    ctx.beginPath();ctx.arc(cx,cy,r-7,start+.05,end-.05);
+    ctx.strokeStyle=isHi?'rgba(255,252,190,.28)':'rgba(232,186,42,.12)';
+    ctx.lineWidth=4;ctx.stroke();
+    /* Label */
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(start+slice/2);
+    ctx.textAlign='right';ctx.textBaseline='middle';
+    const maxL=pool.length<=6?20:13;
+    const lbl=opt.label.length>maxL?opt.label.slice(0,maxL)+'…':opt.label;
+    const fs=pool.length<=4?13:pool.length<=8?11:9;
+    ctx.font=`600 ${fs}px DM Sans,sans-serif`;
+    ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=6;
+    ctx.fillStyle='rgba(255,248,220,.95)';ctx.fillText(lbl,r-16,0);
+    ctx.restore();
+  });
+
+  /* Rings */
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle='rgba(232,186,42,.42)';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,28,0,Math.PI*2);
+  ctx.strokeStyle='rgba(232,186,42,.28)';ctx.lineWidth=1.5;ctx.stroke();
+}
+
+/* ═══════════════════════════════════════════
+   SPIN
+═══════════════════════════════════════════ */
+function spin(){
+  if(spinning)return;
+  if(!pool.length){
+    toast(assignments.every(a=>a!==null)?'¡Itinerario completo! 🌴🍷':'Añadid actividades al bombo 🌴');
+    return;
+  }
+  /* Determine which day to fill */
+  let dayIdx=spinTarget;
+  if(dayIdx===-1) dayIdx=getNextEmptyDay();
+  if(dayIdx===-1){toast('¡Todos los días tienen actividad! 🎉');return;}
+  if(pool.length<1){toast('Necesitáis al menos 1 actividad en el bombo 🎯');return;}
+
+  spinning=true;
+  $('btn-spin').disabled=true;
+  $('result-box').classList.remove('show');
+
+  const winnerIdx=Math.floor(Math.random()*pool.length);
+  const slice=(Math.PI*2)/pool.length;
+  const extraSpins=(8+Math.floor(Math.random()*5))*Math.PI*2;
+  const targetAngle=(-Math.PI/2)-(currentAngle+winnerIdx*slice+slice/2);
+  const totalDelta=extraSpins+((targetAngle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2);
+  const duration=5000+Math.random()*1600;
+  const startAngle=currentAngle;
+  let startTime=null;
+  const ease=t=>1-Math.pow(1-t,4);
+
+  function frame(ts){
+    if(!startTime)startTime=ts;
+    const p=Math.min((ts-startTime)/duration,1);
+    const angle=startAngle+totalDelta*ease(p);
+    drawWheelAt(angle,p===1?winnerIdx:-1);
+    if(p<1){requestAnimationFrame(frame)}
+    else{
+      currentAngle=angle%(Math.PI*2);
+      drawWheelAt(currentAngle,winnerIdx);
+      pendingResult={activity:pool[winnerIdx],dayIdx};
+      showResult(pendingResult);
+      spinning=false;
+      $('btn-spin').disabled=false;
+      launchConfetti();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ═══════════════════════════════════════════
+   RESULT
+═══════════════════════════════════════════ */
+const EMOJIS=['🎉','🌺','🏄','🌊','🌴','🎊','🥳','🌅','✨','🎯','🦋','🌸','🔥','💫','🍷'];
+
+function showResult({activity,dayIdx}){
+  $('res-emoji').textContent=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+  $('res-text').textContent=activity.label;
+  $('res-day-label').textContent=`→ ${TRIP[dayIdx].label} · ${TRIP[dayIdx].date}`;
+  $('result-box').classList.add('show');
+}
+
+$('btn-confirm').addEventListener('click',()=>{
+  if(!pendingResult)return;
+  assignToDay(pendingResult.dayIdx,pendingResult.activity);
+  spinTarget=-1;pendingResult=null;
+  $('result-box').classList.remove('show');
+  renderAll();
+  const done=assignments.filter(Boolean).length;
+  if(done===6) toast('¡Itinerario completo! 🌴🍷');
+  else         toast('¡Asignado! Selecciona el siguiente día 🎯');
+});
+
+/* ═══════════════════════════════════════════
+   RENDER FUNCTIONS
+═══════════════════════════════════════════ */
+function renderPool(){
+  const ul=$('pool-list'),em=$('empty-pool');
+  ul.innerHTML='';
+  if(!pool.length){em.style.display='';$('pool-count').textContent=0;return;}
+  em.style.display='none';
+  $('pool-count').textContent=pool.length;
+
+  pool.forEach((opt,idx)=>{
+    const li=document.createElement('li');li.className='pool-item';
+    li.draggable=true;li.dataset.idx=idx;
+    li.innerHTML=`<div class="pip" style="background:${opt.color}"></div>
+      <span class="pool-label">${esc(opt.label)}</span>
+      <button class="btn-tiny-map" onclick="showMapModal(findActivityById(${opt.id})?.label||'')" title="Ver en mapa">📍</button>
+      <button class="btn-tiny" onclick="removeFromPool(${opt.id})" title="Quitar">✕</button>`;
+    li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',idx);setTimeout(()=>li.style.opacity='.3',0)});
+    li.addEventListener('dragend',()=>li.style.opacity='');
+    li.addEventListener('dragover',e=>{e.preventDefault();li.classList.add('drag-over')});
+    li.addEventListener('dragleave',()=>li.classList.remove('drag-over'));
+    li.addEventListener('drop',e=>{
+      e.preventDefault();li.classList.remove('drag-over');
+      const from=+e.dataTransfer.getData('text/plain');
+      if(from!==idx){const[item]=pool.splice(from,1);pool.splice(idx,0,item);save();renderPool();}
+    });
+    ul.appendChild(li);
+  });
+}
+
+function renderDayCards(){
+  const dc=$('day-cards');dc.innerHTML='';
+  const filled=assignments.filter(Boolean).length;
+  $('prog-n').textContent=filled;
+  $('prog-bar').style.width=(filled/6*100)+'%';
+
+  /* auto-detect current target */
+  const nextEmpty=getNextEmptyDay();
+  const effectiveTarget=spinTarget!==-1?spinTarget:nextEmpty;
+
+  /* Update badge */
+  const stb=$('stb-text');
+  if(effectiveTarget===-1){
+    stb.textContent='¡Itinerario completo! 🌴🍷';
+  } else {
+    stb.textContent=`Girando para: ${TRIP[effectiveTarget].label} · ${TRIP[effectiveTarget].date}`;
+  }
+
+  TRIP.forEach((day,i)=>{
+    const act=assignments[i];
+    const isTarget=i===effectiveTarget;
+    const card=document.createElement('div');
+    card.className='day-card'+(act?' assigned':'')+(isTarget&&!act?' active-target':'');
+
+    const top=`<div class="day-card-top">
+      <span class="day-num">${day.label}</span>
+      <span class="day-date">${day.date}</span>
+      <span class="day-emoji">${day.emoji}</span>
+    </div>`;
+
+    if(act){
+      card.innerHTML=top+`<div class="day-assigned">
+        <div class="day-activity-pip" style="background:${act.color}"></div>
+        <span class="day-activity-text">${esc(act.label)}</span>
+        <button class="btn-tiny-map" onclick="showMapModal(findActivityById(${act.id})?.label||'${esc(act.label)}')" title="Ver en mapa">📍</button>
+        <button class="btn-respin" title="Volver a girar para este día" onclick="returnToPool(${i})">↺</button>
+      </div>`;
+    } else {
+      const btnCls='btn-select-day'+(isTarget?' is-target':'');
+      card.innerHTML=top+`<div class="day-pending">
+        <span class="pend-icon">✦</span>
+        <span class="pend-text">${isTarget?'Esperando el giro…':'Pendiente'}</span>
+        <button class="${btnCls}" onclick="selectDayTarget(${i})">
+          ${isTarget?'✓ Seleccionado':'Elegir día'}
+        </button>
+      </div>`;
+    }
+    dc.appendChild(card);
+  });
+}
+
+/* ── Google Places API (New) — fotos con navegación ── */
+const GMAPS_KEY = 'AIzaSyBeW6trJdvuP0G6ft2_tUJXrJLi56F2bmk';
+
+// Devuelve datos del lugar: fotos, reservable, websiteUri, displayName, type
+async function fetchPlaceData(query){
+  try{
+    const r = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${GMAPS_KEY}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json',
+               'X-Goog-FieldMask':'places.photos,places.reservable,places.websiteUri,places.displayName,places.primaryTypeDisplayName'},
+      body: JSON.stringify({textQuery:query, languageCode:'es', maxResultCount:1})
+    });
+    const d = await r.json();
+    const place = d?.places?.[0] || {};
+    return {
+      photos:     (place.photos || []).map(p=>({
+                    name:   p.name,
+                    author: p.authorAttributions?.[0]?.displayName || null
+                  })),
+      reservable: place.reservable || false,
+      website:    place.websiteUri || null,
+      displayName: place.displayName?.text || null,
+      type:        place.primaryTypeDisplayName?.text || null
+    };
+  } catch(e){ return {photos:[], reservable:false, website:null, displayName:null, type:null}; }
+}
+
+// Convierte nombre → URI de imagen (con caché)
+const _photoCache = {};
+async function getPhotoUri(name){
+  if(_photoCache[name]) return _photoCache[name];
+  try{
+    const r = await fetch(`https://places.googleapis.com/v1/${name}/media?maxWidthPx=800&skipHttpRedirect=true&key=${GMAPS_KEY}`);
+    const d = await r.json();
+    _photoCache[name] = d?.photoUri || null;
+    return _photoCache[name];
+  } catch(e){ return null; }
+}
+
+function fetchWikiPhoto(article){
+  return fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${article}`)
+    .then(r => r.json())
+    .then(d => d?.thumbnail?.source || d?.originalimage?.source || null)
+    .catch(() => null);
+}
+
+/* ── Suggestion preview modal ── */
+let activeSugg  = null;
+let _photos     = [];   // [{name, author}, ...]
+let _photoIdx   = 0;
+
+function updateNavUI(){
+  const total   = _photos.length;
+  const hasPrev = _photoIdx > 0;
+  const hasNext = _photoIdx < total - 1;
+  $('btn-photo-prev').classList.toggle('visible', total > 1);
+  $('btn-photo-next').classList.toggle('visible', total > 1);
+  $('btn-photo-prev').style.opacity = hasPrev ? '1' : '0.3';
+  $('btn-photo-next').style.opacity = hasNext ? '1' : '0.3';
+  const ctr = $('photo-counter');
+  if(total > 1){ ctr.textContent = `${_photoIdx+1} / ${total}`; ctr.classList.add('visible'); }
+  else          { ctr.classList.remove('visible'); }
+  // Atribución
+  const attr = $('photo-attribution');
+  const author = _photos[_photoIdx]?.author;
+  if(author){ attr.textContent = `📷 ${author} · Google Maps`; attr.classList.add('visible'); }
+  else       { attr.textContent = 'Foto: Google Maps'; attr.classList.add('visible'); }
+}
+
+async function displayPhotoAt(idx){
+  const img = $('sugg-photo');
+  const ph  = $('sugg-placeholder');
+  const uri = await getPhotoUri(_photos[idx].name);
+  if(uri){
+    img.onload  = () => { img.style.display='block'; ph.style.display='none'; };
+    img.onerror = () => {};
+    img.src = uri;
+  }
+  updateNavUI();
+}
+
+$('btn-photo-prev').addEventListener('click', ()=>{
+  if(_photoIdx > 0){ _photoIdx--; displayPhotoAt(_photoIdx); }
+});
+$('btn-photo-next').addEventListener('click', ()=>{
+  if(_photoIdx < _photos.length-1){ _photoIdx++; displayPhotoAt(_photoIdx); }
+});
+
+async function openSuggModal(sugg){
+  activeSugg  = sugg;
+  _photos     = [];
+  _photoIdx   = 0;
+  $('sugg-emoji').textContent = sugg.e;
+  $('sugg-cat').textContent   = sugg.c;
+  $('sugg-name').textContent  = sugg.e + ' ' + sugg.l;
+  $('btn-sugg-map').href      = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
+
+  const img = $('sugg-photo');
+  const ph  = $('sugg-placeholder');
+  img.style.display = 'none';
+  ph.style.display  = 'flex';
+  $('btn-photo-prev').classList.remove('visible');
+  $('btn-photo-next').classList.remove('visible');
+  $('photo-counter').classList.remove('visible');
+  $('photo-attribution').classList.remove('visible');
+  $('btn-sugg-reserve').style.display = 'none';
+  $('sugg-overlay').classList.add('show');
+  updateSaveBtn();
+
+  // 1️⃣ Google Maps Places (fotos + reservable + web)
+  const result = await fetchPlaceData(sugg.m);
+
+  // Botón de reserva
+  if(result.reservable && result.website){
+    const btnR = $('btn-sugg-reserve');
+    btnR.href         = result.website;
+    btnR.style.display = 'flex';
+  }
+
+  if(result.photos.length){
+    _photos   = result.photos;
+    _photoIdx = 0;
+    displayPhotoAt(0);
+    return;
+  }
+
+  // 2️⃣ Wikipedia (fallback)
+  if(sugg.w){
+    const wPhoto = await fetchWikiPhoto(sugg.w);
+    if(wPhoto){
+      img.onload = () => { img.style.display='block'; ph.style.display='none'; };
+      img.src = wPhoto;
+      return;
+    }
+  }
+
+  // 3️⃣ Emoji placeholder (sin foto disponible)
+}
+
+function closeSuggModal(){
+  $('sugg-overlay').classList.remove('show');
+  activeSugg = null;
+}
+
+$('btn-sugg-close').addEventListener('click', closeSuggModal);
+$('sugg-overlay').addEventListener('click', e=>{ if(e.target===$('sugg-overlay')) closeSuggModal(); });
+
+$('btn-sugg-add').addEventListener('click', ()=>{
+  if(!activeSugg) return;
+  addActivity(activeSugg.e + ' ' + activeSugg.l);
+  toast('¡Añadida al bombo! ✦');
+  closeSuggModal();
+});
+
+/* ── Sugerencias guardadas ── */
+let savedSuggs = JSON.parse(localStorage.getItem('bali-saved') || '[]');
+
+function isSaved(sugg){ return savedSuggs.some(s=>s.l===sugg.l); }
+
+function toggleSave(sugg){
+  if(isSaved(sugg)){
+    savedSuggs = savedSuggs.filter(s=>s.l!==sugg.l);
+    toast('Eliminada de guardadas');
+  } else {
+    savedSuggs.push(sugg);
+    toast('💾 ¡Guardada!');
+  }
+  localStorage.setItem('bali-saved', JSON.stringify(savedSuggs));
+  renderSavedChips();
+  updateSaveBtn();
+}
+
+function updateSaveBtn(){
+  if(!activeSugg) return;
+  const btn = $('btn-sugg-save');
+  const saved = isSaved(activeSugg);
+  btn.textContent = saved ? '✓ Guardada' : '💾 Guardar';
+  btn.classList.toggle('saved', saved);
+}
+
+function renderSavedChips(){
+  const c   = $('saved-chips');
+  const sec = $('saved-section');
+  c.innerHTML = '';
+  if(!savedSuggs.length){ sec.style.display='none'; return; }
+  sec.style.display = '';
+  savedSuggs.forEach(s=>{
+    const b = document.createElement('button');
+    b.className = 'chip saved-chip';
+    b.innerHTML = `${s.e} ${s.l}<span class="chip-remove" title="Quitar">✕</span>`;
+    b.addEventListener('click', e=>{
+      if(e.target.classList.contains('chip-remove')){ toggleSave(s); return; }
+      openSuggModal(s);
+    });
+    c.appendChild(b);
+  });
+}
+
+$('btn-sugg-save').addEventListener('click', ()=>{
+  if(!activeSugg) return;
+  toggleSave(activeSugg);
+});
+
+/* ── Buscador Google Maps → modal ── */
+async function searchAndOpen(query){
+  query = query.trim();
+  if(!query) return;
+  const btn = $('btn-sugg-search');
+  btn.textContent = '…';
+  btn.disabled = true;
+  const result = await fetchPlaceData(query);
+  btn.textContent = 'Buscar';
+  btn.disabled = false;
+  const name = result.displayName || query;
+  const cat  = result.type || 'Lugar en Bali';
+  const sugg = {l: name, e: '📍', c: cat, m: query, w: null, _result: result};
+  openSuggModalWithData(sugg, result);
+}
+
+async function openSuggModalWithData(sugg, result){
+  activeSugg  = sugg;
+  _photos     = [];
+  _photoIdx   = 0;
+  $('sugg-emoji').textContent = sugg.e;
+  $('sugg-cat').textContent   = sugg.c;
+  $('sugg-name').textContent  = sugg.e + ' ' + sugg.l;
+  $('btn-sugg-map').href      = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sugg.m)}`;
+
+  const img = $('sugg-photo');
+  const ph  = $('sugg-placeholder');
+  img.style.display = 'none';
+  ph.style.display  = 'flex';
+  $('btn-photo-prev').classList.remove('visible');
+  $('btn-photo-next').classList.remove('visible');
+  $('photo-counter').classList.remove('visible');
+  $('photo-attribution').classList.remove('visible');
+  $('btn-sugg-reserve').style.display = 'none';
+  $('sugg-overlay').classList.add('show');
+  updateSaveBtn();
+
+  if(result.reservable && result.website){
+    const btnR = $('btn-sugg-reserve');
+    btnR.href = result.website;
+    btnR.style.display = 'flex';
+  }
+  if(result.photos.length){
+    _photos   = result.photos;
+    _photoIdx = 0;
+    displayPhotoAt(0);
+  }
+}
+
+$('btn-sugg-search').addEventListener('click', ()=>{
+  searchAndOpen($('sugg-search').value);
+});
+$('sugg-search').addEventListener('keydown', e=>{
+  if(e.key==='Enter') searchAndOpen($('sugg-search').value);
+});
+
+/* ── Selección al azar: carga sugerencias en el bombo y gira para el día seleccionado ── */
+let autoSpinMode = false; // reservado, ya no se usa en auto
+
+function generatePicks(){
+  const universe = [...SUGGESTIONS, ...savedSuggs.filter(s=>!SUGGESTIONS.find(x=>x.l===s.l))];
+  return [...universe].sort(()=>Math.random()-0.5);
+}
+
+function pickRandom(){
+  // Si el bombo está vacío, carga sugerencias aleatorias
+  if(!pool.length){
+    generatePicks().forEach((sugg, i)=>{
+      pool.push({id:nextId++, label:sugg.e+' '+sugg.l, color:PALETTE[i%PALETTE.length]});
+    });
+    save();
+    renderAll();
+    toast('🎲 Sugerencias cargadas — ¡gira!');
+    return;
+  }
+  // Si ya hay bombo, gira directamente para el día seleccionado (o el siguiente libre)
+  spin();
+}
+
+$('btn-random').addEventListener('click', pickRandom);
+$('btn-plan-ok').addEventListener('click', ()=>{});     // reservado
+$('btn-plan-reroll').addEventListener('click', ()=>{});  // reservado
+$('plan-overlay').addEventListener('click', e=>{
+  if(e.target===$('plan-overlay')) $('plan-overlay').classList.remove('show');
+});
+
+/* ── Cerrar sesión ── */
+$('btn-logout').addEventListener('click', ()=>{
+  if(!confirm('¿Cerrar sesión?')) return;
+  sessionStorage.removeItem('bali-auth');
+  sessionStorage.removeItem('bali-user');
+  location.reload();
+});
+
+function renderSuggestions(){
+  const c=$('chips');
+  SUGGESTIONS.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='chip';
+    b.textContent=s.e+' '+s.l;
+    b.addEventListener('click', ()=> openSuggModal(s));
+    c.appendChild(b);
+  });
+  renderSavedChips();
+}
+
+function renderAll(){
+  renderPool();
+  drawWheelAt(currentAngle,-1);
+  renderDayCards();
+}
+
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+function launchConfetti(){
+  const cols=['#D4622A','#E8B820','#2A9E8A','#D4A220','#FFD060','#B83050','#28926A'];
+  for(let i=0;i<80;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='confetti-piece';
+      const c=Math.random()>.5,sz=5+Math.random()*8;
+      el.style.cssText=`left:${Math.random()*100}vw;background:${cols[Math.floor(Math.random()*cols.length)]};width:${sz}px;height:${c?sz:(10+Math.random()*10)}px;border-radius:${c?'50%':'2px'};animation-duration:${1.8+Math.random()*2.2}s;transform:rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(el);setTimeout(()=>el.remove(),4500);
+    },Math.random()*700);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   EVENTS
+═══════════════════════════════════════════ */
+$('btn-add').addEventListener('click',()=>{
+  const i=$('option-input');addActivity(i.value);i.value='';i.focus();
+});
+$('option-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){addActivity(e.target.value);e.target.value=''}
+});
+$('btn-spin').addEventListener('click',spin);
+$('btn-reset').addEventListener('click',()=>{
+  if(!assignments.some(Boolean)&&!pool.length){toast('No hay nada que reiniciar 😊');return}
+  if(!confirm('¿Borrar todo? Se eliminará el bombo y el itinerario completo.'))return;
+  pool=[];assignments=new Array(6).fill(null);nextId=1;
+  spinTarget=-1;pendingResult=null;autoSpinMode=false;
+  $('result-box').classList.remove('show');
+  save();renderAll();toast('✓ Todo borrado');
+});
+
+/* ═══════════════════════════════════════════
+   INIT  (async por Supabase)
+═══════════════════════════════════════════ */
+(async()=>{
+  // Reset único: limpia el estado guardado de pruebas
+  if(!localStorage.getItem('bali-clean-v1')){
+    pool=[];assignments=new Array(6).fill(null);nextId=1;
+    await save();
+    localStorage.setItem('bali-clean-v1','1');
+  } else {
+    await load();
+  }
+  renderAll();
+  renderSuggestions();
+})();
+
+/* ═══════════════════════════════════════════
+   GOOGLE MAPS
+═══════════════════════════════════════════ */
+/* Lugares conocidos de Bali → query optimizada */
+const BALI_PLACES = [
+  ['tanah lot',         'Tanah Lot Temple Bali'],
+  ['ubud',              'Ubud Bali'],
+  ['kuta',              'Kuta Beach Bali'],
+  ['seminyak',          'Seminyak Beach Bali'],
+  ['nusa penida',       'Nusa Penida Island Bali'],
+  ['nusa lembongan',    'Nusa Lembongan Bali'],
+  ['tegalalang',        'Tegalalang Rice Terrace Ubud Bali'],
+  ['monte batur',       'Mount Batur Volcano Bali'],
+  ['mount batur',       'Mount Batur Volcano Bali'],
+  ['batur',             'Mount Batur Volcano Bali'],
+  ['gitgit',            'Gitgit Waterfall Bali'],
+  ['lempuyang',         'Pura Lempuyang Bali'],
+  ['monos',             'Sacred Monkey Forest Ubud Bali'],
+  ['monkey forest',     'Sacred Monkey Forest Ubud Bali'],
+  ['ayung',             'Ayung River Rafting Bali'],
+  ['tulamben',          'Tulamben USAT Liberty Shipwreck Bali'],
+  ['kecak',             'Uluwatu Temple Kecak Dance Bali'],
+  ['uluwatu',           'Uluwatu Temple Bali'],
+  ['surf',              'Kuta Surf Beach Bali'],
+  ['spa',               'Ubud Spa Bali'],
+  ['yoga',              'The Yoga Barn Ubud Bali'],
+  ['cooking',           'Ubud Cooking Class Bali'],
+  ['mercado',           'Ubud Market Bali'],
+  ['market',            'Ubud Market Bali'],
+  ['snorkel',           'Nusa Penida Snorkeling Bali'],
+  ['buceo',             'Tulamben Diving Bali'],
+  ['diving',            'Tulamben Diving Bali'],
+  ['rafting',           'Ayung River Rafting Bali'],
+  ['scooter',           'Ubud Bali'],
+  ['amanecer',          'Mount Batur Sunrise Bali'],
+  ['sunrise',           'Mount Batur Sunrise Bali'],
+  ['atardecer',         'Tanah Lot Sunset Bali'],
+  ['sunset',            'Tanah Lot Sunset Bali'],
+  ['cascada',           'Gitgit Waterfall Bali'],
+  ['waterfall',         'Nungnung Waterfall Bali'],
+  ['pintura',           'Ubud Art Village Bali'],
+  ['cena',              'Jimbaran Bay Seafood Bali'],
+  ['pura',              'Pura Besakih Temple Bali'],
+  ['templo',            'Pura Besakih Temple Bali'],
+  // ── Beach clubs ──
+  ['sundays beach',     'Sundays Beach Club Uluwatu Bali'],
+  ['savaya',            'Savaya Bali Uluwatu'],
+  ['single fin',        'Single Fin Uluwatu Bali'],
+  ['palmilla',          'Palmilla Bali Uluwatu'],
+  ['kabron',            'El Kabron Bali Uluwatu'],
+  ['minoo',             'Minoo Beach Club Bali'],
+  // ── Playas Uluwatu ──
+  ['padang padang',     'Padang Padang Beach Bali'],
+  ['thomas beach',      'Thomas Beach Uluwatu Bali'],
+  ['bingin',            'Bingin Beach Uluwatu Bali'],
+  ['melasti',           'Melasti Beach Bali'],
+  ['nyang nyang',       'Nyang Nyang Beach Bali'],
+  // ── Restaurantes & cafés ──
+  ['the cave',          'The Cave Bali Uluwatu'],
+  ['mana uluwatu',      'Mana Uluwatu Bali'],
+  ['tabu',              'Tabu Uluwatu Bali'],
+  ['suka espresso',     'Suka Espresso Bali'],
+  ['rolling fork',      'Rolling Fork Bali'],
+];
+
+function getMapQuery(label){
+  const low = label.toLowerCase();
+  for(const [key, query] of BALI_PLACES){
+    if(low.includes(key)) return query;
+  }
+  return label + ' Bali';
+}
+
+function showMapModal(label){
+  const query  = getMapQuery(label);
+  const enc    = encodeURIComponent(query);
+  const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${enc}`;
+  const embedUrl = `https://maps.google.com/maps?q=${enc}&output=embed&hl=es`;
+
+  $('map-card-title').textContent   = '📍 ' + label;
+  $('btn-open-maps').href  = mapsUrl;
+  $('btn-open-gmaps').href = mapsUrl;
+
+  const iframe   = $('map-iframe');
+  const loading  = $('map-loading');
+  iframe.style.opacity = '0';
+  loading.style.display = 'flex';
+  iframe.onload = ()=>{ iframe.style.opacity='1'; loading.style.display='none'; };
+  iframe.onerror = ()=>{ loading.innerHTML='⚠️ <span>Activa "Maps Embed API" en Google Cloud Console</span>'; };
+  iframe.src = embedUrl;
+
+  $('map-overlay').classList.add('show');
+}
+
+function closeMapModal(){
+  $('map-overlay').classList.remove('show');
+  // reset iframe to stop loading / avoid memory
+  setTimeout(()=>{ $('map-iframe').src=''; }, 400);
+}
+
+$('btn-map-close').addEventListener('click', closeMapModal);
+$('map-overlay').addEventListener('click', e=>{ if(e.target===$('map-overlay')) closeMapModal(); });
+
+/* Helper: busca actividad por id en pool + assignments */
+function findActivityById(id){
+  return pool.find(p=>p.id===id) || assignments.find(a=>a&&a.id===id);
+}
+
+/* Botón mapa en result box */
+$('btn-map-result').addEventListener('click', ()=>{
+  if(pendingResult) showMapModal(pendingResult.activity.label);
+});
+
+/* ═══════════════════════════════════════════
+   CHAT
+═══════════════════════════════════════════ */
+(()=>{
+  /* ── State ── */
+  let chatOpen   = false;
+  let chatUser   = sessionStorage.getItem('chat-user') || null;
+  let unread     = 0;
+  const seenIds  = new Set();
+  let lastDate   = '';
+
+  /* ── Elements ── */
+  const fab        = $('chat-fab');
+  const panel      = $('chat-panel');
+  const badgeEl    = $('chat-badge');
+  const msgsEl     = $('chat-messages');
+  const emptyEl    = $('chat-empty');
+  const textarea   = $('chat-textarea');
+  const isSuggCb  = $('chat-is-suggestion');
+  const picker     = $('user-picker');
+  const userLabel  = $('chat-user-label');
+
+  /* ── User label ── */
+  function refreshUserLabel(){
+    userLabel.textContent = chatUser ? '👤 ' + chatUser : '';
+  }
+  refreshUserLabel();
+
+  /* ── Open / Close ── */
+  function openChat(){
+    chatOpen = true;
+    panel.classList.add('open');
+    unread = 0;
+    badgeEl.textContent = '';
+    badgeEl.classList.remove('show');
+    scrollBottom(true);
+    setTimeout(()=>textarea.focus(), 350);
+  }
+  function closeChat(){
+    chatOpen = false;
+    panel.classList.remove('open');
+  }
+
+  fab.addEventListener('click', ()=>{
+    if (!chatUser){ picker.style.display = 'flex'; return; }
+    chatOpen ? closeChat() : openChat();
+  });
+  $('btn-chat-close').addEventListener('click', closeChat);
+
+  /* ── Borrar chat ── */
+  $('btn-chat-clear').addEventListener('click', async ()=>{
+    if(!confirm('¿Borrar todos los mensajes del chat? No se puede deshacer 🗑️')) return;
+    try{
+      const {error} = await sb.from('bali_chat').delete().neq('id','00000000-0000-0000-0000-000000000000');
+      if(error) throw error;
+      // limpiar UI
+      msgsEl.innerHTML = '';
+      msgsEl.appendChild(emptyEl);
+      emptyEl.style.display = 'flex';
+      seenIds.clear();
+      lastDate = '';
+      unread = 0;
+      badgeEl.textContent = '';
+      badgeEl.classList.remove('show');
+      toast('Chat borrado 🗑️');
+    } catch(e){
+      toast('Error al borrar 😕');
+      console.warn('Chat clear error:', e);
+    }
+  });
+
+  // Click on user label → re-pick
+  userLabel.addEventListener('click', ()=>{ picker.style.display = 'flex'; });
+
+  /* ── User picker ── */
+  picker.querySelectorAll('.btn-user-pick').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      chatUser = btn.dataset.user;
+      sessionStorage.setItem('chat-user', chatUser);
+      picker.style.display = 'none';
+      refreshUserLabel();
+      openChat();
+    });
+  });
+  // Click outside card closes picker
+  picker.addEventListener('click', e=>{ if(e.target===picker) picker.style.display='none'; });
+
+  /* ── Helpers ── */
+  function fmtTime(ts){
+    return new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  }
+  function fmtDate(ts){
+    return new Date(ts).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  }
+  function scrollBottom(force=false){
+    const slack = msgsEl.scrollHeight - msgsEl.scrollTop - msgsEl.clientHeight;
+    if(force || slack < 140) msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  /* ── Render one message ── */
+  function renderMsg(msg){
+    if(seenIds.has(msg.id)) return;
+    seenIds.add(msg.id);
+
+    const mine = msg.author === chatUser;
+    const dateStr = fmtDate(msg.created_at);
+
+    // Date separator
+    if(dateStr !== lastDate){
+      const sep = document.createElement('div');
+      sep.className = 'chat-date-sep';
+      sep.textContent = dateStr;
+      msgsEl.appendChild(sep);
+      lastDate = dateStr;
+    }
+
+    // Hide empty state
+    emptyEl.style.display = 'none';
+
+    // Bubble
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-bubble ' + (mine ? 'mine' : 'theirs') +
+                     (msg.is_suggestion ? ' suggestion' : '');
+
+    const sugPrefix = msg.is_suggestion ? '💡 ' : '';
+
+    wrap.innerHTML = `
+      <div class="bubble-author">${esc(msg.author)}</div>
+      <div class="bubble-body">${sugPrefix}${esc(msg.message)}</div>
+      <div class="bubble-time">${fmtTime(msg.created_at)}</div>
+      ${msg.is_suggestion ? `<button class="btn-add-suggestion">➕ Añadir al bombo</button>` : ''}
+    `;
+
+    if(msg.is_suggestion){
+      const addBtn = wrap.querySelector('.btn-add-suggestion');
+      addBtn.addEventListener('click', ()=>{
+        addActivity(msg.message);
+        toast('¡Sugerencia añadida al bombo! 🎰');
+        addBtn.textContent = '✓ Añadida';
+        addBtn.disabled = true;
+      });
+    }
+
+    msgsEl.appendChild(wrap);
+  }
+
+  /* ── Load messages (from optional timestamp onwards) ── */
+  async function loadMessages(since = null){
+    try{
+      let q = sb.from('bali_chat').select('*').order('created_at', {ascending: true});
+      if(since){
+        q = q.gt('created_at', since);
+      } else {
+        q = q.limit(80);
+      }
+      const {data, error} = await q;
+      if(error) throw error;
+      if(data && data.length){
+        lastDate = since ? lastDate : '';   // keep date header state on poll
+        data.forEach(m => renderMsg(m));
+        if(!since) scrollBottom(true);
+        else scrollBottom();
+      }
+    } catch(e){ console.warn('Chat load error:', e); }
+  }
+
+  /* ── Polling fallback (every 5 s) — funciona siempre ── */
+  let lastPollTs = new Date().toISOString();
+  async function poll(){
+    const ts = lastPollTs;
+    lastPollTs = new Date().toISOString();
+    try{
+      const {data, error} = await sb.from('bali_chat')
+        .select('*')
+        .gt('created_at', ts)
+        .order('created_at', {ascending: true});
+      if(error) throw error;
+      if(data && data.length){
+        data.forEach(m => {
+          if(!seenIds.has(m.id)){
+            renderMsg(m);
+            scrollBottom();
+            if(!chatOpen || m.author !== chatUser){
+              unread++;
+              badgeEl.textContent = unread > 9 ? '9+' : unread;
+              badgeEl.classList.add('show');
+            }
+          }
+        });
+      }
+    } catch(_){}
+  }
+  setInterval(poll, 5000);
+
+  /* ── Send message ── */
+  async function sendMessage(){
+    const text = textarea.value.trim();
+    if(!text) return;
+    if(!chatUser){ picker.style.display = 'flex'; return; }
+    const isSugg = isSuggCb.checked;
+
+    textarea.value = '';
+    textarea.style.height = 'auto';
+
+    try{
+      const {error} = await sb.from('bali_chat').insert({
+        author: chatUser,
+        message: text,
+        is_suggestion: isSugg
+      });
+      if(error) throw error;
+      // tras enviar, forzamos un poll inmediato para que aparezca al instante
+      await poll();
+    } catch(e){
+      toast('Error enviando mensaje 😕');
+      textarea.value = text;
+      console.warn('Chat send error:', e);
+    }
+  }
+
+  /* ── Realtime subscription (bonus si está activado en Supabase) ── */
+  sb.channel('bali_chat_live')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'bali_chat'},
+      payload => {
+        const msg = payload.new;
+        if(seenIds.has(msg.id)) return;   // ya lo trajo el polling
+        renderMsg(msg);
+        scrollBottom();
+        if(!chatOpen || msg.author !== chatUser){
+          unread++;
+          badgeEl.textContent = unread > 9 ? '9+' : unread;
+          badgeEl.classList.add('show');
+        }
+      }
+    )
+    .subscribe();
+
+  /* ── Input events ── */
+  $('btn-chat-send').addEventListener('click', sendMessage);
+  textarea.addEventListener('keydown', e=>{
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  });
+  textarea.addEventListener('input', ()=>{
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 90) + 'px';
+  });
+
+  /* ── Init ── */
+  loadMessages();
+})();
+
+/* ══════════════════════════════════════════════════════
+   RUSHFLIX
+══════════════════════════════════════════════════════ */
+const rushflix = (()=>{
+  const STORAGE_KEY = 'rushflix_custom_v1';
+  let _currentUrl = '';
+  let _currentName = '';
+
+  function _el(id){ return document.getElementById(id); }
+
+  /* ── abrir hub ── */
+  function open(){
+    _el('rushflix-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    renderCustom();
+    // Re-dispara animación del logo
+    const logo = document.querySelector('.rfx-logo');
+    if(logo){
+      logo.style.animation='none';logo.style.textShadow='none';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        logo.style.animation='';logo.style.textShadow='';
+      }));
+    }
+    // Comprobar IP / VPN
+    checkVPN();
+    testProxy();
+  }
+
+  /* ── detección de país via IP ── */
+  async function checkVPN(){
+    const dot   = _el('rfx-vpn-dot');
+    const title = _el('rfx-vpn-panel-title');
+    const sub   = _el('rfx-vpn-panel-sub');
+    const tag   = _el('rfx-vpn-status-tag');
+    const steps = _el('rfx-setup-steps');
+    const okMsg = _el('rfx-vpn-ok');
+    if(!dot) return;
+
+    dot.className='rfx-vpn-dot checking';
+    title.textContent='Comprobando tu ubicación…';
+    sub.textContent='Detectando IP y país…';
+    if(tag) tag.textContent='⚡ Comprobando…';
+
+    try{
+      const res  = await fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(5000)});
+      const data = await res.json();
+      const country = data.country_code; // 'ES', 'AU', etc.
+      const city    = data.city || '';
+      const ip      = data.ip  || '';
+
+      if(country==='ES'){
+        // VPN activa o usuario en España
+        dot.className='rfx-vpn-dot ok';
+        title.textContent='✅ IP española detectada — listo para ver HBO';
+        sub.textContent=`${city}, España · ${ip}`;
+        if(tag){ tag.textContent='🇪🇸 VPN España activa'; tag.style.color='#2ecc71'; }
+        if(steps) steps.style.display='none';
+        if(okMsg) okMsg.style.display='block';
+      } else {
+        // Fuera de España
+        dot.className='rfx-vpn-dot fail';
+        title.textContent=`❌ IP de ${data.country_name||country} — HBO bloqueará el acceso`;
+        sub.textContent=`Tu IP actual: ${ip} · Sigue los pasos de abajo para conectar a España`;
+        if(tag){ tag.textContent='🔒 Necesitas VPN España'; tag.style.color='#e74c3c'; }
+        if(steps) steps.style.display='block';
+        if(okMsg) okMsg.style.display='none';
+      }
+    } catch(e){
+      dot.className='rfx-vpn-dot fail';
+      title.textContent='No se pudo comprobar la IP';
+      sub.textContent='Activa la VPN manualmente y abre HBO';
+      if(tag) tag.textContent='⚠️ Sin verificar';
+    }
+  }
+
+  /* ── lanzar HBO con aviso si no hay VPN ── */
+  function launchHBO(){
+    const dot = _el('rfx-vpn-dot');
+    const isSpain = dot?.classList.contains('ok');
+    if(!isSpain){
+      // Avisar pero dejar pasar igual
+      _showLaunchToast('Max (activa la VPN España primero)');
+      setTimeout(()=>{ window.open('https://play.max.com','_blank','noopener'); }, 800);
+    } else {
+      launch('Max · HBO España','https://play.max.com');
+    }
+  }
+
+  /* ══ CONFIGURACIÓN PROXY RUSHFLIX ══
+     Cuando tengas el VPS en Vultr Madrid:
+     1. Reemplaza PROXY_HOST con tu IP del servidor
+     2. Reemplaza PROXY_USER y PROXY_PASS con tus credenciales de 3proxy
+  */
+  const PROXY_CFG = {
+    host: '208.85.23.122',
+    port: 80,
+    user: 'ruslan',
+    pass: 'sf09dy7H5gkzSrt9',
+    pac:  'https://ruleta.vercel.app/rushflix.pac',
+  };
+
+  function _proxyReady(){ return PROXY_CFG.host !== 'PENDIENTE'; }
+
+  function _renderProxyUI(){
+    const pacEl    = document.getElementById('rfx-pac-url');
+    const proxyEl  = document.getElementById('rfx-proxy-addr');
+    const credsEl  = document.getElementById('rfx-proxy-creds');
+    if(_proxyReady()){
+      if(pacEl)   pacEl.textContent   = PROXY_CFG.pac;
+      if(proxyEl) proxyEl.textContent = `${PROXY_CFG.host}:${PROXY_CFG.port}`;
+      if(credsEl) credsEl.innerHTML   =
+        `Usuario: <strong style="color:#fff">${PROXY_CFG.user}</strong> &nbsp;·&nbsp; Contraseña: <strong style="color:#fff">${PROXY_CFG.pass}</strong>`;
+    }
+  }
+
+  async function testProxy(){
+    if(!_proxyReady()){
+      const dot = document.getElementById('rfx-proxy-dot');
+      const txt = document.getElementById('rfx-proxy-ping-txt');
+      if(dot){ dot.className='rfx-vpn-dot fail'; }
+      if(txt) txt.textContent = '⚠️ Servidor no configurado todavía — sigue la guía de setup';
+      return;
+    }
+    const dot = document.getElementById('rfx-proxy-dot');
+    const txt = document.getElementById('rfx-proxy-ping-txt');
+    if(dot) dot.className='rfx-vpn-dot checking';
+    if(txt) txt.textContent = 'Comprobando servidor…';
+    try{
+      const t0 = Date.now();
+      await fetch(`http://${PROXY_CFG.host}/rushflix.pac`,
+        {signal: AbortSignal.timeout(4000), mode:'no-cors'});
+      const ms = Date.now()-t0;
+      if(dot){ dot.className='rfx-vpn-dot ok'; }
+      if(txt) txt.textContent = `Servidor activo · ${ms}ms de latencia`;
+    } catch(e){
+      if(dot){ dot.className='rfx-vpn-dot fail'; }
+      if(txt) txt.textContent = 'Servidor no alcanzable — comprueba que está encendido';
+    }
+  }
+
+  function copyPAC(){
+    const val = _proxyReady() ? PROXY_CFG.pac : '(servidor pendiente de configurar)';
+    navigator.clipboard?.writeText(val).then(()=>_showLaunchToast('PAC URL copiada'));
+  }
+  function copyProxy(){
+    const val = _proxyReady() ? `${PROXY_CFG.host}:${PROXY_CFG.port}` : '(servidor pendiente)';
+    navigator.clipboard?.writeText(val).then(()=>_showLaunchToast('Proxy copiado'));
+  }
+  function openChromeProxy(){
+    // macOS: abre System Preferences → Network → Proxy
+    window.open('x-apple.systempreferences:com.apple.preference.network','_self');
+    setTimeout(()=>_showLaunchToast('Ve a Red → Proxy → URL automática'),300);
+  }
+
+  /* ── abrir extensiones VPN (fallback) ── */
+  const VPN_LINKS = {
+    nordvpn:  'https://chrome.google.com/webstore/detail/nordvpn/fjoaledfpmneenckfbpdfhkmimnjocfa',
+    surfshark:'https://chrome.google.com/webstore/detail/surfshark/ailoabdmgclmfmhdagmlohpjlbpffblp',
+    router:   'https://support.nordvpn.com/hc/es-es/articles/20310734619537',
+  };
+  function openExt(key){
+    const url = VPN_LINKS[key];
+    if(url) window.open(url,'_blank','noopener');
+  }
+
+  /* ── cerrar hub ── */
+  function close(){
+    _el('rushflix-overlay').classList.remove('open');
+    document.body.style.overflow='';
+    closeViewer();
+  }
+
+  /* ── lanzar plataforma ── */
+  function launch(name, url){
+    // Las plataformas bloquean iframes — abrimos directamente
+    window.open(url, '_blank', 'noopener');
+    // Feedback visual en la card
+    _showLaunchToast(name);
+  }
+
+  function _showLaunchToast(name){
+    const existing = document.getElementById('rfx-launch-toast');
+    if(existing) existing.remove();
+    const t = document.createElement('div');
+    t.id = 'rfx-launch-toast';
+    t.style.cssText = `
+      position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:rgba(20,20,28,.95);border:1px solid rgba(255,255,255,.12);
+      color:#fff;padding:12px 24px;border-radius:50px;font-size:.78rem;
+      letter-spacing:.06em;z-index:99999;opacity:0;transition:all .3s;
+      pointer-events:none;backdrop-filter:blur(12px);white-space:nowrap;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+    `;
+    t.innerHTML = `▶ Abriendo <strong>${name}</strong> en nueva pestaña…`;
+    document.body.appendChild(t);
+    requestAnimationFrame(()=>{
+      t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+    });
+    setTimeout(()=>{
+      t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)';
+      setTimeout(()=>t.remove(), 350);
+    }, 2500);
+  }
+
+  function closeViewer(){} // no-op, kept for compatibility
+  function openTab(){}
+
+  /* ── Mi lista custom ── */
+  function loadCustom(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
+    catch{ return []; }
+  }
+  function saveToStorage(list){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+  function renderCustom(){
+    const list = loadCustom();
+    const grid = _el('rfx-custom-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+
+    list.forEach((item, i)=>{
+      const card = document.createElement('div');
+      card.className = 'rfx-card';
+      card.style.cssText = `background:linear-gradient(135deg,#111,#1e1e2a)`;
+      card.innerHTML = `
+        <div class="rfx-card-bg" style="background:#0e0e18">
+          <div class="rfx-card-logo" style="font-size:2.2rem">${item.emoji||'🔗'}</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">${item.name}</div>
+          <div class="rfx-card-type">${new URL(item.url).hostname}</div>
+        </div>
+        <button onclick="event.stopPropagation();rushflix.removeCustom(${i})" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:none;color:rgba(255,255,255,.5);border-radius:50%;width:24px;height:24px;font-size:.7rem;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;transition:background .2s" onmouseover="this.style.background='rgba(180,20,20,.7)'" onmouseout="this.style.background='rgba(0,0,0,.6)'">✕</button>`;
+      card.addEventListener('click', ()=> launch(item.name, item.url));
+      grid.appendChild(card);
+    });
+
+    // botón añadir
+    const addCard = document.createElement('div');
+    addCard.className = 'rfx-add-card';
+    addCard.onclick = openAddModal;
+    addCard.innerHTML = `<span class="rfx-add-icon">+</span><span>Añadir plataforma</span>`;
+    grid.appendChild(addCard);
+  }
+
+  function removeCustom(i){
+    const list = loadCustom();
+    list.splice(i, 1);
+    saveToStorage(list);
+    renderCustom();
+  }
+
+  function openAddModal(){
+    _el('rfx-add-modal').classList.add('open');
+    setTimeout(()=>_el('rfx-add-name').focus(), 100);
+  }
+  function closeAddModal(){
+    _el('rfx-add-modal').classList.remove('open');
+    _el('rfx-add-name').value='';
+    _el('rfx-add-url').value='';
+    _el('rfx-add-emoji').value='';
+  }
+  function saveCustom(){
+    const name  = _el('rfx-add-name').value.trim();
+    const url   = _el('rfx-add-url').value.trim();
+    const emoji = _el('rfx-add-emoji').value.trim()||'🔗';
+    if(!name||!url) return;
+    let fullUrl = url;
+    if(!/^https?:\/\//i.test(fullUrl)) fullUrl = 'https://'+fullUrl;
+    try{ new URL(fullUrl); } catch{ alert('URL no válida'); return; }
+    const list = loadCustom();
+    list.push({name, url:fullUrl, emoji});
+    saveToStorage(list);
+    closeAddModal();
+    renderCustom();
+  }
+
+  // cerrar con Escape
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){
+      if(_el('rfx-add-modal').classList.contains('open')){ closeAddModal(); return; }
+      if(_el('rfx-viewer').classList.contains('active')){ closeViewer(); return; }
+      if(_el('rushflix-overlay').classList.contains('open')){ close(); }
+    }
+  });
+
+  // Init proxy UI
+  _renderProxyUI();
+
+  return {open, close, launch, launchHBO, openExt, closeViewer, openTab,
+          saveCustom, closeAddModal, openAddModal, removeCustom, renderCustom,
+          testProxy, copyPAC, copyProxy, openChromeProxy};
+})();
+
+</script>
+
+<!-- ══════════════════════════════════════
+     RUSHFLIX — botón
+══════════════════════════════════════ -->
+<button class="btn-rushflix" onclick="rushflix.open()">
+  <span class="btn-rushflix-ico">🎬</span> Rushflix
+</button>
+
+<!-- ══════════════════════════════════════
+     RUSHFLIX — overlay
+══════════════════════════════════════ -->
+<div id="rushflix-overlay">
+
+
+  <!-- Hub principal -->
+  <div class="rfx-header">
+    <div>
+      <div class="rfx-logo" data-text="Rushflix">Rushflix</div>
+      <div class="rfx-cafe">Con un buen café todo es posible!!</div>
+    </div>
+    <button class="rfx-close" onclick="rushflix.close()">✕ Salir</button>
+  </div>
+
+  <div class="rfx-body" id="rfx-body">
+
+    <!-- Plataformas predefinidas -->
+    <div class="rfx-section-title">Plataformas</div>
+    <div class="rfx-grid" id="rfx-platforms-grid">
+
+      <div class="rfx-card rfx-card-hbo" onclick="rushflix.launchHBO()">
+        <div class="rfx-card-bg" style="background:linear-gradient(135deg,#0f0720,#2a0e52)">
+          <div class="rfx-card-logo" style="font-size:2.6rem;color:#fff;letter-spacing:-.05em">max</div>
+        </div>
+        <div class="rfx-card-overlay"></div>
+        <div class="rfx-card-play">▶</div>
+        <div class="rfx-card-footer">
+          <div class="rfx-card-name">Max · HBO España</div>
+          <div class="rfx-card-type rfx-vpn-status" id="rfx-vpn-status-tag">⚡ Comprobando VPN…</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Panel VPN España -->
+    <div class="rfx-vpn-panel" id="rfx-vpn-panel">
+
+      <div class="rfx-vpn-panel-header">
+        <div class="rfx-vpn-dot" id="rfx-vpn-dot"></div>
+        <div>
+          <div class="rfx-vpn-panel-title" id="rfx-vpn-panel-title">Verificando tu ubicación…</div>
+          <div class="rfx-vpn-panel-sub" id="rfx-vpn-panel-sub"></div>
+        </div>
+      </div>
+
+      <!-- Proxy Rushflix España -->
+      <div id="rfx-setup-steps">
+        <div class="rfx-step-title">Proxy Rushflix · España · Configuración única</div>
+
+        <div class="rfx-proxy-box">
+          <div class="rfx-proxy-status" id="rfx-proxy-ping">
+            <div class="rfx-vpn-dot checking" id="rfx-proxy-dot"></div>
+            <span id="rfx-proxy-ping-txt">Comprobando servidor proxy…</span>
+            <button class="rfx-step-btn" style="margin-left:auto" onclick="rushflix.testProxy()">↺ Recomprobar</button>
+          </div>
+
+          <div class="rfx-proxy-info">
+            <div class="rfx-proxy-row">
+              <span class="rfx-proxy-label">PAC URL</span>
+              <code class="rfx-proxy-val" id="rfx-pac-url">⏳ Pendiente de configurar servidor</code>
+              <button class="rfx-copy-btn" onclick="rushflix.copyPAC()" id="rfx-copy-pac">Copiar</button>
+            </div>
+            <div class="rfx-proxy-row">
+              <span class="rfx-proxy-label">Proxy directo</span>
+              <code class="rfx-proxy-val" id="rfx-proxy-addr">⏳ Pendiente de configurar servidor</code>
+              <button class="rfx-copy-btn" onclick="rushflix.copyProxy()" id="rfx-copy-proxy">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rfx-step-title" style="margin-top:20px">Cómo conectarse (una sola vez)</div>
+
+        <div class="rfx-step">
+          <div class="rfx-step-num">1</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Chrome — Configurar proxy automático (PAC)</div>
+            <div class="rfx-step-desc">Chrome → Configuración → Sistema → Configuración del proxy → Automático → pega la PAC URL de arriba. Solo HBO irá por España, el resto de tu conexión es normal.</div>
+            <div class="rfx-step-btns">
+              <button class="rfx-step-btn" onclick="rushflix.openChromeProxy()">⚙️ Abrir ajustes de proxy</button>
+              <button class="rfx-step-btn" onclick="rushflix.copyPAC()">📋 Copiar PAC URL</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rfx-step">
+          <div class="rfx-step-num">2</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Firefox — Proxy manual</div>
+            <div class="rfx-step-desc">Firefox → Preferencias → Red → Configuración de proxy → URL de configuración automática → pega la PAC URL.</div>
+          </div>
+        </div>
+
+        <div class="rfx-step">
+          <div class="rfx-step-num">3</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Móvil iOS / Android</div>
+            <div class="rfx-step-desc">WiFi → Configurar proxy → Automático → pega la PAC URL. Solo funciona en esa red WiFi.</div>
+          </div>
+        </div>
+
+        <div class="rfx-step rfx-step-alt">
+          <div class="rfx-step-num">🔑</div>
+          <div class="rfx-step-body">
+            <div class="rfx-step-name">Credenciales del proxy (si las pide)</div>
+            <div class="rfx-step-desc" id="rfx-proxy-creds">El servidor pedirá usuario y contraseña al conectar.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado OK -->
+      <div id="rfx-vpn-ok" style="display:none">
+        <div class="rfx-vpn-ok-msg">
+          Tu IP es española 🇪🇸 — pulsa <strong>Max</strong> arriba para empezar.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
