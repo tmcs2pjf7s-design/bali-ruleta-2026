@@ -2,79 +2,53 @@ import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
-        // Core palette
-        obsidian: '#080810',
-        void:     '#0d0d18',
-        surface:  '#13131f',
-        card:     '#181828',
-        border:   '#1e1e32',
-        // Accent
-        red:  { DEFAULT: '#c0152a', light: '#e8202a', dark: '#8b0000' },
-        gold: { DEFAULT: '#c8a030', light: '#e8ba2a', dim: '#8b7020' },
-        cream: '#d4c9a8',
-        dim:   '#7a7060',
-        // Case accent (set via CSS var --ca)
+        // Nocturnal base
+        obsidian: '#0a0806',
+        void:     '#100c09',
+        surface:  '#16110d',
+        card:     '#1c1611',
+        border:   '#2a2018',
+        // Warm accents
+        wine:  { DEFAULT: '#7d1128', light: '#a8324a', dark: '#4c0a19' },
+        gold:  { DEFAULT: '#c69749', light: '#e0b567', dim: '#8a6a34' },
+        bone:  '#ece3d2',
+        cream: '#d9ccb2',
+        dim:   '#8a7d68',
       },
       fontFamily: {
-        sans:    ['var(--font-dm-sans)', 'sans-serif'],
-        serif:   ['var(--font-playfair)', 'Georgia', 'serif'],
-        mono:    ['var(--font-geist-mono)', 'monospace'],
+        sans:  ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'Georgia', 'serif'],
       },
       animation: {
-        'fade-up':    'fadeUp .5s ease forwards',
-        'fade-in':    'fadeIn .4s ease forwards',
-        'stamp':      'stamp .55s cubic-bezier(.15,1.4,.35,1) forwards',
-        'pulse-dot':  'pulseDot 1.5s ease-in-out infinite',
-        'grain':      'grain .15s steps(1) infinite',
-        'glitch-t':   'glitchTop 4s infinite linear',
-        'glitch-b':   'glitchBot 4s infinite linear',
-        'shimmer':    'shimmer 1.8s linear infinite',
+        'fade-up':   'fadeUp .7s cubic-bezier(.16,1,.3,1) forwards',
+        'fade-in':   'fadeIn .6s ease forwards',
+        'grain':     'grain .8s steps(2) infinite',
+        'drift':     'drift 14s ease-in-out infinite',
       },
       keyframes: {
-        fadeUp:    { from: { opacity: '0', transform: 'translateY(16px)' }, to: { opacity: '1', transform: 'none' } },
-        fadeIn:    { from: { opacity: '0' }, to: { opacity: '1' } },
-        stamp:     { from: { opacity: '0', transform: 'scale(1.6) rotate(-4deg)' }, to: { opacity: '1', transform: 'scale(1) rotate(-3deg)' } },
-        pulseDot:  { '0%,100%': { opacity: '.4', transform: 'scale(1)' }, '50%': { opacity: '1', transform: 'scale(1.4)' } },
+        fadeUp: { from: { opacity: '0', transform: 'translateY(24px)' }, to: { opacity: '1', transform: 'none' } },
+        fadeIn: { from: { opacity: '0' }, to: { opacity: '1' } },
         grain: {
           '0%,100%': { transform: 'translate(0,0)' },
-          '10%': { transform: 'translate(-2%,-2%)' },
-          '30%': { transform: 'translate(2%,1%)' },
-          '50%': { transform: 'translate(-1%,2%)' },
-          '70%': { transform: 'translate(1%,-1%)' },
-          '90%': { transform: 'translate(-2%,1%)' },
+          '20%': { transform: 'translate(-3%,2%)' },
+          '40%': { transform: 'translate(2%,-3%)' },
+          '60%': { transform: 'translate(-2%,-2%)' },
+          '80%': { transform: 'translate(3%,1%)' },
         },
-        glitchTop: {
-          '0%,100%': { clip: 'rect(0,900px,0,0)' },
-          '20%': { clip: 'rect(14px,900px,20px,0)', transform: 'translate(-2px)' },
-          '40%': { clip: 'rect(5px,900px,12px,0)', transform: 'translate(2px)' },
-          '60%': { clip: 'rect(0,900px,0,0)' },
+        drift: {
+          '0%,100%': { transform: 'translate(0,0) scale(1)' },
+          '50%': { transform: 'translate(2%,-2%) scale(1.05)' },
         },
-        glitchBot: {
-          '0%,100%': { clip: 'rect(0,900px,0,0)' },
-          '25%': { clip: 'rect(30px,900px,40px,0)', transform: 'translate(2px)' },
-          '50%': { clip: 'rect(20px,900px,28px,0)', transform: 'translate(-2px)' },
-          '75%': { clip: 'rect(0,900px,0,0)' },
-        },
-        shimmer: {
-          from: { backgroundPosition: '-200% 0' },
-          to:   { backgroundPosition:  '200% 0' },
-        },
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E\")",
       },
       boxShadow: {
-        'case':  '0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(200,160,48,.06)',
-        'glow-r': '0 0 40px rgba(192,21,42,.3)',
-        'glow-g': '0 0 40px rgba(200,160,48,.25)',
+        'plate': '0 30px 80px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(198,151,73,.08)',
+        'glow':  '0 0 60px -10px rgba(125,17,40,.45)',
       },
     },
   },

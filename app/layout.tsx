@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans, Playfair_Display } from 'next/font/google'
 import './globals.css'
-import GlobalEffects from '@/components/GlobalEffects'
+import Ambience from '@/components/Ambience'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -16,26 +16,33 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'CRIMS — Investigación Criminal Interactiva',
-  description: 'Explora casos criminales reales. Analiza pruebas, interroga sospechosos y resuelve el misterio. Una experiencia de documental interactivo.',
-  keywords: ['crímenes', 'investigación', 'casos reales', 'detective', 'true crime'],
+  title: 'SOBREMESA — 6 platos · 12 vinos',
+  description:
+    'Una cena a ciegas de seis actos y doce copas para doce comensales alrededor de una sola mesa. Maridaje guiado, un único pase por noche.',
+  keywords: ['menú degustación', 'maridaje', 'cena', 'vino', 'tasting menu', 'wine pairing'],
   openGraph: {
-    title: 'CRIMS',
-    description: 'Investigación criminal interactiva',
+    title: 'SOBREMESA',
+    description: 'Seis actos. Doce copas. Una sola noche.',
     type: 'website',
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#080810',
+  themeColor: '#0a0806',
   colorScheme: 'dark',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${dmSans.variable} ${playfair.variable}`}>
+      <head>
+        {/* If JS is off, framer-motion never animates: reveal everything. */}
+        <noscript>
+          <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
+      </head>
       <body>
-        <GlobalEffects />
+        <Ambience />
         {children}
       </body>
     </html>
