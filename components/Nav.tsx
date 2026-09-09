@@ -30,20 +30,39 @@ export default function Nav({ lang }: { lang: Lang }) {
     }
   }, [open])
 
+  /** true while sitting transparently over the hero photograph */
+  const onImage = !scrolled && !open
+
+  const linkCls = onImage ? 'text-paper/80 hover:text-paper' : 'text-warmgrey hover:text-ink'
+  const markCls = onImage ? 'text-paper' : 'text-ink'
+  const barCls = onImage ? 'bg-paper' : 'bg-ink'
+
   const LangSwitch = ({ className = '' }: { className?: string }) => (
     <span className={`flex items-center gap-1.5 text-[0.62rem] tracking-widest2 ${className}`}>
       <Link
         href="/"
         aria-current={lang === 'es' ? 'true' : undefined}
-        className={lang === 'es' ? 'text-champ' : 'text-warmgrey hover:text-ink'}
+        className={
+          lang === 'es'
+            ? 'text-champ-soft'
+            : onImage
+              ? 'text-paper/70 hover:text-paper'
+              : 'text-warmgrey hover:text-ink'
+        }
       >
         ES
       </Link>
-      <span className="text-line">/</span>
+      <span className={onImage ? 'text-paper/40' : 'text-line'}>/</span>
       <Link
         href="/en"
         aria-current={lang === 'en' ? 'true' : undefined}
-        className={lang === 'en' ? 'text-champ' : 'text-warmgrey hover:text-ink'}
+        className={
+          lang === 'en'
+            ? 'text-champ-soft'
+            : onImage
+              ? 'text-paper/70 hover:text-paper'
+              : 'text-warmgrey hover:text-ink'
+        }
       >
         EN
       </Link>
@@ -53,14 +72,16 @@ export default function Nav({ lang }: { lang: Lang }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
-        scrolled || open ? 'border-b border-line bg-paper/85 backdrop-blur-md' : 'bg-transparent'
+        scrolled || open
+          ? 'border-b border-line bg-paper/85 backdrop-blur-md'
+          : 'bg-gradient-to-b from-black/25 to-transparent'
       }`}
     >
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-4 md:px-10 md:py-5">
         <a
           href="#top"
           onClick={() => setOpen(false)}
-          className="font-display text-lg font-medium tracking-widest2 text-ink"
+          className={`font-display text-lg font-medium tracking-widest2 transition-colors ${markCls}`}
         >
           SIX&nbsp;WORLDS
         </a>
@@ -70,7 +91,7 @@ export default function Nav({ lang }: { lang: Lang }) {
             <a
               key={l.href}
               href={l.href}
-              className="text-[0.68rem] uppercase tracking-widest2 text-warmgrey transition-colors hover:text-ink"
+              className={`text-[0.68rem] uppercase tracking-widest2 transition-colors ${linkCls}`}
             >
               {t(l.label, lang)}
             </a>
@@ -82,7 +103,11 @@ export default function Nav({ lang }: { lang: Lang }) {
           <a
             href="#reservation"
             onClick={() => setOpen(false)}
-            className="hidden border border-ink px-5 py-2.5 text-[0.62rem] uppercase tracking-widest2 text-ink transition-colors hover:bg-ink hover:text-paper sm:inline-block"
+            className={`hidden border px-5 py-2.5 text-[0.62rem] uppercase tracking-widest2 transition-colors sm:inline-block ${
+              onImage
+                ? 'border-paper text-paper hover:bg-paper hover:text-ink'
+                : 'border-ink text-ink hover:bg-ink hover:text-paper'
+            }`}
           >
             {t(UI.reserve, lang)}
           </a>
@@ -94,12 +119,12 @@ export default function Nav({ lang }: { lang: Lang }) {
             className="flex h-8 w-8 flex-col items-center justify-center gap-[5px] lg:hidden"
           >
             <span
-              className={`h-px w-5 bg-ink transition-transform duration-300 ${
+              className={`h-px w-5 transition-transform duration-300 ${barCls} ${
                 open ? 'translate-y-[3px] rotate-45' : ''
               }`}
             />
             <span
-              className={`h-px w-5 bg-ink transition-transform duration-300 ${
+              className={`h-px w-5 transition-transform duration-300 ${barCls} ${
                 open ? '-translate-y-[3px] -rotate-45' : ''
               }`}
             />

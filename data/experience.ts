@@ -34,6 +34,7 @@ export const BRAND = {
   seatsPerWeek: 12,
   email: 'reserve@sixworlds.example', // TODO: real reservations address
   city: L('Ubicación facilitada al confirmar', 'Location shared upon confirmation'), // TODO
+  heroImage: '/portada-six.jpg', // editorial hero photograph
 }
 
 export const INTRO = {
