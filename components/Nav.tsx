@@ -1,16 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { UI, t, type Lang } from '@/data/experience'
 
 const LINKS = [
-  { href: '#journey', label: 'The Journey' },
-  { href: '#worlds', label: 'Six Worlds' },
-  { href: '#dishes', label: 'Six Dishes' },
-  { href: '#wines', label: 'Twelve Wines' },
-  { href: '#table', label: 'The Table' },
+  { href: '#journey', label: UI.nav.journey },
+  { href: '#worlds', label: UI.nav.worlds },
+  { href: '#dishes', label: UI.nav.dishes },
+  { href: '#wines', label: UI.nav.wines },
+  { href: '#table', label: UI.nav.table },
 ]
 
-export default function Nav() {
+export default function Nav({ lang }: { lang: Lang }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -27,6 +29,26 @@ export default function Nav() {
       document.body.style.overflow = ''
     }
   }, [open])
+
+  const LangSwitch = ({ className = '' }: { className?: string }) => (
+    <span className={`flex items-center gap-1.5 text-[0.62rem] tracking-widest2 ${className}`}>
+      <Link
+        href="/"
+        aria-current={lang === 'es' ? 'true' : undefined}
+        className={lang === 'es' ? 'text-gold' : 'text-mist hover:text-ivory'}
+      >
+        ES
+      </Link>
+      <span className="text-line">/</span>
+      <Link
+        href="/en"
+        aria-current={lang === 'en' ? 'true' : undefined}
+        className={lang === 'en' ? 'text-gold' : 'text-mist hover:text-ivory'}
+      >
+        EN
+      </Link>
+    </span>
+  )
 
   return (
     <header
@@ -50,18 +72,19 @@ export default function Nav() {
               href={l.href}
               className="text-[0.68rem] uppercase tracking-widest2 text-mist transition-colors hover:text-ivory"
             >
-              {l.label}
+              {t(l.label, lang)}
             </a>
           ))}
         </div>
 
         <div className="flex items-center gap-4">
+          <LangSwitch className="hidden sm:flex" />
           <a
             href="#reservation"
             onClick={() => setOpen(false)}
             className="hidden border border-gold/50 px-5 py-2.5 text-[0.62rem] uppercase tracking-widest2 text-gold transition-colors hover:bg-gold hover:text-black sm:inline-block"
           >
-            Reserve
+            {t(UI.reserve, lang)}
           </a>
           <button
             type="button"
@@ -87,7 +110,7 @@ export default function Nav() {
       {/* mobile sheet */}
       <div
         className={`overflow-hidden border-t border-line transition-[max-height] duration-500 lg:hidden ${
-          open ? 'max-h-[80vh]' : 'max-h-0'
+          open ? 'max-h-[90vh]' : 'max-h-0'
         }`}
       >
         <div className="flex flex-col gap-1 px-5 py-6">
@@ -98,15 +121,18 @@ export default function Nav() {
               onClick={() => setOpen(false)}
               className="border-b border-line/60 py-4 font-display text-2xl text-ivory"
             >
-              {l.label}
+              {t(l.label, lang)}
             </a>
           ))}
+          <div className="flex items-center justify-between pt-6">
+            <LangSwitch />
+          </div>
           <a
             href="#reservation"
             onClick={() => setOpen(false)}
-            className="mt-6 bg-gold px-5 py-4 text-center text-[0.7rem] uppercase tracking-widest2 text-black"
+            className="mt-4 bg-gold px-5 py-4 text-center text-[0.7rem] uppercase tracking-widest2 text-black"
           >
-            Reserve your seat
+            {t(UI.reserveSeat, lang)}
           </a>
         </div>
       </div>

@@ -1,13 +1,13 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { VIDEO } from '@/data/experience'
+import { VIDEO, t, type Lang } from '@/data/experience'
 
 /**
  * The cinematic film. Never autoplays with sound.
  * With no source yet, renders a placeholder marked for the real file.
  */
-export default function VideoFilm() {
+export default function VideoFilm({ lang }: { lang: Lang }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState(false)
 
@@ -27,7 +27,7 @@ export default function VideoFilm() {
             <span className="ml-1 border-y-[7px] border-l-[11px] border-y-transparent border-l-gold" />
           </span>
           <span className="text-[0.6rem] uppercase tracking-widest2 text-mist">
-            Film · {VIDEO.runtime} {/* TODO: add /public/six-worlds.mp4 */}
+            {t(VIDEO.filmWord, lang)} · {t(VIDEO.runtime, lang)}
           </span>
         </div>
         <span className="pointer-events-none absolute inset-0 border border-white/[0.06]" />
@@ -65,7 +65,7 @@ export default function VideoFilm() {
         <button
           type="button"
           onClick={toggle}
-          aria-label="Play film"
+          aria-label={lang === 'es' ? 'Reproducir película' : 'Play film'}
           className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors hover:bg-black/20"
         >
           <span className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/60 bg-black/40">

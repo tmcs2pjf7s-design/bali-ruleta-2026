@@ -1,15 +1,15 @@
 import Reveal from '@/components/Reveal'
 import Eyebrow from '@/components/Eyebrow'
 import WorldMedia from '@/components/WorldMedia'
-import { WORLDS } from '@/data/experience'
+import { WORLDS, UI, t, type Lang } from '@/data/experience'
 
-export default function Worlds() {
+export default function Worlds({ lang }: { lang: Lang }) {
   return (
     <section id="worlds" className="scroll-mt-24 border-t border-line px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <Reveal><Eyebrow index="02">The Six Worlds</Eyebrow></Reveal>
+        <Reveal><Eyebrow index="02">{t(UI.eyebrow.worlds, lang)}</Eyebrow></Reveal>
         <Reveal as="h2" delay={80} className="mt-10 max-w-3xl font-display text-3xl font-light leading-tight text-ivory md:text-5xl">
-          Six chapters, in order. Each one a place — and a departure from it.
+          {t(UI.worldsHeadline, lang)}
         </Reveal>
 
         <div className="mt-16 flex flex-col">
@@ -23,7 +23,7 @@ export default function Worlds() {
               <WorldMedia
                 image={w.image}
                 roman={w.roman}
-                place={w.place}
+                place={t(w.place, lang)}
                 parallax
                 ratio="aspect-[16/10] md:aspect-[4/3]"
               />
@@ -33,15 +33,15 @@ export default function Worlds() {
                     {w.roman}
                   </span>
                   <span className="text-[0.62rem] uppercase tracking-widest2 text-mist">
-                    {w.home ? 'The return' : w.place}
+                    {w.home ? t(UI.theReturn, lang) : t(w.place, lang)}
                   </span>
                 </div>
                 <h3 className="mt-3 font-display text-3xl font-light text-ivory md:text-4xl">{w.title}</h3>
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-mist">{w.teaser}</p>
+                <p className="mt-4 max-w-md text-sm leading-relaxed text-mist">{t(w.teaser, lang)}</p>
                 <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
                   {w.inspiration.map(k => (
-                    <li key={k} className="text-[0.58rem] uppercase tracking-[0.16em] text-stone">
-                      {k}
+                    <li key={k.en} className="text-[0.58rem] uppercase tracking-[0.16em] text-stone">
+                      {t(k, lang)}
                     </li>
                   ))}
                 </ul>

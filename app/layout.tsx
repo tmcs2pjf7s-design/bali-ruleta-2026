@@ -16,16 +16,16 @@ const sans = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'SIX WORLDS — A private gastronomic journey',
+  title: 'SIX WORLDS',
   description:
-    'Six guests. Six worlds. One table. A four-hour journey through six destinations — six dishes, twelve wines. Thursday and Friday nights only.',
+    'Seis comensales. Seis mundos. Una mesa. Un viaje gastronómico privado de cuatro horas — seis platos, doce vinos.',
   keywords: [
-    'six worlds', 'gastronomic journey', 'private dining', 'tasting experience',
-    'wine pairing', 'fine dining', 'chef table',
+    'six worlds', 'viaje gastronómico', 'cena privada', 'menú degustación',
+    'maridaje', 'alta cocina', 'mesa del chef', 'gastronomic journey', 'private dining',
   ],
   openGraph: {
     title: 'SIX WORLDS',
-    description: 'A private gastronomic journey · 6 dishes · 12 wines · 6 guests · 4 hours',
+    description: 'Un viaje gastronómico privado · 6 platos · 12 vinos · 6 comensales · 4 horas',
     type: 'website',
   },
 }
@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+    <html lang="es" className={`${display.variable} ${sans.variable}`}>
       <head>
         <noscript>
           <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>

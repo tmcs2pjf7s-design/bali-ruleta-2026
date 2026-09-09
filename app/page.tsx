@@ -1,37 +1,18 @@
-import Nav from '@/components/Nav'
-import StickyReserve from '@/components/StickyReserve'
-import Hero from '@/components/sections/Hero'
-import Intro from '@/components/sections/Intro'
-import Worlds from '@/components/sections/Worlds'
-import Film from '@/components/sections/Film'
-import Dishes from '@/components/sections/Dishes'
-import Wines from '@/components/sections/Wines'
-import Guests from '@/components/sections/Guests'
-import TheNight from '@/components/sections/TheNight'
-import TheTable from '@/components/sections/TheTable'
-import Reservation from '@/components/sections/Reservation'
-import Location from '@/components/sections/Location'
-import Footer from '@/components/sections/Footer'
+import type { Metadata } from 'next'
+import SixWorlds from '@/components/SixWorlds'
+
+export const metadata: Metadata = {
+  title: 'SIX WORLDS — Un viaje gastronómico privado',
+  description:
+    'Seis comensales. Seis mundos. Una mesa. Un viaje de cuatro horas por seis territorios — seis platos, doce vinos. Solo jueves y viernes por la noche.',
+  alternates: { canonical: '/', languages: { es: '/', en: '/en' } },
+  openGraph: {
+    title: 'SIX WORLDS',
+    description: 'Un viaje gastronómico privado · 6 platos · 12 vinos · 6 comensales · 4 horas',
+    type: 'website',
+  },
+}
 
 export default function Page() {
-  return (
-    <>
-      <Nav />
-      <main>
-        <Hero />
-        <Intro />
-        <Worlds />
-        <Film />
-        <Dishes />
-        <Wines />
-        <Guests />
-        <TheNight />
-        <TheTable />
-        <Reservation />
-        <Location />
-      </main>
-      <Footer />
-      <StickyReserve />
-    </>
-  )
+  return <SixWorlds lang="es" />
 }

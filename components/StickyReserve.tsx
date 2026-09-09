@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { UI, t, type Lang } from '@/data/experience'
 
 /** Mobile-only persistent reserve bar; appears once the hero is scrolled past. */
-export default function StickyReserve() {
+export default function StickyReserve({ lang }: { lang: Lang }) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function StickyReserve() {
         href="#reservation"
         className="block bg-gold py-3.5 text-center text-[0.72rem] uppercase tracking-widest2 text-black"
       >
-        Reserve your seat
+        {t(UI.reserveSeat, lang)}
       </a>
     </div>
   )

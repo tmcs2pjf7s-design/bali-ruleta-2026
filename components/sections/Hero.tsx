@@ -1,6 +1,6 @@
-import { BRAND } from '@/data/experience'
+import { BRAND, UI, t, type Lang } from '@/data/experience'
 
-export default function Hero() {
+export default function Hero({ lang }: { lang: Lang }) {
   return (
     <section
       id="top"
@@ -26,7 +26,7 @@ export default function Hero() {
 
       <div className="mx-auto w-full max-w-[1400px]">
         <p className="reveal is-visible mb-6 text-[0.62rem] uppercase tracking-widest2 text-gold">
-          {BRAND.tagline}
+          {t(BRAND.tagline, lang)}
         </p>
 
         <h1
@@ -37,13 +37,15 @@ export default function Hero() {
         </h1>
 
         <div className="reveal is-visible mt-8 flex w-full max-w-full flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <p className="max-w-md text-sm leading-relaxed text-mist">
-            {BRAND.concept.split(' · ').map((chunk, i) => (
-              <span key={chunk}>
-                {i > 0 && <span className="text-gold/40"> / </span>}
-                {chunk}
-              </span>
-            ))}
+          <p className="max-w-md text-[0.8rem] leading-relaxed text-mist sm:text-sm">
+            {t(BRAND.concept, lang)
+              .split(' · ')
+              .map((chunk, i) => (
+                <span key={chunk}>
+                  {i > 0 && <span className="text-gold/40"> / </span>}
+                  {chunk}
+                </span>
+              ))}
           </p>
 
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
@@ -51,13 +53,13 @@ export default function Hero() {
               href="#reservation"
               className="border border-gold bg-gold px-5 py-3.5 text-[0.62rem] uppercase tracking-[0.18em] text-black transition-colors hover:bg-transparent hover:text-gold"
             >
-              Reserve the experience
+              {t(UI.reserveExperience, lang)}
             </a>
             <a
               href="#journey"
               className="group inline-flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.18em] text-ivory"
             >
-              Enter the journey
+              {t(UI.enterJourney, lang)}
               <span className="inline-block transition-transform duration-300 group-hover:translate-y-1">↓</span>
             </a>
           </div>
