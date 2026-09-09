@@ -35,7 +35,7 @@ export default function Nav({ lang }: { lang: Lang }) {
       <Link
         href="/"
         aria-current={lang === 'es' ? 'true' : undefined}
-        className={lang === 'es' ? 'text-gold' : 'text-mist hover:text-ivory'}
+        className={lang === 'es' ? 'text-champ' : 'text-warmgrey hover:text-ink'}
       >
         ES
       </Link>
@@ -43,7 +43,7 @@ export default function Nav({ lang }: { lang: Lang }) {
       <Link
         href="/en"
         aria-current={lang === 'en' ? 'true' : undefined}
-        className={lang === 'en' ? 'text-gold' : 'text-mist hover:text-ivory'}
+        className={lang === 'en' ? 'text-champ' : 'text-warmgrey hover:text-ink'}
       >
         EN
       </Link>
@@ -53,14 +53,14 @@ export default function Nav({ lang }: { lang: Lang }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
-        scrolled || open ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+        scrolled || open ? 'border-b border-line bg-paper/85 backdrop-blur-md' : 'bg-transparent'
       }`}
     >
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-4 md:px-10 md:py-5">
         <a
           href="#top"
           onClick={() => setOpen(false)}
-          className="font-display text-lg font-medium tracking-widest2 text-ivory"
+          className="font-display text-lg font-medium tracking-widest2 text-ink"
         >
           SIX&nbsp;WORLDS
         </a>
@@ -70,7 +70,7 @@ export default function Nav({ lang }: { lang: Lang }) {
             <a
               key={l.href}
               href={l.href}
-              className="text-[0.68rem] uppercase tracking-widest2 text-mist transition-colors hover:text-ivory"
+              className="text-[0.68rem] uppercase tracking-widest2 text-warmgrey transition-colors hover:text-ink"
             >
               {t(l.label, lang)}
             </a>
@@ -82,7 +82,7 @@ export default function Nav({ lang }: { lang: Lang }) {
           <a
             href="#reservation"
             onClick={() => setOpen(false)}
-            className="hidden border border-gold/50 px-5 py-2.5 text-[0.62rem] uppercase tracking-widest2 text-gold transition-colors hover:bg-gold hover:text-black sm:inline-block"
+            className="hidden border border-ink px-5 py-2.5 text-[0.62rem] uppercase tracking-widest2 text-ink transition-colors hover:bg-ink hover:text-paper sm:inline-block"
           >
             {t(UI.reserve, lang)}
           </a>
@@ -94,12 +94,12 @@ export default function Nav({ lang }: { lang: Lang }) {
             className="flex h-8 w-8 flex-col items-center justify-center gap-[5px] lg:hidden"
           >
             <span
-              className={`h-px w-5 bg-ivory transition-transform duration-300 ${
+              className={`h-px w-5 bg-ink transition-transform duration-300 ${
                 open ? 'translate-y-[3px] rotate-45' : ''
               }`}
             />
             <span
-              className={`h-px w-5 bg-ivory transition-transform duration-300 ${
+              className={`h-px w-5 bg-ink transition-transform duration-300 ${
                 open ? '-translate-y-[3px] -rotate-45' : ''
               }`}
             />
@@ -109,7 +109,7 @@ export default function Nav({ lang }: { lang: Lang }) {
 
       {/* mobile sheet */}
       <div
-        className={`overflow-hidden border-t border-line transition-[max-height] duration-500 lg:hidden ${
+        className={`overflow-hidden border-t border-line bg-paper transition-[max-height] duration-500 lg:hidden ${
           open ? 'max-h-[90vh]' : 'max-h-0'
         }`}
       >
@@ -119,7 +119,7 @@ export default function Nav({ lang }: { lang: Lang }) {
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="border-b border-line/60 py-4 font-display text-2xl text-ivory"
+              className="border-b border-line/70 py-4 font-display text-2xl text-ink"
             >
               {t(l.label, lang)}
             </a>
@@ -130,7 +130,7 @@ export default function Nav({ lang }: { lang: Lang }) {
           <a
             href="#reservation"
             onClick={() => setOpen(false)}
-            className="mt-4 bg-gold px-5 py-4 text-center text-[0.7rem] uppercase tracking-widest2 text-black"
+            className="mt-4 bg-ink px-5 py-4 text-center text-[0.7rem] uppercase tracking-widest2 text-paper"
           >
             {t(UI.reserveSeat, lang)}
           </a>

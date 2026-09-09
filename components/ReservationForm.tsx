@@ -32,8 +32,8 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
   }
 
   const field =
-    'w-full border-b border-line bg-transparent py-3 text-ivory placeholder:text-mist/60 focus:border-gold focus:outline-none'
-  const label = 'block text-[0.6rem] uppercase tracking-widest2 text-mist'
+    'w-full border-b border-line bg-transparent py-3 text-ink placeholder:text-warmgrey/60 focus:border-ink focus:outline-none'
+  const label = 'block text-[0.6rem] uppercase tracking-widest2 text-warmgrey'
 
   return (
     <form onSubmit={submit} className="space-y-8">
@@ -47,7 +47,7 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
             className={`${field} appearance-none`}
           >
             {bookable.map(s => (
-              <option key={s.day} value={s.day} className="bg-char">
+              <option key={s.day} value={s.day} className="bg-paper text-ink">
                 {t(DAY_LABEL[s.day], lang)} — {t(SEAT_STATUS_LABEL[s.status], lang)}
                 {s.status === 'limited' ? ` (${s.seatsLeft})` : ''}
               </option>
@@ -63,7 +63,7 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
             className={`${field} appearance-none`}
           >
             {['1', '2', '3', '4', '5', '6'].map(n => (
-              <option key={n} value={n} className="bg-char">{n}</option>
+              <option key={n} value={n} className="bg-paper text-ink">{n}</option>
             ))}
           </select>
         </div>
@@ -98,11 +98,11 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
 
       <button
         type="submit"
-        className="w-full bg-gold py-4 text-[0.72rem] uppercase tracking-widest2 text-black transition-colors hover:bg-ivory"
+        className="w-full bg-ink py-4 text-[0.72rem] uppercase tracking-widest2 text-paper transition-colors hover:bg-graphite"
       >
         {t(UI.form.submit, lang)}
       </button>
-      <p className="text-[0.72rem] leading-relaxed text-mist">{t(UI.form.disclaimer, lang)}</p>
+      <p className="text-[0.72rem] leading-relaxed text-warmgrey">{t(UI.form.disclaimer, lang)}</p>
     </form>
   )
 }

@@ -63,6 +63,10 @@ export interface World {
   teaser: Loc
   concept: Loc
   inspiration: Loc[]
+  /** One-line "feeling" of the chapter. */
+  mood: Loc
+  /** Subtle per-world identity on a light base. */
+  tone: { media: string; accent: string }
   home?: boolean
   image: string | null
 }
@@ -86,6 +90,8 @@ export const WORLDS: World[] = [
       L('especias', 'spice'), L('fuego', 'fire'), L('reducción oscura', 'dark reduction'),
       L('hierbas frescas', 'fresh herbs'),
     ],
+    mood: L('especias · calor · exotismo · elegancia', 'spice · heat · the exotic · elegance'),
+    tone: { media: '#e6ddcb', accent: '#2c2823' },
     image: null,
   },
   {
@@ -102,6 +108,8 @@ export const WORLDS: World[] = [
       L('tierra roja', 'red earth'), L('fuego', 'fire'), L('humo', 'smoke'), L('brasa', 'char'),
       L('botánicos autóctonos', 'native botanicals'), L('llama abierta', 'open flame'),
     ],
+    mood: L('tierra · fuego · naturaleza', 'earth · fire · nature'),
+    tone: { media: '#e2caae', accent: '#9a5f38' },
     image: null,
   },
   {
@@ -121,6 +129,8 @@ export const WORLDS: World[] = [
       L('Atlántico', 'Atlantic'), L('volcán', 'volcano'), L('sal', 'salt'),
       L('pescado', 'fish'), L('viento', 'wind'), L('maíz', 'corn'),
     ],
+    mood: L('océano · sal · viento · volcán', 'ocean · salt · wind · volcano'),
+    tone: { media: '#d6dcd9', accent: '#5c777f' },
     image: null,
   },
   {
@@ -137,6 +147,8 @@ export const WORLDS: World[] = [
       L('Pacífico', 'Pacific'), L('Amazonía', 'Amazonia'), L('acidez', 'acidity'),
       L('chile', 'chilli'), L('fruta', 'fruit'), L('hierbas', 'herbs'),
     ],
+    mood: L('frescura · acidez · energía', 'freshness · acidity · energy'),
+    tone: { media: '#d7ddc8', accent: '#5c7047' },
     image: null,
   },
   {
@@ -156,6 +168,8 @@ export const WORLDS: World[] = [
       L('Atlántico', 'Atlantic'), L('tradición', 'tradition'), L('fuego', 'fire'),
       L('aceite de oliva', 'olive oil'), L('pescado', 'fish'), L('melancolía', 'melancholy'),
     ],
+    mood: L('Atlántico · tradición · memoria', 'Atlantic · tradition · memory'),
+    tone: { media: '#e6d7b9', accent: '#94743f' },
     image: null,
   },
   {
@@ -171,6 +185,8 @@ export const WORLDS: World[] = [
     inspiration: [
       L('regreso', 'return'), L('identidad', 'identity'), L('hogar', 'home'), L('memoria', 'memory'),
     ],
+    mood: L('regreso · identidad · hogar', 'return · identity · home'),
+    tone: { media: '#f0e7d5', accent: '#8a7350' },
     home: true,
     image: null,
   },
@@ -355,6 +371,8 @@ export const UI = {
   cancellation: L('Cancelación', 'Cancellation'),
   dietary: L('Alergias y restricciones', 'Allergies & restrictions'),
   requestSeat: L('Solicita tu plaza', 'Request your seat'),
+  onlySixSeats: L('SOLO SEIS PLAZAS', 'ONLY SIX SEATS'),
+  oneExperiencePerNight: L('Una experiencia por noche', 'One experience per night'),
   reservationHeadline: L(
     'No reservas una mesa. Ocupas una de seis plazas.',
     'You are not booking a table. You are taking one of six seats.',

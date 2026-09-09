@@ -9,13 +9,14 @@ interface Props {
   ratio?: string
   className?: string
   priority?: boolean
-  /** apply a very light vertical parallax to the media */
   parallax?: boolean
+  /** light per-world identity: { media, accent } */
+  tone?: { media: string; accent: string }
 }
 
 /**
  * Art-directed media slot. Shows a real photograph when one is provided,
- * otherwise a dark charcoal placeholder with the act numeral as a watermark.
+ * otherwise a luminous stone placeholder tinted to the world.
  */
 export default function WorldMedia({
   image,
@@ -25,7 +26,11 @@ export default function WorldMedia({
   className = '',
   priority = false,
   parallax = false,
+  tone,
 }: Props) {
+  const media = tone?.media ?? '#ddd3bf'
+  const accent = tone?.accent ?? '#8c8474'
+
   const inner = image ? (
     <Image
       src={image}
@@ -33,7 +38,7 @@ export default function WorldMedia({
       fill
       priority={priority}
       loading={priority ? undefined : 'lazy'}
-      sizes="(max-width: 768px) 100vw, 50vw"
+      sizes="(max-width: 768px) 100vw, 55vw"
       className="object-cover"
     />
   ) : (
@@ -41,32 +46,35 @@ export default function WorldMedia({
       aria-hidden
       className="absolute inset-0"
       style={{
-        background:
-          'radial-gradient(120% 90% at 30% 15%, #23201b 0%, #14120f 55%, #0c0b09 100%)',
+        background: `linear-gradient(150deg, #ffffff 0%, ${media} 55%, ${media} 100%)`,
       }}
     >
-      <span className="absolute bottom-4 left-5 font-display text-[7rem] leading-none text-white/[0.08] md:text-[10rem]">
+      <span
+        className="absolute bottom-3 left-5 font-display text-[7rem] leading-none md:text-[10rem]"
+        style={{ color: accent, opacity: 0.14 }}
+      >
         {roman}
       </span>
-      <span className="absolute right-5 top-5 text-[0.6rem] uppercase tracking-widest2 text-white/20">
+      <span
+        className="absolute right-5 top-5 text-[0.58rem] uppercase tracking-widest2"
+        style={{ color: accent, opacity: 0.6 }}
+      >
         {place}
       </span>
     </div>
   )
 
   return (
-    <div className={`relative overflow-hidden bg-char ${ratio} ${className}`}>
+    <div className={`relative overflow-hidden ${ratio} ${className}`} style={{ background: media }}>
       {parallax ? (
-        <Parallax strength={18} className="absolute inset-0">
+        <Parallax strength={16} className="absolute inset-0">
           <div className="relative h-[112%] w-full -translate-y-[6%]">{inner}</div>
         </Parallax>
       ) : (
         inner
       )}
-      {/* fine inner frame */}
-      <span className="pointer-events-none absolute inset-0 border border-white/[0.06]" />
-      {/* bottom fade so overlaid text stays legible */}
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+      {/* hairline frame */}
+      <span className="pointer-events-none absolute inset-0 border border-ink/[0.08]" />
     </div>
   )
 }

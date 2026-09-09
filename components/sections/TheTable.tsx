@@ -5,10 +5,10 @@ import {
 } from '@/data/experience'
 
 const statusColor: Record<string, string> = {
-  available: 'text-gold',
-  limited: 'text-ivory',
-  full: 'text-mist',
-  waitlist: 'text-mist',
+  available: 'text-champ',
+  limited: 'text-ink',
+  full: 'text-warmgrey',
+  waitlist: 'text-warmgrey',
 }
 
 export default function TheTable({ lang }: { lang: Lang }) {
@@ -17,23 +17,23 @@ export default function TheTable({ lang }: { lang: Lang }) {
       <div className="mx-auto max-w-[1400px]">
         <Reveal><Eyebrow index="07">{t(UI.eyebrow.table, lang)}</Eyebrow></Reveal>
 
-        <Reveal as="h2" delay={80} className="mt-10 font-display text-4xl font-light leading-none text-ivory md:text-7xl">
-          {t(DAY_LABEL.Thursday, lang)} <span className="text-gold/40">·</span> {t(DAY_LABEL.Friday, lang)}
+        <Reveal as="h2" delay={80} className="mt-10 font-display text-4xl font-light leading-none text-ink md:text-7xl">
+          {t(DAY_LABEL.Thursday, lang)} <span className="text-champ">·</span> {t(DAY_LABEL.Friday, lang)}
         </Reveal>
-        <Reveal className="mt-6 text-[0.7rem] uppercase tracking-widest2 text-mist">
+        <Reveal className="mt-6 text-[0.7rem] uppercase tracking-widest2 text-warmgrey">
           {t(UI.guestsServicePerNight, lang)}
         </Reveal>
-        <Reveal as="p" delay={60} className="mt-8 max-w-md font-display text-xl italic text-ivory/70">
+        <Reveal as="p" delay={60} className="mt-8 max-w-md font-display text-xl italic text-graphite">
           {t(SCARCITY, lang)}
         </Reveal>
 
-        <div className="mt-14 grid gap-px border border-line bg-line md:grid-cols-2">
+        <div className="mt-14 grid gap-6 md:grid-cols-2 md:gap-8">
           {AVAILABILITY.map(slot => {
             const soldOut = slot.status === 'full'
             return (
-              <Reveal key={slot.day} className="flex flex-col gap-6 bg-black p-8 md:p-12">
+              <Reveal key={slot.day} className="flex flex-col gap-6 border border-line bg-ivory p-8 md:p-10">
                 <div className="flex items-start justify-between">
-                  <span className="font-display text-3xl font-light text-ivory md:text-4xl">
+                  <span className="font-display text-3xl font-light text-ink md:text-4xl">
                     {t(DAY_LABEL[slot.day], lang)}
                   </span>
                   <span className={`text-[0.62rem] uppercase tracking-widest2 ${statusColor[slot.status]}`}>
@@ -47,17 +47,17 @@ export default function TheTable({ lang }: { lang: Lang }) {
 
                 <div className="flex gap-1.5">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <span key={i} className={`h-1.5 flex-1 ${i < slot.seatsLeft ? 'bg-gold' : 'bg-line'}`} />
+                    <span key={i} className={`h-1 flex-1 ${i < slot.seatsLeft ? 'bg-champ' : 'bg-line'}`} />
                   ))}
                 </div>
 
                 <a
                   href="#reservation"
                   aria-disabled={soldOut}
-                  className={`mt-2 inline-block border px-6 py-3.5 text-center text-[0.62rem] uppercase tracking-widest2 transition-colors ${
+                  className={`mt-1 inline-block border px-6 py-3.5 text-center text-[0.62rem] uppercase tracking-widest2 transition-colors ${
                     soldOut
-                      ? 'pointer-events-none border-line text-mist'
-                      : 'border-gold text-gold hover:bg-gold hover:text-black'
+                      ? 'pointer-events-none border-line text-warmgrey'
+                      : 'border-ink text-ink hover:bg-ink hover:text-paper'
                   }`}
                 >
                   {soldOut ? t(UI.joinWaitlist, lang) : t(UI.reserveThisNight, lang)}

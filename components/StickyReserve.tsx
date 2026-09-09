@@ -24,13 +24,13 @@ export default function StickyReserve({ lang }: { lang: Lang }) {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-black/90 px-4 py-3 backdrop-blur-md transition-transform duration-500 sm:hidden ${
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur-md transition-transform duration-500 sm:hidden ${
         show ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
       <a
         href="#reservation"
-        className="block bg-gold py-3.5 text-center text-[0.72rem] uppercase tracking-widest2 text-black"
+        className="block bg-ink py-3.5 text-center text-[0.72rem] uppercase tracking-widest2 text-paper"
       >
         {t(UI.reserveSeat, lang)}
       </a>

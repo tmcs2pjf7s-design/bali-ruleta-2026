@@ -8,14 +8,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        black:  '#0a0908',
-        ink:    '#100f0d',
-        char:   '#1a1815',   // charcoal panel
-        stone:  '#8a8178',   // stone tone
-        line:   '#2c2823',   // hairline
-        ivory:  '#f2ede2',   // warm white
-        mist:   '#a89f92',   // muted text
-        gold:   { DEFAULT: '#c6a15b', dim: '#8c7038', deep: '#6f5827' },
+        // Light Mediterranean base
+        paper:     '#f6f2ea', // warm white — page ground
+        ivory:     '#f2ece0',
+        cream:     '#ece4d5',
+        sand:      '#e4dbc8',
+        limestone: '#ddd3bf', // panels / media ground
+        stone:     '#e9e2d3', // warm grey — reservation contrast
+        // Ink family (headings, nav, buttons, details only)
+        ink:       '#1c1a16',
+        graphite:  '#4a453c', // body text
+        warmgrey:  '#8c8474', // muted / small caps
+        line:      '#d9cfba', // hairline
+        // Champagne — used extremely sparingly
+        champ:     { DEFAULT: '#b29469', soft: '#c9b48f' },
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],
