@@ -8,47 +8,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Nocturnal base
-        obsidian: '#0a0806',
-        void:     '#100c09',
-        surface:  '#16110d',
-        card:     '#1c1611',
-        border:   '#2a2018',
-        // Warm accents
-        wine:  { DEFAULT: '#7d1128', light: '#a8324a', dark: '#4c0a19' },
-        gold:  { DEFAULT: '#c69749', light: '#e0b567', dim: '#8a6a34' },
-        bone:  '#ece3d2',
-        cream: '#d9ccb2',
-        dim:   '#8a7d68',
+        // Light, warm paper base
+        paper:  '#fbf8f3',
+        paper2: '#f3ede1',
+        ink:    '#221e18',
+        muted:  '#7c7264',
+        line:   '#e6ddcd',
+        // Primary accent
+        wine:  { DEFAULT: '#b31942', light: '#cf2b57', dark: '#8a1233' },
+        // Course accents (also available as utilities)
+        teal:   '#0e7c7b',
+        ocean:  '#2563a8',
+        leaf:   '#4f7a2f',
+        amber:  '#d97528',
+        claret: '#b31942',
+        violet: '#7b3aa8',
       },
       fontFamily: {
         sans:  ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
         serif: ['var(--font-playfair)', 'Georgia', 'serif'],
       },
       animation: {
-        'fade-up':   'fadeUp .7s cubic-bezier(.16,1,.3,1) forwards',
-        'fade-in':   'fadeIn .6s ease forwards',
-        'grain':     'grain .8s steps(2) infinite',
-        'drift':     'drift 14s ease-in-out infinite',
+        'fade-up': 'fadeUp .7s cubic-bezier(.16,1,.3,1) forwards',
+        'fade-in': 'fadeIn .6s ease forwards',
       },
       keyframes: {
-        fadeUp: { from: { opacity: '0', transform: 'translateY(24px)' }, to: { opacity: '1', transform: 'none' } },
+        fadeUp: { from: { opacity: '0', transform: 'translateY(20px)' }, to: { opacity: '1', transform: 'none' } },
         fadeIn: { from: { opacity: '0' }, to: { opacity: '1' } },
-        grain: {
-          '0%,100%': { transform: 'translate(0,0)' },
-          '20%': { transform: 'translate(-3%,2%)' },
-          '40%': { transform: 'translate(2%,-3%)' },
-          '60%': { transform: 'translate(-2%,-2%)' },
-          '80%': { transform: 'translate(3%,1%)' },
-        },
-        drift: {
-          '0%,100%': { transform: 'translate(0,0) scale(1)' },
-          '50%': { transform: 'translate(2%,-2%) scale(1.05)' },
-        },
-      },
-      boxShadow: {
-        'plate': '0 30px 80px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(198,151,73,.08)',
-        'glow':  '0 0 60px -10px rgba(125,17,40,.45)',
       },
     },
   },

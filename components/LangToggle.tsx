@@ -10,16 +10,16 @@ export default function LangToggle() {
   const [lang, setLang] = useAtom(langAtom)
 
   return (
-    <div className="flex items-center gap-1 text-[.62rem] font-semibold tracking-[.18em]">
+    <div className="flex items-center gap-1.5 text-[.68rem] font-semibold tracking-[.12em]">
       {LANGS.map((code, i) => (
-        <span key={code} className="flex items-center gap-1">
-          {i > 0 && <span className="text-dim/40">/</span>}
+        <span key={code} className="flex items-center gap-1.5">
+          {i > 0 && <span className="text-line">|</span>}
           <button
             type="button"
             onClick={() => setLang(code)}
             aria-pressed={lang === code}
             className={`uppercase transition-colors ${
-              lang === code ? 'text-gold' : 'text-dim/60 hover:text-cream'
+              lang === code ? 'text-wine' : 'text-muted hover:text-ink'
             }`}
           >
             {code}

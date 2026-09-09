@@ -2,7 +2,7 @@ import MenuClient from '@/components/MenuClient'
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-obsidian">
+    <main className="min-h-screen bg-paper">
       <MenuClient />
     </main>
   )

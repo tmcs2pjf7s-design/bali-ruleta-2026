@@ -1,10 +1,10 @@
 'use client'
 
 import { useAtomValue } from 'jotai'
-import { motion, MotionConfig } from 'framer-motion'
 import { langAtom } from '@/lib/store'
 import { tr } from '@/lib/i18n'
 import { EXPERIENCE, PILLARS, COURSES, CELLAR, WINE_TYPE_LABEL } from '@/data/menu'
+import { accentFor, COURSE_ACCENT } from '@/lib/accents'
 import LangToggle from './LangToggle'
 import CourseSection from './CourseSection'
 
@@ -12,188 +12,179 @@ export default function MenuClient() {
   const lang = useAtomValue(langAtom)
 
   const stats = [
-    { value: '6',  label: tr(lang, 'courses') },
+    { value: '6', label: tr(lang, 'courses') },
     { value: '12', label: tr(lang, 'wines') },
     { value: String(EXPERIENCE.durationHours), label: tr(lang, 'hours') },
     { value: String(EXPERIENCE.seatsPerService), label: tr(lang, 'seats') },
   ]
 
   return (
-    <MotionConfig reducedMotion="user">
+    <>
       {/* ── Nav ── */}
-      <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between bg-gradient-to-b from-obsidian via-obsidian/80 to-transparent px-6 py-4 md:px-10">
-        <a href="#top" className="font-serif text-xl font-black tracking-[.05em] text-bone">
-          {EXPERIENCE.name}
-        </a>
-        <div className="flex items-center gap-5">
-          <div className="hidden items-center gap-6 text-[.62rem] font-semibold uppercase tracking-[.18em] text-dim/80 md:flex">
-            <a href="#experiencia" className="transition-colors hover:text-cream">{tr(lang, 'nav_experience')}</a>
-            <a href="#menu" className="transition-colors hover:text-cream">{tr(lang, 'nav_menu')}</a>
-            <a href="#bodega" className="transition-colors hover:text-cream">{tr(lang, 'nav_cellar')}</a>
-          </div>
-          <LangToggle />
-          <a
-            href="#reservar"
-            className="rounded-sm border border-gold/40 px-3 py-1.5 text-[.62rem] font-bold uppercase tracking-[.16em] text-gold transition-colors hover:bg-gold hover:text-obsidian"
-          >
-            {tr(lang, 'nav_reserve')}
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-line/70 bg-paper/85 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5 md:px-10">
+          <a href="#top" className="font-serif text-lg font-bold tracking-[.04em] text-ink">
+            {EXPERIENCE.name}
           </a>
+          <div className="flex items-center gap-5">
+            <div className="hidden items-center gap-6 text-[.66rem] font-semibold uppercase tracking-[.16em] text-muted md:flex">
+              <a href="#experiencia" className="transition-colors hover:text-ink">{tr(lang, 'nav_experience')}</a>
+              <a href="#menu" className="transition-colors hover:text-ink">{tr(lang, 'nav_menu')}</a>
+              <a href="#bodega" className="transition-colors hover:text-ink">{tr(lang, 'nav_cellar')}</a>
+            </div>
+            <LangToggle />
+            <a
+              href="#reservar"
+              className="rounded-full bg-wine px-4 py-1.5 text-[.66rem] font-bold uppercase tracking-[.12em] text-paper transition-colors hover:bg-wine-dark"
+            >
+              {tr(lang, 'nav_reserve')}
+            </a>
+          </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <header
-        id="top"
-        className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden px-6 pb-24 pt-32 md:px-14"
-      >
-        <div className="relative z-10 mx-auto w-full max-w-5xl">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6 flex items-center gap-3 text-[.6rem] font-bold uppercase tracking-[.34em] text-wine-light"
-          >
-            <span className="inline-block h-px w-10 bg-wine-light/60" />
-            6 {tr(lang, 'courses')} · 12 {tr(lang, 'wines')}
-          </motion.p>
+      <header id="top" className="mx-auto flex min-h-[80dvh] max-w-6xl flex-col justify-center px-6 pb-20 pt-36 md:px-10">
+        <p
+          className="reveal mb-6 flex items-center gap-3 text-[.62rem] font-bold uppercase tracking-[.3em] text-wine"
+          style={{ animationDelay: '.05s' }}
+        >
+          <span className="inline-block h-px w-10 bg-wine" />
+          6 {tr(lang, 'courses')} · 12 {tr(lang, 'wines')}
+        </p>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif font-black leading-[0.92] text-bone"
-            style={{ fontSize: 'clamp(3.2rem, 12vw, 9rem)' }}
-          >
-            {EXPERIENCE.name}
-          </motion.h1>
+        <h1
+          className="reveal font-serif font-bold leading-[0.95] text-ink"
+          style={{ fontSize: 'clamp(3rem, 11vw, 8.5rem)', animationDelay: '.12s' }}
+        >
+          {EXPERIENCE.name}
+        </h1>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-5 font-serif text-xl italic text-gold/80 md:text-2xl"
-          >
-            {EXPERIENCE.tagline[lang]}
-          </motion.p>
+        <p
+          className="reveal mt-4 font-serif text-xl italic text-muted md:text-2xl"
+          style={{ animationDelay: '.2s' }}
+        >
+          {EXPERIENCE.tagline[lang]}
+        </p>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.62 }}
-            className="mt-8 max-w-2xl text-[.95rem] leading-relaxed text-cream/70"
-          >
-            {EXPERIENCE.intro[lang]}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.78 }}
-            className="mt-10 flex flex-wrap items-center gap-4"
-          >
-            <a
-              href="#reservar"
-              className="inline-flex items-center gap-2 rounded-sm bg-wine px-6 py-3 text-sm font-bold uppercase tracking-[.14em] text-bone shadow-glow transition-all hover:gap-3 hover:bg-wine-light"
-            >
-              {tr(lang, 'reserve')} →
-            </a>
-            <a
-              href="#menu"
-              className="text-[.72rem] font-semibold uppercase tracking-[.2em] text-dim transition-colors hover:text-cream"
-            >
-              {tr(lang, 'nav_menu')}
-            </a>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="mt-16 grid max-w-xl grid-cols-2 gap-x-8 gap-y-6 border-t border-border pt-8 sm:grid-cols-4"
-          >
-            {stats.map(s => (
-              <div key={s.label}>
-                <div className="font-serif text-3xl font-bold text-bone">{s.value}</div>
-                <div className="mt-1 text-[.56rem] uppercase tracking-[.2em] text-dim">{s.label}</div>
-              </div>
-            ))}
-          </motion.div>
+        {/* colour spectrum of the six acts */}
+        <div
+          className="reveal mt-7 flex h-1.5 w-full max-w-md overflow-hidden rounded-full"
+          style={{ animationDelay: '.28s' }}
+        >
+          {COURSES.map(c => (
+            <span key={c.n} className="flex-1" style={{ background: accentFor(c.n) }} />
+          ))}
         </div>
 
-        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
-          <span className="h-8 w-px animate-pulse bg-gradient-to-b from-gold/40 to-transparent" />
-          <span className="text-[.5rem] uppercase tracking-[.3em] text-dim/50">{tr(lang, 'scroll')}</span>
+        <p
+          className="reveal mt-7 max-w-2xl text-[.98rem] leading-relaxed text-ink/75"
+          style={{ animationDelay: '.34s' }}
+        >
+          {EXPERIENCE.intro[lang]}
+        </p>
+
+        <div
+          className="reveal mt-9 flex flex-wrap items-center gap-5"
+          style={{ animationDelay: '.42s' }}
+        >
+          <a
+            href="#reservar"
+            className="inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-bold uppercase tracking-[.12em] text-paper transition-all hover:gap-3 hover:bg-wine-dark"
+          >
+            {tr(lang, 'reserve')} →
+          </a>
+          <a
+            href="#menu"
+            className="text-[.74rem] font-semibold uppercase tracking-[.16em] text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
+          >
+            {tr(lang, 'nav_menu')}
+          </a>
+        </div>
+
+        <div
+          className="reveal mt-14 grid max-w-xl grid-cols-2 gap-x-8 gap-y-6 border-t border-line pt-7 sm:grid-cols-4"
+          style={{ animationDelay: '.5s' }}
+        >
+          {stats.map(s => (
+            <div key={s.label}>
+              <div className="font-serif text-3xl font-bold text-ink">{s.value}</div>
+              <div className="mt-1 text-[.58rem] uppercase tracking-[.18em] text-muted">{s.label}</div>
+            </div>
+          ))}
         </div>
       </header>
 
       {/* ── The experience ── */}
-      <section id="experiencia" className="border-t border-border px-6 py-24 md:px-14 md:py-32 scroll-mt-16">
-        <div className="mx-auto max-w-5xl">
-          <p className="mb-12 flex items-center gap-3 text-[.6rem] font-bold uppercase tracking-[.3em] text-dim">
-            <span className="h-px w-8 bg-gold/50" />
+      <section id="experiencia" className="scroll-mt-20 border-t border-line bg-paper2/60 px-6 py-20 md:px-10 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-12 flex items-center gap-3 text-[.62rem] font-bold uppercase tracking-[.26em] text-wine">
+            <span className="h-px w-8 bg-wine" />
             {tr(lang, 'nav_experience')}
           </p>
           <div className="grid gap-x-12 gap-y-12 sm:grid-cols-2">
             {PILLARS.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.05 }}
-              >
-                <span className="font-serif text-2xl text-gold/40">{String(i + 1).padStart(2, '0')}</span>
-                <h3 className="mt-2 font-serif text-2xl text-bone">{p.title[lang]}</h3>
-                <p className="mt-3 text-[.9rem] leading-relaxed text-cream/70">{p.body[lang]}</p>
-              </motion.div>
+              <div className="reveal" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+                <span
+                  className="font-serif text-2xl font-bold"
+                  style={{ color: COURSE_ACCENT[(i % 6) + 1] }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-2 font-serif text-2xl text-ink">{p.title[lang]}</h3>
+                <p className="mt-2.5 text-[.92rem] leading-relaxed text-ink/70">{p.body[lang]}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── The menu — 6 courses ── */}
-      <div id="menu" className="scroll-mt-16">
-        <div className="px-6 pt-24 md:px-14">
-          <div className="mx-auto max-w-5xl">
-            <h2 className="font-serif text-3xl font-black text-bone md:text-4xl">{tr(lang, 'nav_menu')}</h2>
-            <p className="mt-3 text-sm text-dim">
-              6 {tr(lang, 'courses')} · 12 {tr(lang, 'wines')} · {EXPERIENCE.priceEUR} € {tr(lang, 'perPerson')}
-            </p>
-          </div>
+      <div id="menu" className="scroll-mt-20">
+        <div className="mx-auto max-w-6xl px-6 pt-20 md:px-10 md:pt-28">
+          <h2 className="font-serif text-3xl font-bold text-ink md:text-4xl">{tr(lang, 'nav_menu')}</h2>
+          <p className="mt-3 text-sm text-muted">
+            6 {tr(lang, 'courses')} · 12 {tr(lang, 'wines')} · {EXPERIENCE.priceEUR} € {tr(lang, 'perPerson')}
+          </p>
         </div>
-        {COURSES.map(c => (
-          <CourseSection key={c.n} course={c} lang={lang} />
-        ))}
+        <div className="mt-10">
+          {COURSES.map(c => (
+            <CourseSection key={c.n} course={c} lang={lang} />
+          ))}
+        </div>
       </div>
 
       {/* ── The cellar ── */}
-      <section id="bodega" className="border-t border-border px-6 py-24 md:px-14 md:py-32 scroll-mt-16">
-        <div className="mx-auto max-w-5xl">
-          <p className="mb-4 flex items-center gap-3 text-[.6rem] font-bold uppercase tracking-[.3em] text-dim">
-            <span className="h-px w-8 bg-gold/50" />
+      <section id="bodega" className="scroll-mt-20 border-t border-line bg-paper2/60 px-6 py-20 md:px-10 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-4 flex items-center gap-3 text-[.62rem] font-bold uppercase tracking-[.26em] text-wine">
+            <span className="h-px w-8 bg-wine" />
             {tr(lang, 'theCellar')}
           </p>
-          <h2 className="max-w-2xl font-serif text-3xl leading-tight text-bone md:text-4xl">
+          <h2 className="max-w-2xl font-serif text-3xl leading-tight text-ink md:text-4xl">
             {tr(lang, 'cellarIntro')}
           </h2>
 
-          <ol className="mt-12 divide-y divide-border border-y border-border">
+          <ol className="mt-10 border-t border-line">
             {CELLAR.map(w => (
               <li
                 key={w.glass}
-                className="grid grid-cols-[2.5rem_1fr] items-baseline gap-x-4 py-4 md:grid-cols-[3rem_1.4fr_1fr_auto] md:gap-x-8"
+                className="grid grid-cols-[2.25rem_1fr] items-baseline gap-x-4 border-b border-line py-3.5 md:grid-cols-[2.5rem_1.5fr_1fr_auto] md:gap-x-8"
               >
-                <span className="font-serif text-sm text-gold/50">
+                <span
+                  className="font-serif text-sm font-semibold"
+                  style={{ color: accentFor(Math.ceil(w.glass / 2)) }}
+                >
                   {String(w.glass).padStart(2, '0')}
                 </span>
-                <span className="text-[.95rem] text-bone">
+                <span className="text-[.95rem] text-ink">
                   {w.name}
-                  <span className="text-dim"> · {w.producer}</span>
+                  <span className="text-muted"> · {w.producer}</span>
                 </span>
-                <span className="col-start-2 text-[.8rem] text-cream/60 md:col-start-3">
+                <span className="col-start-2 text-[.82rem] text-ink/60 md:col-start-3">
                   {w.region[lang]}
                 </span>
-                <span className="col-start-2 text-[.62rem] uppercase tracking-[.16em] text-dim md:col-start-4 md:text-right">
+                <span className="col-start-2 text-[.64rem] uppercase tracking-[.12em] text-muted md:col-start-4 md:text-right">
                   {WINE_TYPE_LABEL[w.type][lang]} · {w.year}
                 </span>
               </li>
@@ -203,21 +194,21 @@ export default function MenuClient() {
       </section>
 
       {/* ── Reserve ── */}
-      <section id="reservar" className="relative border-t border-border px-6 py-28 md:px-14 md:py-36 scroll-mt-16">
+      <section id="reservar" className="scroll-mt-20 border-t border-line px-6 py-24 md:px-10 md:py-32">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="mb-6 text-[.6rem] font-bold uppercase tracking-[.3em] text-wine-light">
+          <p className="mb-5 text-[.62rem] font-bold uppercase tracking-[.26em] text-wine">
             {tr(lang, 'nav_reserve')}
           </p>
-          <h2 className="font-serif text-4xl font-black text-bone md:text-6xl">
+          <h2 className="font-serif text-4xl font-bold text-ink md:text-6xl">
             {tr(lang, 'reserveTitle')}
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-[.95rem] leading-relaxed text-cream/70">
+          <p className="mx-auto mt-5 max-w-xl text-[.98rem] leading-relaxed text-ink/75">
             {tr(lang, 'reserveBody')}
           </p>
 
-          <div className="mt-10 flex flex-col items-center gap-2">
-            <span className="font-serif text-5xl font-bold text-gold">{EXPERIENCE.priceEUR} €</span>
-            <span className="text-[.62rem] uppercase tracking-[.2em] text-dim">
+          <div className="mx-auto mt-10 flex max-w-md flex-col items-center gap-1 rounded-2xl border border-line bg-paper2/70 px-8 py-7">
+            <span className="font-serif text-5xl font-bold text-wine">{EXPERIENCE.priceEUR} €</span>
+            <span className="text-[.64rem] uppercase tracking-[.16em] text-muted">
               {tr(lang, 'perPerson')} · {EXPERIENCE.seatsPerService} {tr(lang, 'seatsPerService')}
             </span>
           </div>
@@ -226,33 +217,38 @@ export default function MenuClient() {
             href={`mailto:${EXPERIENCE.email}?subject=${encodeURIComponent(
               lang === 'es' ? 'Reserva — SOBREMESA' : 'Reservation — SOBREMESA',
             )}`}
-            className="mt-10 inline-flex items-center gap-2 rounded-sm bg-wine px-8 py-4 text-sm font-bold uppercase tracking-[.14em] text-bone shadow-glow transition-all hover:gap-3 hover:bg-wine-light"
+            className="mt-9 inline-flex items-center gap-2 rounded-full bg-wine px-8 py-4 text-sm font-bold uppercase tracking-[.12em] text-paper transition-all hover:gap-3 hover:bg-wine-dark"
           >
             {tr(lang, 'reserveCta')} →
           </a>
 
           <dl className="mx-auto mt-14 grid max-w-xl gap-6 text-left sm:grid-cols-2">
             <div>
-              <dt className="text-[.58rem] font-bold uppercase tracking-[.2em] text-dim">{tr(lang, 'date')}</dt>
-              <dd className="mt-1.5 text-[.88rem] text-cream/75">{EXPERIENCE.dates[lang]}</dd>
+              <dt className="text-[.6rem] font-bold uppercase tracking-[.16em] text-wine">{tr(lang, 'date')}</dt>
+              <dd className="mt-1.5 text-[.9rem] text-ink/75">{EXPERIENCE.dates[lang]}</dd>
             </div>
             <div>
-              <dt className="text-[.58rem] font-bold uppercase tracking-[.2em] text-dim">{tr(lang, 'location')}</dt>
-              <dd className="mt-1.5 text-[.88rem] text-cream/75">{EXPERIENCE.location[lang]}</dd>
+              <dt className="text-[.6rem] font-bold uppercase tracking-[.16em] text-wine">{tr(lang, 'location')}</dt>
+              <dd className="mt-1.5 text-[.9rem] text-ink/75">{EXPERIENCE.location[lang]}</dd>
             </div>
           </dl>
 
-          <p className="mt-10 text-[.72rem] text-dim/70">{tr(lang, 'dietary')}</p>
+          <p className="mt-10 text-[.74rem] text-muted">{tr(lang, 'dietary')}</p>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border px-6 py-12 text-center md:px-14">
-        <p className="font-serif text-2xl font-black text-bone/20">{EXPERIENCE.name}</p>
-        <p className="mt-3 text-[.62rem] tracking-wide text-dim/50">
+      <footer className="border-t border-line px-6 py-10 text-center md:px-10">
+        <div className="mx-auto flex max-w-xs justify-center gap-1.5">
+          {COURSES.map(c => (
+            <span key={c.n} className="h-1 w-6 rounded-full" style={{ background: accentFor(c.n) }} />
+          ))}
+        </div>
+        <p className="mt-5 font-serif text-xl font-bold text-ink">{EXPERIENCE.name}</p>
+        <p className="mt-2 text-[.64rem] tracking-wide text-muted">
           © {new Date().getFullYear()} {EXPERIENCE.name} · {tr(lang, 'rights')}
         </p>
       </footer>
-    </MotionConfig>
+    </>
   )
 }

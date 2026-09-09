@@ -1,69 +1,66 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import type { Lang } from '@/lib/i18n'
 import { tr } from '@/lib/i18n'
 import type { Course } from '@/data/menu'
+import { accentFor } from '@/lib/accents'
 import WineCard from './WineCard'
 
-const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI']
-
 export default function CourseSection({ course, lang }: { course: Course; lang: Lang }) {
+  const accent = accentFor(course.n)
+
   return (
     <section
       id={`plato-${course.n}`}
-      className="relative border-t border-border/60 px-6 py-20 md:px-14 md:py-28 scroll-mt-20"
+      className="scroll-mt-24 border-t border-line px-6 py-16 md:px-14 md:py-24"
     >
       <div className="mx-auto max-w-5xl">
         {/* Header */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:gap-10">
-          <motion.span
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-[5rem] leading-none text-gold/25 md:text-[7rem]"
+        <div className="flex items-start gap-5 md:gap-8">
+          <span
+            className="reveal font-serif text-5xl leading-none md:text-7xl"
+            style={{ color: accent }}
             aria-hidden
           >
-            {ROMAN[course.n]}
-          </motion.span>
+            {String(course.n).padStart(2, '0')}
+          </span>
 
-          <div className="flex-1">
-            <p className="mb-2 text-[.6rem] font-bold uppercase tracking-[.32em] text-wine-light">
+          <div className="flex-1 pt-1">
+            <p
+              className="reveal mb-1.5 text-[.62rem] font-bold uppercase tracking-[.28em]"
+              style={{ color: accent }}
+            >
               {tr(lang, 'act')} {course.n} / 6
             </p>
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-              className="font-serif text-4xl leading-none text-bone md:text-5xl"
+            <h2
+              className="reveal font-serif text-3xl leading-tight text-ink md:text-[2.75rem]"
+              style={{ animationDelay: '.05s' }}
             >
               {course.name[lang]}
-            </motion.h2>
-            <p className="mt-3 text-sm italic text-gold/70">{course.kicker[lang]}</p>
+            </h2>
+            <p className="reveal mt-2 text-sm italic text-muted" style={{ animationDelay: '.1s' }}>
+              {course.kicker[lang]}
+            </p>
           </div>
         </div>
 
         {/* Body */}
-        <div className="mt-10 grid gap-10 md:grid-cols-[1.1fr_1fr] md:gap-14">
+        <div className="mt-8 grid gap-8 md:grid-cols-[1.05fr_1fr] md:gap-14">
           <div>
-            <p className="text-[.98rem] leading-relaxed text-cream/80">
+            <p className="text-[.98rem] leading-relaxed text-ink/80">
               {course.description[lang]}
             </p>
-            <p className="mt-6 text-[.72rem] uppercase tracking-[.16em] text-dim">
+            <p className="mt-5 text-[.72rem] uppercase tracking-[.14em] text-muted">
               {course.ingredients[lang]}
             </p>
           </div>
 
           <div>
-            <p className="mb-4 flex items-center gap-3 text-[.6rem] font-bold uppercase tracking-[.28em] text-dim">
-              <span className="h-px w-6 bg-gold/50" />
+            <p className="mb-4 flex items-center gap-3 text-[.6rem] font-bold uppercase tracking-[.24em] text-muted">
+              <span className="h-px w-6" style={{ background: accent }} />
               {tr(lang, 'pairing')}
             </p>
             <div className="grid gap-4">
               {course.wines.map(w => (
-                <WineCard key={w.glass} wine={w} lang={lang} />
+                <WineCard key={w.glass} wine={w} lang={lang} accent={accent} />
               ))}
             </div>
           </div>

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans, Playfair_Display } from 'next/font/google'
 import './globals.css'
-import Ambience from '@/components/Ambience'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -28,23 +27,14 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0a0806',
-  colorScheme: 'dark',
+  themeColor: '#fbf8f3',
+  colorScheme: 'light',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${dmSans.variable} ${playfair.variable}`}>
-      <head>
-        {/* If JS is off, framer-motion never animates: reveal everything. */}
-        <noscript>
-          <style>{`[style*="opacity:0"]{opacity:1!important;transform:none!important}`}</style>
-        </noscript>
-      </head>
-      <body>
-        <Ambience />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
