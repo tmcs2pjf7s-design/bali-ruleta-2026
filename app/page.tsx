@@ -1,8 +1,9 @@
 import Nav from '@/components/Nav'
 import StickyReserve from '@/components/StickyReserve'
 import Hero from '@/components/sections/Hero'
-import Concept from '@/components/sections/Concept'
+import Intro from '@/components/sections/Intro'
 import Worlds from '@/components/sections/Worlds'
+import Film from '@/components/sections/Film'
 import Dishes from '@/components/sections/Dishes'
 import Wines from '@/components/sections/Wines'
 import Guests from '@/components/sections/Guests'
@@ -18,8 +19,9 @@ export default function Page() {
       <Nav />
       <main>
         <Hero />
-        <Concept />
+        <Intro />
         <Worlds />
+        <Film />
         <Dishes />
         <Wines />
         <Guests />

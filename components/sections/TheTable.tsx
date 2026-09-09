@@ -1,6 +1,6 @@
 import Reveal from '@/components/Reveal'
 import Eyebrow from '@/components/Eyebrow'
-import { AVAILABILITY, SEAT_STATUS_LABEL } from '@/data/experience'
+import { AVAILABILITY, SCARCITY, SEAT_STATUS_LABEL } from '@/data/experience'
 
 const statusColor: Record<string, string> = {
   available: 'text-gold',
@@ -20,6 +20,9 @@ export default function TheTable() {
         </Reveal>
         <Reveal className="mt-6 text-[0.7rem] uppercase tracking-widest2 text-mist">
           One service per night · Six guests
+        </Reveal>
+        <Reveal as="p" delay={60} className="mt-8 max-w-md font-display text-xl italic text-ivory/70">
+          {SCARCITY}
         </Reveal>
 
         <div className="mt-14 grid gap-px border border-line bg-line md:grid-cols-2">

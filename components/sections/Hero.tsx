@@ -57,7 +57,7 @@ export default function Hero() {
               href="#journey"
               className="group inline-flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.18em] text-ivory"
             >
-              Discover the journey
+              Enter the journey
               <span className="inline-block transition-transform duration-300 group-hover:translate-y-1">↓</span>
             </a>
           </div>

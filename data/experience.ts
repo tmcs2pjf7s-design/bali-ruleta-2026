@@ -11,15 +11,26 @@ export const BRAND = {
   tagline: 'A private gastronomic journey',
   concept: '6 destinations · 6 dishes · 12 wines · 6 guests · 4 hours',
   lines: [
-    'Six guests. Six worlds. One table.',
+    'Six worlds. One table.',
     'A journey told through food and wine.',
     'The world, served one chapter at a time.',
+    'The journey ends where it began.',
   ],
   nights: 'Thursday · Friday',
   durationHours: 4,
   seats: 6,
+  seatsPerWeek: 12,
   email: 'reserve@sixworlds.example', // TODO: real reservations address
   city: 'Location shared upon confirmation', // TODO: neighbourhood / city
+}
+
+/** Short intro block. */
+export const INTRO = {
+  headline: 'Six worlds. One table.',
+  body: [
+    'Six guests. A four-hour journey through six territories.',
+    'Told course by course — some of it kept back until you are seated.',
+  ],
 }
 
 /** Marquee figures reused across sections. */
@@ -29,7 +40,7 @@ export const FIGURES: { value: string; label: string }[] = [
   { value: '12', label: 'Wines' },
   { value: '6', label: 'Guests' },
   { value: '4', label: 'Hours' },
-  { value: '1', label: 'Table' },
+  { value: '2', label: 'Nights' },
 ]
 
 /** A world = a chapter of the night. Keep descriptions conceptual, not literal. */
@@ -42,6 +53,10 @@ export interface World {
   teaser: string
   /** Fuller concept paragraph for the SIX DISHES section. */
   concept: string
+  /** Inspiration keywords — not a recipe. */
+  inspiration: string[]
+  /** The closing chapter (Spain) is rendered differently. */
+  home?: boolean
   /** Optional real photograph; null renders the art-directed placeholder. */
   image: string | null
 }
@@ -52,9 +67,10 @@ export const WORLDS: World[] = [
     roman: 'I',
     place: 'Bali',
     title: 'BALI NOIR',
-    teaser: 'Duck marinated in wine and Balinese spice. Black plate, low volume, full intent.',
+    teaser: 'Duck marinated in wine and Balinese spice. Dark, precise, restrained.',
     concept:
-      'The journey opens in shadow. Duck marinated in red wine and a base of Balinese spice — restraint over abundance. A small composition on a large black plate: precision, not spectacle.',
+      'The journey opens in shadow. Duck marinated in red wine over a base of Balinese spice, finished with a dark reduction and fresh herbs. A small composition on a large black plate — precision, not abundance.',
+    inspiration: ['duck', 'wine', 'galangal', 'ginger', 'spice', 'fire', 'dark reduction', 'fresh herbs'],
     image: null,
   },
   {
@@ -62,9 +78,10 @@ export const WORLDS: World[] = [
     roman: 'II',
     place: 'Australia',
     title: 'RED EARTH',
-    teaser: 'Earth, fire and the Australian wild, read through a single plate.',
+    teaser: 'Red earth, open flame, native wild.',
     concept:
-      'A course built from earth, fire and native character. The plate speaks of open landscape and heat — smoke, char and something raw held under control. TODO: final ingredients.',
+      'A course built from red ground and fire. Smoke, char and native botanicals — something raw, held under control. TODO: final ingredients.',
+    inspiration: ['red earth', 'fire', 'smoke', 'char', 'native botanicals', 'open flame'],
     image: null,
   },
   {
@@ -72,9 +89,10 @@ export const WORLDS: World[] = [
     roman: 'III',
     place: 'Cape Verde',
     title: 'ATLANTIC WIND',
-    teaser: 'The Atlantic, a volcanic coastline, the cooking of the islands.',
+    teaser: 'The Atlantic, a volcanic coast, the wind off the islands.',
     concept:
-      'A tribute to the Atlantic and to volcanic ground. Salt, wind and island cooking, distilled into one quiet, mineral course. TODO: final ingredients.',
+      'A tribute to the Atlantic and to volcanic ground. Salt, wind, fish and corn, distilled into one quiet, mineral course. TODO: final ingredients.',
+    inspiration: ['Atlantic', 'volcano', 'salt', 'fish', 'wind', 'corn'],
     image: null,
   },
   {
@@ -84,7 +102,8 @@ export const WORLDS: World[] = [
     title: 'PACIFIC / AMAZONIA',
     teaser: 'Where the Pacific meets the density of the Amazon.',
     concept:
-      'Two forces on one plate: the cold clarity of the Pacific and the humid abundance of the Amazon. Contrast held in balance. TODO: final ingredients.',
+      'Two forces on one plate: the cold clarity of the Pacific and the humid abundance of the Amazon. Acidity against heat, held in balance. TODO: final ingredients.',
+    inspiration: ['Pacific', 'Amazonia', 'acidity', 'chilli', 'fruit', 'herbs'],
     image: null,
   },
   {
@@ -94,7 +113,8 @@ export const WORLDS: World[] = [
     title: 'THE LAST LIGHT',
     teaser: 'Atlantic tradition, fire, and a Portuguese kind of melancholy.',
     concept:
-      'The light begins to fade. Atlantic tradition and fire, carrying a note of melancholy — the course before the return home. TODO: final ingredients.',
+      'The light begins to fade. Atlantic tradition, olive oil and fire, carrying a note of melancholy — the course before the return home. TODO: final ingredients.',
+    inspiration: ['Atlantic', 'tradition', 'fire', 'olive oil', 'fish', 'melancholy'],
     image: null,
   },
   {
@@ -102,9 +122,11 @@ export const WORLDS: World[] = [
     roman: 'VI',
     place: 'Spain',
     title: 'HOME',
-    teaser: 'The journey ends where everything begins.',
+    teaser: 'The journey ends where it began.',
     concept:
-      'The last chapter. Spain — the point of departure and of return. A close, not a finale. TODO: final ingredients.',
+      'Not another destination. The last chapter is a return — to identity, to memory, to the table where the journey started.',
+    inspiration: ['return', 'identity', 'home', 'memory'],
+    home: true,
     image: null,
   },
 ]
@@ -114,10 +136,18 @@ export const WINE_NARRATIVE = {
   headline: 'ONE DISH. TWO EXPRESSIONS.',
   body: [
     'Twelve wines run through the night — two for every course.',
-    'The first often works against the plate: a contrast that sharpens it.',
-    'The second moves with it: harmony, weight, depth.',
-    'Wine here is not an accompaniment. It is part of how the story is told.',
+    'The first is chosen for contrast: set against the plate to sharpen it.',
+    'The second for harmony: it moves with the dish — weight, depth, a longer finish.',
+    'Wine here is part of how the story is told, not an accompaniment to it.',
   ],
+  first: {
+    tag: 'Contrast',
+    line: 'Set against the plate to cut through it and sharpen its edges.',
+  },
+  second: {
+    tag: 'Harmony',
+    line: 'Moves with the dish — weight, depth, a longer finish.',
+  },
   note: 'Producers, regions and vintages are confirmed closer to each service.', // TODO: wine list
 }
 
@@ -125,15 +155,16 @@ export const WINE_NARRATIVE = {
 export const GUESTS_BLOCK = {
   headline: 'ONLY SIX SEATS',
   body: [
-    'Six people share each experience. No large tables, no service at scale.',
-    'It is close enough for the chef, the team and the guests to travel together.',
+    'Every experience is built for six people. No large tables, no service at scale.',
+    'Close enough for the chef, the team and the guests to travel together.',
   ],
   stats: [
     { value: '6', label: 'Guests' },
     { value: '1', label: 'Table' },
-    { value: '4', label: 'Hours' },
-    { value: '12', label: 'Wines' },
     { value: '6', label: 'Dishes' },
+    { value: '12', label: 'Wines' },
+    { value: '4', label: 'Hours' },
+    { value: '2', label: 'Nights' },
   ],
 }
 
@@ -147,15 +178,23 @@ export interface Beat {
 
 export const NIGHT: Beat[] = [
   { time: '19:30', label: 'Arrival', note: 'Welcome drink and the first encounter' },
-  { label: 'Act I — Bali', act: 1 },
-  { label: 'Act II — Australia', act: 2 },
-  { label: 'Act III — Cape Verde', act: 3 },
+  { label: 'Bali', act: 1 },
+  { label: 'Australia', act: 2 },
+  { label: 'Cape Verde', act: 3 },
   { label: 'Intermission', note: 'A pause between hemispheres' },
-  { label: 'Act IV — South America', act: 4 },
-  { label: 'Act V — Portugal', act: 5 },
-  { label: 'Act VI — Spain', act: 6 },
+  { label: 'South America', act: 4 },
+  { label: 'Portugal', act: 5 },
+  { label: 'Spain', act: 6, note: 'The journey ends where it began' },
   { label: 'Closing', note: 'The last pour, the last light' },
 ]
+
+/** The 45–60s cinematic film. Drop a file in /public and point src at it. */
+export const VIDEO = {
+  src: null as string | null, // TODO: '/six-worlds.mp4' — cinematic 45–60s, no dialogue
+  poster: null as string | null, // TODO: '/six-worlds-poster.jpg'
+  runtime: '60 seconds',
+  caption: 'Bali to Spain, in fragments.',
+}
 
 /**
  * THE TABLE — availability. Edit `status` / `seatsLeft` as services fill.
@@ -180,6 +219,8 @@ export const SEAT_STATUS_LABEL: Record<SeatStatus, string> = {
   full: 'Fully booked',
   waitlist: 'Waitlist',
 }
+
+export const SCARCITY = 'Two nights a week. One table. Twelve seats.'
 
 /** RESERVATION — practical detail. */
 export const RESERVATION = {

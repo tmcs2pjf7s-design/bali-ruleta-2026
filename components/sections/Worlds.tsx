@@ -18,21 +18,33 @@ export default function Worlds() {
               key={w.act}
               className={`grid items-center gap-6 border-t border-line py-10 md:grid-cols-2 md:gap-16 md:py-14 ${
                 i % 2 ? 'md:[&>*:first-child]:order-2' : ''
-              }`}
+              } ${w.home ? 'border-gold/25' : ''}`}
             >
               <WorldMedia
                 image={w.image}
                 roman={w.roman}
                 place={w.place}
+                parallax
                 ratio="aspect-[16/10] md:aspect-[4/3]"
               />
               <div>
                 <div className="flex items-baseline gap-4">
-                  <span className="font-display text-2xl font-light text-gold">{w.roman}</span>
-                  <span className="text-[0.62rem] uppercase tracking-widest2 text-mist">{w.place}</span>
+                  <span className={`font-display text-2xl font-light ${w.home ? 'text-ivory' : 'text-gold'}`}>
+                    {w.roman}
+                  </span>
+                  <span className="text-[0.62rem] uppercase tracking-widest2 text-mist">
+                    {w.home ? 'The return' : w.place}
+                  </span>
                 </div>
                 <h3 className="mt-3 font-display text-3xl font-light text-ivory md:text-4xl">{w.title}</h3>
                 <p className="mt-4 max-w-md text-sm leading-relaxed text-mist">{w.teaser}</p>
+                <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
+                  {w.inspiration.map(k => (
+                    <li key={k} className="text-[0.58rem] uppercase tracking-[0.16em] text-stone">
+                      {k}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </Reveal>
           ))}

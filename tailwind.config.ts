@@ -11,8 +11,9 @@ const config: Config = {
         black:  '#0a0908',
         ink:    '#100f0d',
         char:   '#1a1815',   // charcoal panel
+        stone:  '#8a8178',   // stone tone
         line:   '#2c2823',   // hairline
-        ivory:  '#f2ede2',
+        ivory:  '#f2ede2',   // warm white
         mist:   '#a89f92',   // muted text
         gold:   { DEFAULT: '#c6a15b', dim: '#8c7038', deep: '#6f5827' },
       },

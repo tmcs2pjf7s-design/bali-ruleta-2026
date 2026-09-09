@@ -24,17 +24,17 @@ export default function Wines() {
             <div className="grid grid-cols-2 border border-line">
               <div className="border-r border-line p-8">
                 <span className="text-[0.55rem] uppercase tracking-widest2 text-mist">First glass</span>
-                <p className="mt-3 font-display text-2xl font-light text-ivory">Contrast</p>
-                <p className="mt-2 text-[0.8rem] leading-relaxed text-mist">
-                  Set against the plate to cut through it and sharpen its edges.
+                <p className="mt-3 font-display text-3xl font-light uppercase text-ivory">
+                  {WINE_NARRATIVE.first.tag}
                 </p>
+                <p className="mt-2 text-[0.8rem] leading-relaxed text-mist">{WINE_NARRATIVE.first.line}</p>
               </div>
               <div className="p-8">
                 <span className="text-[0.55rem] uppercase tracking-widest2 text-mist">Second glass</span>
-                <p className="mt-3 font-display text-2xl font-light text-ivory">Depth</p>
-                <p className="mt-2 text-[0.8rem] leading-relaxed text-mist">
-                  Moves with the dish — harmony, weight, a longer finish.
+                <p className="mt-3 font-display text-3xl font-light uppercase text-ivory">
+                  {WINE_NARRATIVE.second.tag}
                 </p>
+                <p className="mt-2 text-[0.8rem] leading-relaxed text-mist">{WINE_NARRATIVE.second.line}</p>
               </div>
               <div className="col-span-2 border-t border-line p-8 text-center">
                 <span className="font-display text-xl italic text-ivory/70">
