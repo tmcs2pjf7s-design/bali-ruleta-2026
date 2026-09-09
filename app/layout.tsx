@@ -1,40 +1,49 @@
 import type { Metadata, Viewport } from 'next'
-import { DM_Sans, Playfair_Display } from 'next/font/google'
+import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
 
-const dmSans = DM_Sans({
+const display = Cormorant_Garamond({
   subsets: ['latin'],
-  variable: '--font-dm-sans',
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-display',
   display: 'swap',
 })
 
-const playfair = Playfair_Display({
+const sans = Inter({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-sans',
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'SOBREMESA — 6 platos · 12 vinos',
+  title: 'SIX WORLDS — A private gastronomic journey',
   description:
-    'Una cena a ciegas de seis actos y doce copas para doce comensales alrededor de una sola mesa. Maridaje guiado, un único pase por noche.',
-  keywords: ['menú degustación', 'maridaje', 'cena', 'vino', 'tasting menu', 'wine pairing'],
+    'Six guests. Six worlds. One table. A four-hour journey through six destinations — six dishes, twelve wines. Thursday and Friday nights only.',
+  keywords: [
+    'six worlds', 'gastronomic journey', 'private dining', 'tasting experience',
+    'wine pairing', 'fine dining', 'chef table',
+  ],
   openGraph: {
-    title: 'SOBREMESA',
-    description: 'Seis actos. Doce copas. Una sola noche.',
+    title: 'SIX WORLDS',
+    description: 'A private gastronomic journey · 6 dishes · 12 wines · 6 guests · 4 hours',
     type: 'website',
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#fbf8f3',
-  colorScheme: 'light',
+  themeColor: '#0a0908',
+  colorScheme: 'dark',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${dmSans.variable} ${playfair.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+      <head>
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
+      </head>
+      <body className="grain">{children}</body>
     </html>
   )
 }
