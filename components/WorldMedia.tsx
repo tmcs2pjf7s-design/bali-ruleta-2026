@@ -55,12 +55,6 @@ export default function WorldMedia({
       >
         {roman}
       </span>
-      <span
-        className="absolute right-5 top-5 text-[0.58rem] uppercase tracking-widest2"
-        style={{ color: accent, opacity: 0.6 }}
-      >
-        {place}
-      </span>
     </div>
   )
 

@@ -21,7 +21,7 @@ export default function Dishes({ lang }: { lang: Lang }) {
           </div>
           <div className="flex flex-col justify-center">
             <span className="text-[0.62rem] uppercase tracking-widest2 text-warmgrey">
-              {t(UI.act, lang)} 01 · {t(bali.place, lang)}
+              {t(UI.act, lang)} 01
             </span>
             <h3 className="mt-2 font-display text-4xl font-light text-ink md:text-6xl">{bali.title}</h3>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-graphite md:text-[0.95rem]">{t(bali.concept, lang)}</p>
@@ -38,7 +38,7 @@ export default function Dishes({ lang }: { lang: Lang }) {
             <Reveal key={w.act}>
               <WorldMedia image={w.image} roman={w.roman} place={t(w.place, lang)} tone={w.tone} ratio="aspect-[4/5]" />
               <span className="mt-5 block text-[0.58rem] uppercase tracking-widest2 text-warmgrey">
-                {t(UI.act, lang)} 0{w.act} · {w.home ? t(UI.theReturn, lang) : t(w.place, lang)}
+                {t(UI.act, lang)} 0{w.act}
               </span>
               <h3 className="mt-1.5 font-display text-2xl font-light text-ink">{w.title}</h3>
               <p className="mt-3 text-[0.85rem] leading-relaxed text-graphite">{t(w.concept, lang)}</p>

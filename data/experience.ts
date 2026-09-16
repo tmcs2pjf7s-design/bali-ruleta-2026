@@ -280,13 +280,13 @@ export interface Beat {
 
 export const NIGHT: Beat[] = [
   { time: '19:30', label: L('Llegada', 'Arrival'), note: L('Copa de bienvenida y el primer encuentro', 'Welcome drink and the first encounter') },
-  { label: L('Bali', 'Bali'), act: 1 },
-  { label: L('Australia', 'Australia'), act: 2 },
-  { label: L('Cabo Verde', 'Cape Verde'), act: 3 },
+  { label: L('BALI NOIR', 'BALI NOIR'), act: 1 },
+  { label: L('RED EARTH', 'RED EARTH'), act: 2 },
+  { label: L('ATLANTIC WIND', 'ATLANTIC WIND'), act: 3 },
   { label: L('Intermedio', 'Intermission'), note: L('Una pausa entre hemisferios', 'A pause between hemispheres') },
-  { label: L('Sudamérica', 'South America'), act: 4 },
-  { label: L('Portugal', 'Portugal'), act: 5 },
-  { label: L('España', 'Spain'), act: 6, note: L('El viaje termina donde empezó', 'The journey ends where it began') },
+  { label: L('PACIFIC / AMAZONIA', 'PACIFIC / AMAZONIA'), act: 4 },
+  { label: L('THE LAST LIGHT', 'THE LAST LIGHT'), act: 5 },
+  { label: L('HOME', 'HOME'), act: 6, note: L('El viaje termina donde empezó', 'The journey ends where it began') },
   { label: L('Cierre', 'Closing'), note: L('La última copa, la última luz', 'The last pour, the last light') },
 ]
 
@@ -294,7 +294,7 @@ export const VIDEO = {
   src: null as string | null, // TODO: '/six-worlds.mp4' — cinematic 45–60s, no dialogue
   poster: null as string | null, // TODO: '/six-worlds-poster.jpg'
   runtime: L('60 segundos', '60 seconds'),
-  caption: L('De Bali a España, en fragmentos.', 'Bali to Spain, in fragments.'),
+  caption: L('De la sombra a la luz, en fragmentos.', 'From shadow to light, in fragments.'),
   label: L('Six Worlds — la película', 'Six Worlds — the film'),
   filmWord: L('Película', 'Film'),
 }
