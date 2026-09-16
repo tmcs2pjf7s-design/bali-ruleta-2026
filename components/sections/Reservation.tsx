@@ -4,11 +4,6 @@ import ReservationForm from '@/components/ReservationForm'
 import { RESERVATION, BRAND, UI, DAY_LABEL, t, type Lang } from '@/data/experience'
 
 export default function Reservation({ lang }: { lang: Lang }) {
-  const priceText =
-    RESERVATION.pricePerPerson > 0
-      ? `${RESERVATION.currency}${RESERVATION.pricePerPerson}`
-      : `${RESERVATION.currency} · · ·`
-
   return (
     <section id="reservation" className="scroll-mt-24 border-t border-line bg-stone px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
@@ -29,14 +24,6 @@ export default function Reservation({ lang }: { lang: Lang }) {
         <div className="mt-16 grid gap-16 md:grid-cols-[1fr_1.1fr] md:gap-24">
           {/* details */}
           <Reveal className="space-y-10">
-            <div className="flex items-baseline justify-between border-b border-line pb-5">
-              <span className="text-[0.6rem] uppercase tracking-widest2 text-warmgrey">{t(UI.perPerson, lang)}</span>
-              <span className="font-display text-4xl font-light text-ink">{priceText}</span>
-            </div>
-            {RESERVATION.pricePerPerson === 0 && (
-              <p className="-mt-6 text-[0.72rem] text-warmgrey">{t(UI.priceAtBooking, lang)}</p>
-            )}
-
             <div>
               <span className="text-[0.6rem] uppercase tracking-widest2 text-warmgrey">{t(UI.duration, lang)}</span>
               <p className="mt-2 text-sm text-graphite">{t(RESERVATION.durationText, lang)}</p>
