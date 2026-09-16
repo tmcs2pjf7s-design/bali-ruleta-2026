@@ -16,6 +16,10 @@ export default function Footer({ lang }: { lang: Lang }) {
           </a>
           <span>© {new Date().getFullYear()} {BRAND.name} · {t(UI.rights, lang)}</span>
         </div>
+
+        <p className="mt-6 text-center text-[0.62rem] uppercase tracking-widest2 text-warmgrey/70 sm:text-left">
+          {t(UI.poweredBy, lang)}
+        </p>
       </div>
     </footer>
   )

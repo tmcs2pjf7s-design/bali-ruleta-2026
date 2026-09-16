@@ -32,7 +32,7 @@ export const BRAND = {
   durationHours: 4,
   seats: 6,
   seatsPerWeek: 12,
-  email: 'reserve@sixworlds.example', // TODO: real reservations address
+  email: 'ruslanurbano@outlook.es',
   city: L('Ubicación facilitada al confirmar', 'Location shared upon confirmation'), // TODO
   heroImage: '/portada-six.jpg', // editorial hero photograph
 }
@@ -429,5 +429,6 @@ export const UI = {
         : `${n} ${n === 1 ? 'seat' : 'seats'} left`,
   },
   rights: L('Todos los derechos reservados', 'All rights reserved'),
+  poweredBy: L('Desarrollado por Ruslan Urbano', 'Powered by Ruslan Urbano'),
   langName: { es: 'ES', en: 'EN' },
 }
