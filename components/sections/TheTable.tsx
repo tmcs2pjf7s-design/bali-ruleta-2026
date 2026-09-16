@@ -1,7 +1,7 @@
 import Reveal from '@/components/Reveal'
 import Eyebrow from '@/components/Eyebrow'
 import {
-  AVAILABILITY, DAY_LABEL, SCARCITY, SEAT_STATUS_LABEL, UI, t, type Lang,
+  AVAILABILITY, DAY_LABEL, SCARCITY, availabilityText, UI, t, type Lang,
 } from '@/data/experience'
 
 const statusColor: Record<string, string> = {
@@ -37,11 +37,7 @@ export default function TheTable({ lang }: { lang: Lang }) {
                     {t(DAY_LABEL[slot.day], lang)}
                   </span>
                   <span className={`text-[0.62rem] uppercase tracking-widest2 ${statusColor[slot.status]}`}>
-                    {slot.status === 'limited'
-                      ? lang === 'es'
-                        ? `${slot.seatsLeft} ${slot.seatsLeft === 1 ? 'plaza libre' : 'plazas libres'}`
-                        : `${slot.seatsLeft} ${slot.seatsLeft === 1 ? 'seat' : 'seats'} left`
-                      : t(SEAT_STATUS_LABEL[slot.status], lang)}
+                    {availabilityText(slot.seatsLeft, lang)}
                   </span>
                 </div>
 

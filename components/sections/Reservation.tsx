@@ -14,7 +14,10 @@ export default function Reservation({ lang }: { lang: Lang }) {
       <div className="mx-auto max-w-[1400px]">
         <Reveal><Eyebrow index="07">{t(UI.eyebrow.reservation, lang)}</Eyebrow></Reveal>
         <Reveal as="h2" delay={80} className="mt-10 font-display text-5xl font-light leading-none text-ink md:text-8xl">
-          {t(UI.onlySixSeats, lang)}
+          {t(UI.reserveYourSeatTitle, lang)}
+        </Reveal>
+        <Reveal delay={40} className="mt-5 max-w-xl text-sm leading-relaxed text-graphite md:text-[0.95rem]">
+          {t(UI.reservationSubtitle, lang)}
         </Reveal>
         <Reveal className="mt-6 text-[0.7rem] uppercase tracking-widest2 text-warmgrey">
           {t(DAY_LABEL.Thursday, lang)} · {t(DAY_LABEL.Friday, lang)} — {t(UI.oneExperiencePerNight, lang)}

@@ -19,8 +19,8 @@ export const BRAND = {
   name: 'SIX WORLDS',
   tagline: L('Un viaje gastronómico privado', 'A private gastronomic journey'),
   concept: L(
-    '6 destinos · 6 platos · 12 vinos · 6 comensales · 4 horas',
-    '6 destinations · 6 dishes · 12 wines · 6 guests · 4 hours',
+    '6 destinos · 6 platos · 12 vinos · 6 plazas · 4 horas',
+    '6 destinations · 6 dishes · 12 wines · 6 seats · 4 hours',
   ),
   lines: [
     L('Seis mundos. Una mesa.', 'Six worlds. One table.'),
@@ -254,15 +254,15 @@ export const WINE_NARRATIVE = {
 }
 
 export const GUESTS_BLOCK = {
-  headline: L('SOLO SEIS COMENSALES', 'ONLY SIX SEATS'),
+  headline: L('SOLO SEIS PLAZAS', 'ONLY SIX SEATS'),
   body: [
-    L('Cada experiencia está pensada para seis personas. Sin grandes mesas, sin servicio a escala.',
-      'Every experience is built for six people. No large tables, no service at scale.'),
+    L('Cada experiencia está pensada para seis plazas. Sin grandes mesas, sin servicio a escala.',
+      'Every experience is built for six seats. No large tables, no service at scale.'),
     L('Lo bastante cerca para que el chef, el equipo y los comensales viajen juntos.',
       'Close enough for the chef, the team and the guests to travel together.'),
   ],
   stats: [
-    { value: '6', label: L('Comensales', 'Guests') },
+    { value: '6', label: L('Plazas', 'Seats') },
     { value: '1', label: L('Mesa', 'Table') },
     { value: '6', label: L('Platos', 'Dishes') },
     { value: '12', label: L('Vinos', 'Wines') },
@@ -324,6 +324,13 @@ export const SEAT_STATUS_LABEL: Record<SeatStatus, Loc> = {
   waitlist: L('Lista de espera', 'Waitlist'),
 }
 
+/** "4 / 6 plazas disponibles" · "0 / 6 — COMPLETO" — always framed as seats, never tables. */
+export function availabilityText(seatsLeft: number, lang: Lang): string {
+  if (seatsLeft <= 0) return lang === 'es' ? '0 / 6 — COMPLETO' : '0 / 6 — FULLY BOOKED'
+  const word = lang === 'es' ? 'plazas disponibles' : 'seats available'
+  return `${seatsLeft} / 6 ${word}`
+}
+
 export const SCARCITY = L(
   'Dos noches por semana. Una mesa. Doce plazas.',
   'Two nights a week. One table. Twelve seats.',
@@ -369,17 +376,18 @@ export const UI = {
     table: L('La mesa', 'The Table'),
   },
   reserve: L('Reservar', 'Reserve'),
-  reserveExperience: L('Reservar la experiencia', 'Reserve the experience'),
+  reserveExperience: L('Reservar una plaza', 'Reserve a seat'),
   reserveSeat: L('Reserva tu plaza', 'Reserve your seat'),
   reserveThisNight: L('Reservar esta noche', 'Reserve this night'),
   enterJourney: L('Entra en el viaje', 'Enter the journey'),
+  oneTableForSix: L('Una única mesa para seis.', 'One single table for six.'),
   joinWaitlist: L('Apúntate a la lista de espera', 'Join the waitlist'),
   eyebrow: {
     journey: L('El viaje', 'The Journey'),
     worlds: L('Los seis mundos', 'The Six Worlds'),
     dishes: L('Seis platos', 'Six Dishes'),
     wines: L('Doce vinos', 'Twelve Wines'),
-    guests: L('Seis comensales', 'Six Guests'),
+    guests: L('Seis plazas', 'Six Seats'),
     night: L('El viaje de cuatro horas', 'The Four-Hour Journey'),
     table: L('La mesa', 'The Table'),
     reservation: L('Reserva', 'Reservation'),
@@ -405,6 +413,11 @@ export const UI = {
   dietary: L('Alergias y restricciones', 'Allergies & restrictions'),
   requestSeat: L('Solicita tu plaza', 'Request your seat'),
   onlySixSeats: L('SOLO SEIS PLAZAS', 'ONLY SIX SEATS'),
+  reserveYourSeatTitle: L('RESERVA TU PLAZA', 'RESERVE YOUR SEAT'),
+  reservationSubtitle: L(
+    'Six Worlds es una experiencia para seis personas alrededor de una única mesa.',
+    'Six Worlds is an experience for six people around a single table.',
+  ),
   oneExperiencePerNight: L('Una experiencia por noche', 'One experience per night'),
   reservationHeadline: L(
     'No reservas una mesa. Ocupas una de seis plazas.',
@@ -413,7 +426,7 @@ export const UI = {
   writeDirectly: L('¿Prefieres escribir directamente?', 'Prefer to write directly?'),
   form: {
     night: L('Noche', 'Night'),
-    guests: L('Comensales', 'Guests'),
+    guests: L('Plazas', 'Seats'),
     name: L('Nombre completo', 'Full name'),
     email: L('Email', 'Email'),
     phone: L('Teléfono', 'Phone'),
@@ -427,6 +440,17 @@ export const UI = {
       lang === 'es'
         ? `${n} ${n === 1 ? 'plaza' : 'plazas'}`
         : `${n} ${n === 1 ? 'seat' : 'seats'} left`,
+    seatOption: (n: number, lang: Lang) =>
+      lang === 'es' ? `${n} ${n === 1 ? 'plaza' : 'plazas'}` : `${n} ${n === 1 ? 'seat' : 'seats'}`,
+    summaryTitle: L('Tu solicitud', 'Your request'),
+    summary: (n: number, dayLabel: string, lang: Lang) =>
+      lang === 'es'
+        ? `${n} ${n === 1 ? 'plaza' : 'plazas'} · ${dayLabel}`
+        : `${n} ${n === 1 ? 'seat' : 'seats'} · ${dayLabel}`,
+    summaryNote: (n: number, lang: Lang) =>
+      lang === 'es'
+        ? `Estás solicitando ${n} ${n === 1 ? 'plaza' : 'plazas'} dentro de una experiencia de seis personas. La experiencia incluye seis platos y doce vinos.`
+        : `You are requesting ${n} ${n === 1 ? 'seat' : 'seats'} within a six-person experience. The experience includes six dishes and twelve wines.`,
   },
   rights: L('Todos los derechos reservados', 'All rights reserved'),
   poweredBy: L('Desarrollado por Ruslan Urbano', 'Powered by Ruslan Urbano'),

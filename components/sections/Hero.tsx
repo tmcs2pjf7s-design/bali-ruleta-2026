@@ -51,12 +51,17 @@ export default function Hero({ lang }: { lang: Lang }) {
           </p>
 
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-            <a
-              href="#reservation"
-              className="border border-paper bg-paper px-5 py-3.5 text-[0.62rem] uppercase tracking-[0.18em] text-ink transition-colors hover:bg-transparent hover:text-paper"
-            >
-              {t(UI.reserveExperience, lang)}
-            </a>
+            <div className="flex flex-col items-start gap-3">
+              <p className="font-display text-base italic text-paper/90 sm:text-lg">
+                {t(UI.oneTableForSix, lang)}
+              </p>
+              <a
+                href="#reservation"
+                className="border border-paper bg-paper px-5 py-3.5 text-[0.62rem] uppercase tracking-[0.18em] text-ink transition-colors hover:bg-transparent hover:text-paper"
+              >
+                {t(UI.reserveExperience, lang)}
+              </a>
+            </div>
             <a
               href="#journey"
               className="group inline-flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.18em] text-paper"
