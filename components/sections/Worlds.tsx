@@ -32,8 +32,11 @@ export default function Worlds({ lang }: { lang: Lang }) {
                     {w.home ? t(UI.theReturn, lang) : t(w.place, lang)}
                   </span>
                   <h3 className="mt-2 font-display text-4xl font-light text-ink md:text-5xl">{w.title}</h3>
-                  <p className="mt-4 max-w-sm text-sm leading-relaxed text-graphite">{t(w.teaser, lang)}</p>
-                  <p className="mt-4 text-[0.58rem] uppercase tracking-[0.2em] text-warmgrey">{t(w.mood, lang)}</p>
+                  <p className="mt-2 font-display text-lg italic text-champ">{t(w.subtitle, lang)}</p>
+                  <p className="mt-5 max-w-sm whitespace-pre-line text-sm leading-relaxed text-graphite">
+                    {t(w.verse, lang)}
+                  </p>
+                  <p className="mt-5 max-w-sm text-sm font-semibold text-ink">{t(w.teaser, lang)}</p>
                 </div>
 
                 {/* media column */}

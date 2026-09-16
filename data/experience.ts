@@ -61,6 +61,11 @@ export interface World {
   roman: string
   place: Loc
   title: string // brand name — not translated
+  /** Italic chapter subtitle, e.g. "La Penumbra". */
+  subtitle: Loc
+  /** Short evocative verse — lines joined with \n, rendered with line breaks. */
+  verse: Loc
+  /** Bold closing line for the chapter. */
   teaser: Loc
   concept: Loc
   inspiration: Loc[]
@@ -78,10 +83,12 @@ export const WORLDS: World[] = [
     roman: 'I',
     place: L('Bali', 'Bali'),
     title: 'BALI NOIR',
-    teaser: L(
-      'Pato marinado en vino y especias balinesas. Oscuro, preciso, contenido.',
-      'Duck marinated in wine and Balinese spice. Dark, precise, restrained.',
+    subtitle: L('La Penumbra', 'The Half-Light'),
+    verse: L(
+      'Selva húmeda, especias oscuras y humo en el aire.\nUn mundo de contrastes, donde la intensidad convive con la delicadeza.\nNoche, perfume y fuego.',
+      'Humid jungle, dark spice and smoke in the air.\nA world of contrasts, where intensity sits beside delicacy.\nNight, perfume and fire.',
     ),
+    teaser: L('Oscuro, preciso, contenido.', 'Dark, precise, restrained.'),
     concept: L(
       'El viaje abre en penumbra. Pato marinado en vino tinto sobre una base de especias balinesas, terminado con una reducción oscura y hierbas frescas. Una composición pequeña en un plato negro grande — precisión, no abundancia.',
       'The journey opens in shadow. Duck marinated in red wine over a base of Balinese spice, finished with a dark reduction and fresh herbs. A small composition on a large black plate — precision, not abundance.',
@@ -100,6 +107,11 @@ export const WORLDS: World[] = [
     roman: 'II',
     place: L('Australia', 'Australia'),
     title: 'RED EARTH',
+    subtitle: L('El Territorio', 'The Territory'),
+    verse: L(
+      'Tierra roja hasta el horizonte.\nEl calor de la tierra y la llama abierta.\nUn paisaje antiguo, inmenso y salvaje, donde el fuego marca el origen.',
+      'Red earth to the horizon.\nThe heat of the ground and the open flame.\nAn ancient, vast, wild landscape, where fire marks the origin.',
+    ),
     teaser: L('Tierra roja, llama abierta, naturaleza salvaje.', 'Red earth, open flame, native wild.'),
     concept: L(
       'Un plato construido desde la tierra roja y el fuego. Humo, brasa y botánicos autóctonos — algo crudo, bajo control. TODO: ingredientes definitivos.',
@@ -118,6 +130,11 @@ export const WORLDS: World[] = [
     roman: 'III',
     place: L('Cabo Verde', 'Cape Verde'),
     title: 'ATLANTIC WIND',
+    subtitle: L('La Deriva', 'The Drift'),
+    verse: L(
+      'Piedra negra, sal en la piel y océano abierto.\nIslas nacidas del volcán, suspendidas en medio del Atlántico.\nUn mundo moldeado por el viento, el mar y la distancia.',
+      'Black stone, salt on the skin, open ocean.\nIslands born of the volcano, suspended in the middle of the Atlantic.\nA world shaped by wind, sea and distance.',
+    ),
     teaser: L(
       'El Atlántico, una costa volcánica, el viento de las islas.',
       'The Atlantic, a volcanic coast, the wind off the islands.',
@@ -139,6 +156,11 @@ export const WORLDS: World[] = [
     roman: 'IV',
     place: L('Sudamérica', 'South America'),
     title: 'PACIFIC / AMAZONIA',
+    subtitle: L('La Confluencia', 'The Confluence'),
+    verse: L(
+      'La inmensidad del Pacífico frente a la densidad del Amazonas.\nAgua, selva, raíces, frutos y una naturaleza que lo invade todo.\nDos mundos que se encuentran en un mismo territorio.',
+      'The immensity of the Pacific against the density of the Amazon.\nWater, jungle, roots, fruit and a nature that overtakes everything.\nTwo worlds meeting on the same ground.',
+    ),
     teaser: L('Donde el Pacífico se encuentra con la densidad del Amazonas.', 'Where the Pacific meets the density of the Amazon.'),
     concept: L(
       'Dos fuerzas en un plato: la claridad fría del Pacífico y la abundancia húmeda del Amazonas. Acidez contra picante, en equilibrio. TODO: ingredientes definitivos.',
@@ -157,6 +179,11 @@ export const WORLDS: World[] = [
     roman: 'V',
     place: L('Portugal', 'Portugal'),
     title: 'THE LAST LIGHT',
+    subtitle: L('La Luz que Queda', 'The Light That Remains'),
+    verse: L(
+      'La luz cae lentamente sobre el Atlántico.\nPiedra, madera, humo, vino y memoria.\nEl fuego permanece mientras el día comienza a desaparecer.',
+      'The light falls slowly over the Atlantic.\nStone, wood, smoke, wine and memory.\nThe fire remains as the day begins to disappear.',
+    ),
     teaser: L(
       'Tradición atlántica, fuego y una melancolía portuguesa.',
       'Atlantic tradition, fire, and a Portuguese kind of melancholy.',
@@ -178,6 +205,11 @@ export const WORLDS: World[] = [
     roman: 'VI',
     place: L('España', 'Spain'),
     title: 'HOME',
+    subtitle: L('Casa', 'Coming Home'),
+    verse: L(
+      'Después de recorrer el mundo, llega el momento de volver.\nUn lugar conocido. Una memoria. Una mesa.\nEl viaje cambia de dirección.',
+      'After crossing the world, the moment comes to return.\nA familiar place. A memory. A table.\nThe journey changes direction.',
+    ),
     teaser: L('El viaje termina donde empezó.', 'The journey ends where it began.'),
     concept: L(
       'No es otro destino. El último capítulo es un regreso — a la identidad, a la memoria, a la mesa donde empezó el viaje.',
