@@ -100,7 +100,7 @@ export const WORLDS: World[] = [
     ],
     mood: L('especias · calor · exotismo · elegancia', 'spice · heat · the exotic · elegance'),
     tone: { media: '#e6ddcb', accent: '#2c2823' },
-    image: null,
+    image: '/plato-01.jpg',
   },
   {
     act: 2,
@@ -123,7 +123,7 @@ export const WORLDS: World[] = [
     ],
     mood: L('tierra · fuego · naturaleza', 'earth · fire · nature'),
     tone: { media: '#e2caae', accent: '#9a5f38' },
-    image: null,
+    image: '/plato-02.jpg',
   },
   {
     act: 3,
@@ -149,7 +149,7 @@ export const WORLDS: World[] = [
     ],
     mood: L('océano · sal · viento · volcán', 'ocean · salt · wind · volcano'),
     tone: { media: '#d6dcd9', accent: '#5c777f' },
-    image: null,
+    image: '/plato-03.jpg',
   },
   {
     act: 4,
@@ -172,7 +172,7 @@ export const WORLDS: World[] = [
     ],
     mood: L('frescura · acidez · energía', 'freshness · acidity · energy'),
     tone: { media: '#d7ddc8', accent: '#5c7047' },
-    image: null,
+    image: '/plato-04.jpg',
   },
   {
     act: 5,
@@ -198,7 +198,7 @@ export const WORLDS: World[] = [
     ],
     mood: L('Atlántico · tradición · memoria', 'Atlantic · tradition · memory'),
     tone: { media: '#e6d7b9', accent: '#94743f' },
-    image: null,
+    image: '/plato-05.jpg',
   },
   {
     act: 6,
@@ -221,7 +221,7 @@ export const WORLDS: World[] = [
     mood: L('regreso · identidad · hogar', 'return · identity · home'),
     tone: { media: '#f0e7d5', accent: '#8a7350' },
     home: true,
-    image: null,
+    image: '/plato-06.jpg',
   },
 ]
 
