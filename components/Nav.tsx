@@ -7,7 +7,6 @@ import { UI, t, type Lang } from '@/data/experience'
 const LINKS = [
   { href: '#journey', label: UI.nav.journey },
   { href: '#worlds', label: UI.nav.worlds },
-  { href: '#dishes', label: UI.nav.dishes },
   { href: '#wines', label: UI.nav.wines },
   { href: '#table', label: UI.nav.table },
 ]

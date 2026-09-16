@@ -5,7 +5,6 @@ import Hero from '@/components/sections/Hero'
 import Intro from '@/components/sections/Intro'
 import Worlds from '@/components/sections/Worlds'
 import Film from '@/components/sections/Film'
-import Dishes from '@/components/sections/Dishes'
 import Wines from '@/components/sections/Wines'
 import Guests from '@/components/sections/Guests'
 import TheNight from '@/components/sections/TheNight'
@@ -23,7 +22,6 @@ export default function SixWorlds({ lang }: { lang: Lang }) {
         <Intro lang={lang} />
         <Worlds lang={lang} />
         <Film lang={lang} />
-        <Dishes lang={lang} />
         <Wines lang={lang} />
         <Guests lang={lang} />
         <TheNight lang={lang} />

@@ -6,7 +6,7 @@ export default function Guests({ lang }: { lang: Lang }) {
   return (
     <section id="guests" className="scroll-mt-24 border-t border-line px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <Reveal><Eyebrow index="05">{t(UI.eyebrow.guests, lang)}</Eyebrow></Reveal>
+        <Reveal><Eyebrow index="04">{t(UI.eyebrow.guests, lang)}</Eyebrow></Reveal>
 
         <Reveal as="h2" delay={80} className="mt-10 font-display text-5xl font-light leading-none text-ink md:text-8xl">
           {t(GUESTS_BLOCK.headline, lang)}

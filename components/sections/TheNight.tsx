@@ -6,7 +6,7 @@ export default function TheNight({ lang }: { lang: Lang }) {
   return (
     <section id="night" className="scroll-mt-24 border-t border-line px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <Reveal><Eyebrow index="06">{t(UI.eyebrow.night, lang)}</Eyebrow></Reveal>
+        <Reveal><Eyebrow index="05">{t(UI.eyebrow.night, lang)}</Eyebrow></Reveal>
         <Reveal as="h2" delay={80} className="mt-10 max-w-3xl font-display text-3xl font-light leading-tight text-ink md:text-5xl">
           {t(UI.nightHeadline, lang)}
         </Reveal>

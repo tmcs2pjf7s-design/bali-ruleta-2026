@@ -12,7 +12,7 @@ export default function Reservation({ lang }: { lang: Lang }) {
   return (
     <section id="reservation" className="scroll-mt-24 border-t border-line bg-stone px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <Reveal><Eyebrow index="08">{t(UI.eyebrow.reservation, lang)}</Eyebrow></Reveal>
+        <Reveal><Eyebrow index="07">{t(UI.eyebrow.reservation, lang)}</Eyebrow></Reveal>
         <Reveal as="h2" delay={80} className="mt-10 font-display text-5xl font-light leading-none text-ink md:text-8xl">
           {t(UI.onlySixSeats, lang)}
         </Reveal>

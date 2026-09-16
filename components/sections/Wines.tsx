@@ -6,7 +6,7 @@ export default function Wines({ lang }: { lang: Lang }) {
   return (
     <section id="wines" className="scroll-mt-24 border-t border-line px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <Reveal><Eyebrow index="04">{t(UI.eyebrow.wines, lang)}</Eyebrow></Reveal>
+        <Reveal><Eyebrow index="03">{t(UI.eyebrow.wines, lang)}</Eyebrow></Reveal>
 
         <Reveal as="h2" delay={80} className="mt-10 font-display text-4xl font-light leading-[1.05] text-ink md:text-7xl">
           {t(WINE_NARRATIVE.headline, lang)}

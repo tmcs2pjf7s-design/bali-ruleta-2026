@@ -15,7 +15,7 @@ export default function TheTable({ lang }: { lang: Lang }) {
   return (
     <section id="table" className="scroll-mt-24 border-t border-line px-5 py-24 md:px-10 md:py-40">
       <div className="mx-auto max-w-[1400px]">
-        <Reveal><Eyebrow index="07">{t(UI.eyebrow.table, lang)}</Eyebrow></Reveal>
+        <Reveal><Eyebrow index="06">{t(UI.eyebrow.table, lang)}</Eyebrow></Reveal>
 
         <Reveal as="h2" delay={80} className="mt-10 font-display text-4xl font-light leading-none text-ink md:text-7xl">
           {t(DAY_LABEL.Thursday, lang)} <span className="text-champ">·</span> {t(DAY_LABEL.Friday, lang)}
