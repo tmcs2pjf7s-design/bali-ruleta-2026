@@ -1,15 +1,7 @@
+import Image from 'next/image'
 import Reveal from '@/components/Reveal'
 import Eyebrow from '@/components/Eyebrow'
-import {
-  AVAILABILITY, DAY_LABEL, SCARCITY, availabilityText, UI, t, type Lang,
-} from '@/data/experience'
-
-const statusColor: Record<string, string> = {
-  available: 'text-champ',
-  limited: 'text-ink',
-  full: 'text-warmgrey',
-  waitlist: 'text-warmgrey',
-}
+import { DAY_LABEL, SCARCITY, THE_TABLE_STORY, UI, t, type Lang } from '@/data/experience'
 
 export default function TheTable({ lang }: { lang: Lang }) {
   return (
@@ -27,40 +19,29 @@ export default function TheTable({ lang }: { lang: Lang }) {
           {t(SCARCITY, lang)}
         </Reveal>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2 md:gap-8">
-          {AVAILABILITY.map(slot => {
-            const soldOut = slot.status === 'full'
-            return (
-              <Reveal key={slot.day} className="flex flex-col gap-6 border border-line bg-ivory p-8 md:p-10">
-                <div className="flex items-start justify-between">
-                  <span className="font-display text-3xl font-light text-ink md:text-4xl">
-                    {t(DAY_LABEL[slot.day], lang)}
-                  </span>
-                  <span className={`text-[0.62rem] uppercase tracking-widest2 ${statusColor[slot.status]}`}>
-                    {availabilityText(slot.seatsLeft, lang)}
-                  </span>
-                </div>
+        <div className="mt-16 grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
+          <Reveal className="relative aspect-[4/5] overflow-hidden md:aspect-[3/4]">
+            <Image
+              src={THE_TABLE_STORY.image}
+              alt=""
+              fill
+              loading="lazy"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+            <span className="pointer-events-none absolute inset-0 border border-ink/[0.08]" />
+          </Reveal>
 
-                <div className="flex gap-1.5">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <span key={i} className={`h-1 flex-1 ${i < slot.seatsLeft ? 'bg-champ' : 'bg-line'}`} />
-                  ))}
-                </div>
-
-                <a
-                  href="#reservation"
-                  aria-disabled={soldOut}
-                  className={`mt-1 inline-block border px-6 py-3.5 text-center text-[0.62rem] uppercase tracking-widest2 transition-colors ${
-                    soldOut
-                      ? 'pointer-events-none border-line text-warmgrey'
-                      : 'border-ink text-ink hover:bg-ink hover:text-paper'
-                  }`}
-                >
-                  {soldOut ? t(UI.joinWaitlist, lang) : t(UI.reserveThisNight, lang)}
-                </a>
-              </Reveal>
-            )
-          })}
+          <Reveal delay={100} className="space-y-5">
+            {THE_TABLE_STORY.body.map(p => (
+              <p key={p.en} className="text-sm leading-relaxed text-graphite md:text-[0.95rem]">
+                {t(p, lang)}
+              </p>
+            ))}
+            <p className="border-l border-champ/50 pl-4 font-display text-lg italic text-graphite">
+              {t(THE_TABLE_STORY.closing, lang)}
+            </p>
+          </Reveal>
         </div>
       </div>
     </section>

@@ -336,6 +336,24 @@ export const SCARCITY = L(
   'Two nights a week. One table. Twelve seats.',
 )
 
+export const THE_TABLE_STORY = {
+  image: '/la-mesa.jpg',
+  body: [
+    L(
+      'Una única mesa para seis personas, concebida como el centro de toda la experiencia.',
+      'A single table for six, conceived as the centre of the whole experience.',
+    ),
+    L(
+      'Un espacio íntimo y abierto, donde cada comensal forma parte del mismo viaje. La mesa se convierte en el escenario donde suceden los seis mundos, los seis platos y los doce vinos.',
+      'An intimate, open space, where every guest is part of the same journey. The table becomes the stage where the six worlds, the six dishes and the twelve wines take place.',
+    ),
+  ],
+  closing: L(
+    'No es solo donde se come. Es donde comienza el viaje.',
+    "It isn't just where you eat. It's where the journey begins.",
+  ),
+}
+
 export const RESERVATION = {
   pricePerPerson: 0, // TODO: set price in EUR; 0 renders a placeholder
   currency: '€',
