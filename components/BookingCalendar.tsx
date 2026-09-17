@@ -139,8 +139,6 @@ export default function BookingCalendar({
           )
         })}
       </div>
-
-      <p className="mt-4 text-[0.68rem] leading-relaxed text-warmgrey">{t(UI.calendar.helper, lang)}</p>
     </div>
   )
 }
