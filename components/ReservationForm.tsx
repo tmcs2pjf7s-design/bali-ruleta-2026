@@ -1,12 +1,25 @@
 'use client'
 
 import { useState } from 'react'
-import { AVAILABILITY, BRAND, DAY_LABEL, SEAT_STATUS_LABEL, UI, t, type Lang } from '@/data/experience'
+import { BRAND, UI, t, type Lang } from '@/data/experience'
+import BookingCalendar, { firstAvailableDate } from './BookingCalendar'
 
-const bookable = AVAILABILITY.filter(s => s.status !== 'full')
+function pad(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+function formatDate(d: Date, lang: Lang): string {
+  const locale = lang === 'es' ? 'es-ES' : 'en-GB'
+  const text = d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
 
 export default function ReservationForm({ lang }: { lang: Lang }) {
-  const [night, setNight] = useState<string>(bookable[0]?.day ?? 'Thursday')
+  const [date, setDate] = useState<Date>(firstAvailableDate)
   const [guests, setGuests] = useState('2')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -14,13 +27,13 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
   const [dietary, setDietary] = useState('')
 
   const seatCount = Number(guests) || 1
-  const dayLabel = t(DAY_LABEL[night as 'Thursday' | 'Friday'], lang)
+  const dateLabel = formatDate(date, lang)
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const isEs = lang === 'es'
     const body = [
-      `${isEs ? 'Noche' : 'Night'}: ${night}`,
+      `${isEs ? 'Fecha' : 'Date'}: ${dateLabel} (${isoDate(date)})`,
       `${isEs ? 'Plazas' : 'Seats'}: ${guests}`,
       `${isEs ? 'Nombre' : 'Name'}: ${name}`,
       `Email: ${email}`,
@@ -32,7 +45,7 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
     window.location.href = `mailto:${BRAND.email}?subject=${encodeURIComponent(
       `SIX WORLDS — ${isEs ? 'solicitud de reserva' : 'reservation request'} · ${guests} ${
         isEs ? (seatCount === 1 ? 'plaza' : 'plazas') : seatCount === 1 ? 'seat' : 'seats'
-      } (${night})`,
+      } (${isoDate(date)})`,
     )}&body=${encodeURIComponent(body)}`
   }
 
@@ -42,38 +55,26 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
 
   return (
     <form onSubmit={submit} className="space-y-8">
-      <div className="grid gap-8 sm:grid-cols-2">
-        <div>
-          <label className={label} htmlFor="r-night">{t(UI.form.night, lang)}</label>
-          <select
-            id="r-night"
-            value={night}
-            onChange={e => setNight(e.target.value)}
-            className={`${field} appearance-none`}
-          >
-            {bookable.map(s => (
-              <option key={s.day} value={s.day} className="bg-paper text-ink">
-                {t(DAY_LABEL[s.day], lang)} — {t(SEAT_STATUS_LABEL[s.status], lang)}
-                {s.status === 'limited' ? ` (${s.seatsLeft})` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={label} htmlFor="r-guests">{t(UI.form.guests, lang)}</label>
-          <select
-            id="r-guests"
-            value={guests}
-            onChange={e => setGuests(e.target.value)}
-            className={`${field} appearance-none`}
-          >
-            {['1', '2', '3', '4', '5', '6'].map(n => (
-              <option key={n} value={n} className="bg-paper text-ink">
-                {UI.form.seatOption(Number(n), lang)}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <label className={`${label} mb-2`}>{t(UI.form.date, lang)}</label>
+        <BookingCalendar lang={lang} value={date} onChange={setDate} />
+        <p className="mt-3 font-display text-lg font-light text-ink">{dateLabel}</p>
+      </div>
+
+      <div>
+        <label className={label} htmlFor="r-guests">{t(UI.form.guests, lang)}</label>
+        <select
+          id="r-guests"
+          value={guests}
+          onChange={e => setGuests(e.target.value)}
+          className={`${field} appearance-none`}
+        >
+          {['1', '2', '3', '4', '5', '6'].map(n => (
+            <option key={n} value={n} className="bg-paper text-ink">
+              {UI.form.seatOption(Number(n), lang)}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid gap-8 sm:grid-cols-2">
@@ -107,7 +108,7 @@ export default function ReservationForm({ lang }: { lang: Lang }) {
       <div className="border border-line bg-stone/50 p-5">
         <p className="text-[0.6rem] uppercase tracking-widest2 text-warmgrey">{t(UI.form.summaryTitle, lang)}</p>
         <p className="mt-2 font-display text-xl font-light text-ink">
-          {UI.form.summary(seatCount, dayLabel, lang)}
+          {UI.form.summary(seatCount, dateLabel, lang)}
         </p>
         <p className="mt-2 text-[0.78rem] leading-relaxed text-graphite">
           {UI.form.summaryNote(seatCount, lang)}

@@ -354,6 +354,15 @@ export const THE_TABLE_STORY = {
   ),
 }
 
+/**
+ * Booking window. Nothing is bookable before `firstAvailable`; from then on,
+ * only the given weekdays (Date#getDay(): 0=Sun … 6=Sat) run a service.
+ */
+export const BOOKING = {
+  firstAvailable: { year: 2026, month: 10, day: 23 }, // Friday 23 October 2026
+  weekdays: [4, 5], // Thursday, Friday
+}
+
 export const RESERVATION = {
   pricePerPerson: 0, // TODO: set price in EUR; 0 renders a placeholder
   currency: '€',
@@ -443,6 +452,7 @@ export const UI = {
   ),
   writeDirectly: L('¿Prefieres escribir directamente?', 'Prefer to write directly?'),
   form: {
+    date: L('Fecha', 'Date'),
     night: L('Noche', 'Night'),
     guests: L('Plazas', 'Seats'),
     name: L('Nombre completo', 'Full name'),
@@ -469,6 +479,15 @@ export const UI = {
       lang === 'es'
         ? `Estás solicitando ${n} ${n === 1 ? 'plaza' : 'plazas'} dentro de una experiencia de seis personas. La experiencia incluye seis platos y doce vinos.`
         : `You are requesting ${n} ${n === 1 ? 'seat' : 'seats'} within a six-person experience. The experience includes six dishes and twelve wines.`,
+  },
+  calendar: {
+    full: L('Completo', 'Full'),
+    prevMonth: L('Mes anterior', 'Previous month'),
+    nextMonth: L('Mes siguiente', 'Next month'),
+    helper: L(
+      'Solo jueves y viernes. Antes del 23 de octubre de 2026, completo.',
+      'Thursdays and Fridays only. Before 23 October 2026, fully booked.',
+    ),
   },
   rights: L('Todos los derechos reservados', 'All rights reserved'),
   poweredBy: L('Desarrollado por Ruslan Urbano', 'Powered by Ruslan Urbano'),
