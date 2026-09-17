@@ -1,10 +1,20 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { BOOKING, UI, t, type Lang } from '@/data/experience'
+import { BOOKING, FULLY_BOOKED_DATES, UI, t, type Lang } from '@/data/experience'
 
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+/** 'YYYY-MM-DD' in local time — matches the strings in FULLY_BOOKED_DATES. */
+function dateKey(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+function isBookableDate(d: Date): boolean {
+  return BOOKING.weekdays.includes(d.getDay()) && d.getTime() >= firstAvailableDate().getTime() && !FULLY_BOOKED_DATES.includes(dateKey(d))
 }
 
 function addMonths(d: Date, n: number): Date {
@@ -36,6 +46,16 @@ function buildMonthGrid(monthDate: Date): (Date | null)[][] {
 export function firstAvailableDate(): Date {
   const { year, month, day } = BOOKING.firstAvailable
   return new Date(year, month - 1, day)
+}
+
+/** The earliest date that's actually bookable — skips any date closed via FULLY_BOOKED_DATES. */
+export function nextAvailableDate(): Date {
+  const d = new Date(firstAvailableDate())
+  for (let i = 0; i < 365 * 2; i++) {
+    if (isBookableDate(d)) return new Date(d)
+    d.setDate(d.getDate() + 1)
+  }
+  return firstAvailableDate()
 }
 
 export default function BookingCalendar({
@@ -110,9 +130,8 @@ export default function BookingCalendar({
         {weeks.flat().map((date, i) => {
           if (!date) return <span key={i} aria-hidden />
 
-          const weekday = date.getDay()
-          const isServiceNight = BOOKING.weekdays.includes(weekday)
-          const isBookable = isServiceNight && date.getTime() >= firstAvailable.getTime()
+          const isServiceNight = BOOKING.weekdays.includes(date.getDay())
+          const isBookable = isBookableDate(date)
           const isSelected = sameDay(date, value)
 
           return (

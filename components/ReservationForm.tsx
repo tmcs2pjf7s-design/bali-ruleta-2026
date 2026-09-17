@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { BRAND, UI, t, type Lang } from '@/data/experience'
-import BookingCalendar, { firstAvailableDate } from './BookingCalendar'
+import BookingCalendar, { nextAvailableDate } from './BookingCalendar'
 
 function pad(n: number): string {
   return String(n).padStart(2, '0')
@@ -19,7 +19,7 @@ function formatDate(d: Date, lang: Lang): string {
 }
 
 export default function ReservationForm({ lang }: { lang: Lang }) {
-  const [date, setDate] = useState<Date>(firstAvailableDate)
+  const [date, setDate] = useState<Date>(nextAvailableDate)
   const [guests, setGuests] = useState('2')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

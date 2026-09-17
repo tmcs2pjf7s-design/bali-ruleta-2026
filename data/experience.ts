@@ -363,6 +363,15 @@ export const BOOKING = {
   weekdays: [4, 5], // Thursday, Friday
 }
 
+/**
+ * Manually close a date once its 6 seats are gone: add its 'YYYY-MM-DD' here
+ * and push. The calendar will grey it out and mark it "Completo" straight
+ * away — no other change needed. Remove the line to reopen it.
+ */
+export const FULLY_BOOKED_DATES: string[] = [
+  // '2026-10-23',
+]
+
 export const RESERVATION = {
   pricePerPerson: 0, // TODO: set price in EUR; 0 renders a placeholder
   currency: '€',
